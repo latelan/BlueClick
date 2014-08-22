@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <netinet/in.h>
@@ -36,12 +37,26 @@ struct userinfo users[] = {
 };
 int find_name(const char *name)
 {
+	int i;
+	if(name == NULL) {
+		printf("in find_name, NULL pointer\n");
+		return -2;
+	}
+	for(i=0;users[i].username != ' ';i++) {
+		if(strcmp(users[i].username,name) == 0) {
+			return i;
+		}
+	}
 
+	return -1;
 }
 void send_data(int conn_fd, const char *string)
 {
-
+	if(send(conn_fd, string, strlen(string),0) < 0) {
+		my_err("send",__LINE__);
+	}
 }
+
 int main()
 {
 	int	sock_fd, conn_fd;
@@ -124,10 +139,11 @@ int main()
 						send_data(conn_fd,"n\n");
 					}
 				}
-				close(sock_fd);
-				close(conn_fd);
-				exit(0);
 			}
+			close(sock_fd);
+			close(conn_fd);
+			exit(0);
+
 		} else {
 			close(conn_fd);
 		}
