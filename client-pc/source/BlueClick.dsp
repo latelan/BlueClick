@@ -40,10 +40,9 @@ RSC=rc.exe
 # PROP Use_Debug_Libraries 0
 # PROP Output_Dir "Release"
 # PROP Intermediate_Dir "Release"
-# PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MD /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_AFXDLL" /Yu"stdafx.h" /FD /c
-# ADD CPP /nologo /MD /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /FR /Yu"stdafx.h" /FD /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /Yu"stdafx.h" /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x804 /d "NDEBUG" /d "_AFXDLL"
@@ -53,8 +52,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /machine:I386
-# ADD LINK32 /nologo /subsystem:windows /machine:I386 /IGNORE:4089
-# SUBTRACT LINK32 /pdb:none
+# ADD LINK32 /nologo /subsystem:windows /machine:I386
 
 !ELSEIF  "$(CFG)" == "BlueClick - Win32 Debug"
 
@@ -63,23 +61,25 @@ LINK32=link.exe
 # PROP BASE Output_Dir "Debug"
 # PROP BASE Intermediate_Dir "Debug"
 # PROP BASE Target_Dir ""
-# PROP Use_MFC 6
+# PROP Use_MFC 5
 # PROP Use_Debug_Libraries 1
 # PROP Output_Dir "Debug"
 # PROP Intermediate_Dir "Debug"
+# PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_AFXDLL" /Yu"stdafx.h" /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /Yu"stdafx.h" /FD /GZ /c
+# ADD CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /FR /FD /GZ /c
+# SUBTRACT CPP /YX /Yc /Yu
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x804 /d "_DEBUG" /d "_AFXDLL"
-# ADD RSC /l 0x804 /d "_DEBUG" /d "_AFXDLL"
+# ADD RSC /l 0x804 /d "_DEBUG"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
+# ADD LINK32 netapi32.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
 
 !ENDIF 
 
@@ -108,10 +108,6 @@ SOURCE=.\BlueClickDlg.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\BmpPicture.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\BuffreeHeaderCtrl.cpp
 # End Source File
 # Begin Source File
@@ -120,8 +116,52 @@ SOURCE=.\BuffreeListCtrl.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\BuffreeMessageBox.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\BuffreeTreeCtrl.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\DlgDownloadList.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\DlgResourceList.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\DlgSplash.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\DlgUploadList.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\DownloadSocket.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\IndexSocket.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Json.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ListenSocket.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\StdAfx.cpp
 # ADD CPP /Yc"stdafx.h"
+# End Source File
+# Begin Source File
+
+SOURCE=.\UdpSocket.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -141,10 +181,6 @@ SOURCE=.\BlueClickDlg.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\bmpPicture.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\BuffreeHeaderCtrl.h
 # End Source File
 # Begin Source File
@@ -153,11 +189,55 @@ SOURCE=.\BuffreeListCtrl.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\BuffreeMessageBox.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\BuffreeTreeCtrl.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\DlgDownloadList.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\DlgResourceList.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\DlgSplash.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\DlgUploadList.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\DownloadSocket.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\IndexSocket.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Json.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ListenSocket.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Resource.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\StdAfx.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\UdpSocket.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
@@ -170,10 +250,6 @@ SOURCE=.\res\BlueClick.ico
 # Begin Source File
 
 SOURCE=.\res\BlueClick.rc2
-# End Source File
-# Begin Source File
-
-SOURCE=.\resource\logo.ico
 # End Source File
 # End Group
 # Begin Source File

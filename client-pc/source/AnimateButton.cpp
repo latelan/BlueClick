@@ -397,7 +397,7 @@ void CAnimateButton::OnLButtonUp(UINT nFlags, CPoint point)
 	// TODO: Add your message handler code here and/or call defaults
 	if (m_aniBtnState == STATE_PRESSED) {
 		m_nTrans = 0;
-		m_aniBtnState = STATE_NORMAL;	//Hover状态图
+		m_aniBtnState = STATE_HOVERED;	//Hover状态图
 		SetTimer(ID_TIMER, TIMER_ELAPSE, NULL);
 	}
 
@@ -460,7 +460,7 @@ void CAnimateButton::OnKillFocus(CWnd* pNewWnd)
 	KillTimer(ID_TIMER);//让还未画完的之前状态的状态图停止绘制
 
 	CDC* pDC = GetDC();
-	::TransparentBlt(pDC->m_hDC, 0, 0, m_aniBtnWidth, m_aniBtnHeight, m_pMemDC->m_hDC, 
+	::TransparentBlt(*pDC, 0, 0, m_aniBtnWidth, m_aniBtnHeight, *m_pMemDC, 
 		0, 0, m_aniBtnWidth, m_aniBtnHeight, m_clrTrans);
 
 	ReleaseDC(pDC);
@@ -483,6 +483,7 @@ void CAnimateButton::AlphaBitmap(int nItem)
 	//把按钮下的背景拷贝过来
 	TmpDC.BitBlt(0, 0, m_aniBtnWidth, m_aniBtnHeight, pDC, 0, 0, SRCCOPY);
 	//把内存DC中的图像透明地画出来
+
 	AlphaBlend(TmpDC.m_hDC, 0, 0, m_aniBtnWidth, m_aniBtnHeight, m_pMemDC->m_hDC,
 		 nItem * m_aniBtnWidth, 0, m_aniBtnWidth, m_aniBtnHeight, m_bf);
 

@@ -4,7 +4,7 @@
 #include "stdafx.h"
 #include "BlueClick.h"
 #include "BlueClickDlg.h"
-
+#include "DlgSplash.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -60,29 +60,39 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CBlueClickDlg dialog
 
-int CBlueClickDlg::m_width = 780;
-int CBlueClickDlg::m_height = 550;
-
 CBlueClickDlg::CBlueClickDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CBlueClickDlg::IDD, pParent)
 {
 	//{{AFX_DATA_INIT(CBlueClickDlg)
+	m_width = 780;
+	m_height = 550;
+	m_listItemHeight = 50;
+	m_clientConnectNum = 0;
+	m_ServerIP = "192.168.0.115";
+	m_ServerPort = 7788;
+	m_themePath = "./resource/theme/";
+	m_csKeyword = _T("");
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
-	m_listItemHeight = 30;
 }
 
 void CBlueClickDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CBlueClickDlg)
-	DDX_Control(pDX, IDC_TREE_DOWNLOAD, m_treeDownload);
-	DDX_Control(pDX, IDC_LIST_RESOURCE, m_listResource);
-	DDX_Control(pDX, IDC_THEME_BUTTON, m_btnTheme);
-	DDX_Control(pDX, IDC_CANCEL_BUTTON, m_btnCancel);
-	DDX_Control(pDX, IDC_MIN_BUTTON, m_btnMin);
-	DDX_Control(pDX, IDC_MENU_BUTTON, m_btnMenu);
+	DDX_Control(pDX, IDC_EDIT_SEARCH, m_editSearch);
+	DDX_Control(pDX, IDC_BUTTON_SEARCH, m_btnSearch);
+	DDX_Control(pDX, IDC_STATIC_TAB, m_staticListTab);
+	DDX_Control(pDX, IDC_TREE_IDC_TREE_DOWNLOAD, m_treeDownload);
+	DDX_Control(pDX, IDC_BUTTON_UPLOAD_LIST_TAB, m_btnUploadListTab);
+	DDX_Control(pDX, IDC_BUTTON_THEME, m_btnTheme);
+	DDX_Control(pDX, IDC_BUTTON_RESOURCE_LIST_TAB, m_btnResourceListTab);
+	DDX_Control(pDX, IDC_BUTTON_MIN, m_btnMin);
+	DDX_Control(pDX, IDC_BUTTON_MENU, m_btnSysMenu);
+	DDX_Control(pDX, IDC_BUTTON_DOWNLOAD_LIST_TAB, m_btnDownloadListTab);
+	DDX_Control(pDX, IDC_BUTTON_CANCEL, m_btnCancel);
+	DDX_Text(pDX, IDC_EDIT_SEARCH, m_csKeyword);
 	//}}AFX_DATA_MAP
 }
 
@@ -91,12 +101,19 @@ BEGIN_MESSAGE_MAP(CBlueClickDlg, CDialog)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(IDC_BUTTON_CANCEL, OnButtonCancel)
+	ON_BN_CLICKED(IDC_BUTTON_MIN, OnButtonMin)
+	ON_BN_CLICKED(IDC_BUTTON_MENU, OnButtonMenu)
+	ON_BN_CLICKED(IDC_BUTTON_THEME, OnButtonTheme)
+	ON_BN_CLICKED(IDC_BUTTON_RESOURCE_LIST_TAB, OnButtonResourceListTab)
+	ON_BN_CLICKED(IDC_BUTTON_DOWNLOAD_LIST_TAB, OnButtonDownloadListTab)
+	ON_BN_CLICKED(IDC_BUTTON_UPLOAD_LIST_TAB, OnButtonUploadListTab)
+	ON_WM_ERASEBKGND()
 	ON_WM_NCHITTEST()
-	ON_MESSAGE(WM_MEASUREITEM, OnMeasureItem)
-	ON_BN_CLICKED(IDC_BUTTON_INSERT, OnInsert)
 	ON_MESSAGE(WM_SHOWTASK,OnShowTask)
-	ON_BN_CLICKED(IDC_CANCEL_BUTTON, OnCancel)
-	ON_BN_CLICKED(IDC_MIN_BUTTON, OnMin)
+	ON_COMMAND(ID_MENUITEM_SYSTEM_SETTING, OnMenuitemSystemSetting)
+	ON_COMMAND(ID_MENUITEM_ABOUT_US, OnMenuitemAboutUs)
+	ON_COMMAND(ID_MENUITEM_QUIT_PROG, OnMenuitemQuitProg)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -129,59 +146,141 @@ BOOL CBlueClickDlg::OnInitDialog()
 	//  when the application's main window is not a dialog
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
-
+	
 	// TODO: Add extra initialization here
+	CDlgSplash dlgSplash(this);
+	if (dlgSplash.DoModal() != IDOK) {
+		CDialog::OnCancel();
+	}
 
-	//设置资源路径
-	CString cancelBtnBmpPath = "./resource/theme/close-btn.bmp";
-	CString minBtnBmpPath = "./resource/theme/min-btn.bmp";
-	CString menuBtnBmpPath = "./resource/theme/menu-btn.bmp";
-	CString themeBtnBmpPath = "./resource/theme/theme-btn.bmp";
-	CString headListBmpPath = "./resource/theme/list-header.bmp";
-	//设置控件坐标位置
-	MoveWindow(100, 100, CBlueClickDlg::m_width, CBlueClickDlg::m_height, TRUE);
-
+	//设置资源路径		
+	CString bgBmpPath = m_themePath + "bg.bmp";
+	CString cancelBtnBmpPath = m_themePath + "close-btn.bmp";
+	CString minBtnBmpPath = m_themePath + "min-btn.bmp";
+	CString menuBtnBmpPath = m_themePath + "menu-btn.bmp";
+	CString themeBtnBmpPath = m_themePath + "theme-btn.bmp";
+	CString searchBtnBmpPath = m_themePath + "search-btn.bmp";
+	CString resouceBtnBmpPath = m_themePath + "resource-list-btn.bmp";
+	CString downloadBtnBmpPath = m_themePath + "download-list-btn.bmp";
+	CString uploadBtnBmpPath = m_themePath + "upload-list-btn.bmp";
+	CString insertBtnBmpPath = m_themePath + "insert-btn.bmp";
+	//设置控件坐标位置	
+	HDC hDC = ::GetDC(HWND(NULL));		// 得到屏幕DC  
+	int x = ::GetDeviceCaps(hDC,HORZRES); // 屏幕宽  
+	int y = ::GetDeviceCaps(hDC,VERTRES);	// 屏幕高   
+	::ReleaseDC(HWND(NULL),hDC);		// 释放DC
+	
+	MoveWindow((x-m_width)/2, (y-m_height)/2, m_width, m_height, TRUE);
+	
 	m_btnCancel.SetWindowPos(NULL, CBlueClickDlg::m_width-45, 0, 45, 29, SWP_SHOWWINDOW);
 	m_btnMin.SetWindowPos(NULL, CBlueClickDlg::m_width-80, 0, 35, 29, SWP_SHOWWINDOW);
-	m_btnMenu.SetWindowPos(NULL, CBlueClickDlg::m_width-115, 0, 35, 29, SWP_SHOWWINDOW);
+	m_btnSysMenu.SetWindowPos(NULL, CBlueClickDlg::m_width-115, 0, 35, 29, SWP_SHOWWINDOW);
 	m_btnTheme.SetWindowPos(NULL, CBlueClickDlg::m_width-150, 0, 35, 29, SWP_SHOWWINDOW);
-	m_listResource.SetWindowPos(NULL, 150, 70, CBlueClickDlg::m_width-160, this->m_height-80, SWP_SHOWWINDOW); 
+	m_editSearch.SetWindowPos(NULL, CBlueClickDlg::m_width-150, 45, 120, 20, SWP_SHOWWINDOW);
+	m_btnSearch.SetWindowPos(NULL, CBlueClickDlg::m_width-30, 45, 20, 20, SWP_SHOWWINDOW);
+	m_staticListTab.SetWindowPos(NULL, 150, 70, CBlueClickDlg::m_width-160, this->m_height-80, SWP_SHOWWINDOW); 
 	m_treeDownload.SetWindowPos(NULL, 10, 70, 130, this->m_height-80, SWP_SHOWWINDOW); 
+	m_btnResourceListTab.SetWindowPos(NULL, 150, 36, 35, 29, SWP_SHOWWINDOW);
+	m_btnDownloadListTab.SetWindowPos(NULL, 200, 36, 35, 29, SWP_SHOWWINDOW);
+	m_btnUploadListTab.SetWindowPos(NULL, 250, 36, 35, 29, SWP_SHOWWINDOW);
+//	m_btnInsert.SetWindowPos(NULL, 10, 20, 35, 29, SWP_SHOWWINDOW);
 
-	//设置资源列表视图
-	CRect rcRect;
-	m_listResource.GetClientRect(&rcRect);
-	int width = rcRect.Width();
-	m_listResource.InsertColumn(0, "类型", LVCFMT_LEFT, 130, 0);
-	m_listResource.InsertColumn(1, "文件名", LVCFMT_LEFT, 130, 1);
-	m_listResource.InsertColumn(2, "进度", LVCFMT_LEFT, width-278, 2);
+	//LIST TREE
+//	m_treeDownload.SetBkMode( CBuffreeTreeCtrl::BK_MODE_FILL );
+
+	//添加列表子窗口
+	CWnd *pTabPage = GetDlgItem(IDC_STATIC_TAB);
+	m_dlgResourceList.Create(IDD_DLGRESOURCELIST_DIALOG, pTabPage);
+	m_dlgResourceList.ShowWindow(SW_SHOW);
 	
-	m_listResource.ModifyStyle( LVS_OWNERDRAWFIXED, 0, 0 );
-	m_listResource.SetExtendedStyle(LVS_EX_FLATSB | LVS_EX_FULLROWSELECT |
-		LVS_EX_ONECLICKACTIVATE |LVS_EX_GRIDLINES);
+	m_dlgDownloadList.Create(IDD_DLGDOWNLOADLIST_DIALOG, pTabPage);
+	m_dlgDownloadList.ShowWindow(SW_HIDE);
+	
+	m_dlgUploadList.Create(IDD_DLGUPLOADLIST_DIALOG, pTabPage);
+	m_dlgUploadList.ShowWindow(SW_HIDE);
 
+	//加载主窗口背景主题
+	CString bmpBgPath = m_themePath + _T("bg.bmp");
+	HBITMAP hBmpBg = CBlueClickApp::LoadBmpFromFile(bmpBgPath);
+	CBitmap bmpBg;
+	bmpBg.Attach(hBmpBg);
+	m_brushBg.CreatePatternBrush(&bmpBg);
+	bmpBg.Detach();
+	DeleteObject(hBmpBg);
 
-	//加载主题资源并设置控件主题
-	m_bmpBg.loadBmpFromFile(_T("./resource/theme/bg.bmp"));
-
-	COLORREF maskColor = RGB(90, 90, 90);
+	//加载控件主题资源
 	m_btnCancel.LoadBitmap(cancelBtnBmpPath);
 	m_btnMin.LoadBitmap(minBtnBmpPath);
-	m_btnMenu.LoadBitmap(menuBtnBmpPath);
+	m_btnSysMenu.LoadBitmap(menuBtnBmpPath);
 	m_btnTheme.LoadBitmap(themeBtnBmpPath);
-
-
+	m_btnSearch.LoadBitmap(searchBtnBmpPath);
+	m_btnResourceListTab.LoadBitmap(resouceBtnBmpPath);
+	m_btnDownloadListTab.LoadBitmap(downloadBtnBmpPath);
+	m_btnUploadListTab.LoadBitmap(uploadBtnBmpPath);
+//	m_btnInsert.LoadBitmap(insertBtnBmpPath);
 	UpdateData(FALSE);
+
+	int count = m_dlgResourceList.m_listResource.GetItemCount();
+	m_dlgResourceList.m_listResource.InsertItem(count, "");
+	m_dlgResourceList.m_listResource.SetItemText(count, 1, "rmvb");
+	m_dlgResourceList.m_listResource.SetItemText(count, 2, "桃花侠大战菊花怪.rmvb");
+	m_dlgResourceList.m_listResource.SetItemText(count, 3, "2014-08-25");
+	m_dlgResourceList.m_listResource.SetItemData(count, 90);
+	
+	count = m_dlgResourceList.m_listResource.GetItemCount();
+	m_dlgResourceList.m_listResource.InsertItem(count, "");
+	m_dlgResourceList.m_listResource.SetItemText(count, 1, "zip");
+	m_dlgResourceList.m_listResource.SetItemText(count, 2, "你懂得.zip");
+	m_dlgResourceList.m_listResource.SetItemText(count, 3, "2014-08-25");
+	m_dlgResourceList.m_listResource.SetItemData(count, 50);
+	
+	count = m_dlgResourceList.m_listResource.GetItemCount();
+	m_dlgResourceList.m_listResource.InsertItem(count, "");
+	m_dlgResourceList.m_listResource.SetItemText(count, 1, "exe");
+	m_dlgResourceList.m_listResource.SetItemText(count, 2, "360傻瓜专用杀毒软件.exe");
+	m_dlgResourceList.m_listResource.SetItemText(count, 3, "2014-08-25");
+	m_dlgResourceList.m_listResource.SetItemData(count, 72);
+	
+	count = m_dlgResourceList.m_listResource.GetItemCount();
+	m_dlgResourceList.m_listResource.InsertItem(count, "");
+	m_dlgResourceList.m_listResource.SetItemText(count, 1, "txt");
+	m_dlgResourceList.m_listResource.SetItemText(count, 2, "【乌托邦】工作日程.txt");
+	m_dlgResourceList.m_listResource.SetItemText(count, 3, "2014-08-25");
+	m_dlgResourceList.m_listResource.SetItemData(count, 10);
+	
+	count = m_dlgDownloadList.m_listDownload.GetItemCount();
+	m_dlgDownloadList.m_listDownload.InsertItem(count, "");
+	m_dlgDownloadList.m_listDownload.SetItemText(count, 1, "rmvb");
+	m_dlgDownloadList.m_listDownload.SetItemText(count, 2, "桃花侠大战菊花怪.rmvb");
+	m_dlgDownloadList.m_listDownload.SetItemText(count, 3, "90%");
+	m_dlgDownloadList.m_listDownload.SetItemData(count, 90);
+	
+	count = m_dlgDownloadList.m_listDownload.GetItemCount();
+	m_dlgDownloadList.m_listDownload.InsertItem(count, "");
+	m_dlgDownloadList.m_listDownload.SetItemText(count, 1, "film");
+	m_dlgDownloadList.m_listDownload.SetItemText(count, 2, "桃花侠大战菊花怪.rmvb");
+	m_dlgDownloadList.m_listDownload.SetItemText(count, 3, "50%");
+	m_dlgDownloadList.m_listDownload.SetItemData(count, 50);
+	
+	count = m_dlgDownloadList.m_listDownload.GetItemCount();
+	m_dlgDownloadList.m_listDownload.InsertItem(count, "");
+	m_dlgDownloadList.m_listDownload.SetItemText(count, 1, "film");
+	m_dlgDownloadList.m_listDownload.SetItemText(count, 2, "桃花侠大战菊花怪.rmvb");
+	m_dlgDownloadList.m_listDownload.SetItemText(count, 3, "50%");
+	m_dlgDownloadList.m_listDownload.SetItemData(count, 50);
+	
+	count = m_dlgUploadList.m_listUpload.GetItemCount();
+	m_dlgUploadList.m_listUpload.InsertItem(count, "");
+	m_dlgUploadList.m_listUpload.SetItemText(count, 1, "rmvb");
+	m_dlgUploadList.m_listUpload.SetItemText(count, 2, "欢乐斗地主.rmvb");
+	m_dlgUploadList.m_listUpload.SetItemText(count, 3, "20%");
+	m_dlgUploadList.m_listUpload.SetItemData(count, 20);
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
 void CBlueClickDlg::OnSysCommand(UINT nID, LPARAM lParam)
 {
-	if(nID==SC_MINIMIZE) {
-		ToTray(); //最小化到托盘的函数
-	}
-
 	if ((nID & 0xFFF0) == IDM_ABOUTBOX)
 	{
 		CAboutDlg dlgAbout;
@@ -199,22 +298,27 @@ void CBlueClickDlg::OnSysCommand(UINT nID, LPARAM lParam)
 
 void CBlueClickDlg::OnPaint() 
 {
-//	CDialog::OnPaint();
+	if (IsIconic())
+	{
+		CPaintDC dc(this); // device context for painting
 
-	CPaintDC dc(this); // device context for painting
+		SendMessage(WM_ICONERASEBKGND, (WPARAM) dc.GetSafeHdc(), 0);
 
-	// Center icon in client rectangle
-	int cxIcon = GetSystemMetrics(SM_CXICON);
-	int cyIcon = GetSystemMetrics(SM_CYICON);
-	CRect rect;
-	GetClientRect(&rect);
-//	int x = (rect.Width() - cxIcon + 1) / 2;
-//	int y = (rect.Height() - cyIcon + 1) / 2;
+		// Center icon in client rectangle
+		int cxIcon = GetSystemMetrics(SM_CXICON);
+		int cyIcon = GetSystemMetrics(SM_CYICON);
+		CRect rect;
+		GetClientRect(&rect);
+		int x = (rect.Width() - cxIcon + 1) / 2;
+		int y = (rect.Height() - cyIcon + 1) / 2;
 
-	m_bmpBg.Paint(dc, rect);
-
-	// Draw the icon
-//	dc.DrawIcon(x, y, m_hIcon);
+		// Draw the icon
+		dc.DrawIcon(x, y, m_hIcon);
+	}
+	else
+	{
+		CDialog::OnPaint();
+	}
 }
 
 // The system calls this to obtain the cursor to display while the user drags
@@ -224,17 +328,22 @@ HCURSOR CBlueClickDlg::OnQueryDragIcon()
 	return (HCURSOR) m_hIcon;
 }
 
-void CBlueClickDlg::OnCancel() 
+BOOL CBlueClickDlg::OnEraseBkgnd(CDC* pDC) 
 {
-	// TODO: Add your control notification handler code here
-	CDialog::OnCancel();
+	// TODO: Add your message handler code here and/or call default
+	CRect rcRect;
+	GetClientRect(&rcRect);
+	pDC->FillRect(&rcRect, &m_brushBg);
+	
+	return TRUE;
+	//return CDialog::OnEraseBkgnd(pDC);
 }
 
 UINT CBlueClickDlg::OnNcHitTest(CPoint point) 
 {
 	// TODO: Add your message handler code here and/or call default
 	ScreenToClient(&point);
-
+	
 	CRect rc;
 	GetClientRect(&rc);
 	if (rc.PtInRect(point)) {
@@ -245,39 +354,16 @@ UINT CBlueClickDlg::OnNcHitTest(CPoint point)
 	}
 }
 
-void CBlueClickDlg::OnMeasureItem(int nIDCtl, LPMEASUREITEMSTRUCT lpMeasureItemStruct )
-{
-    if (nIDCtl == IDC_LIST_RESOURCE)
-    {
-       lpMeasureItemStruct->itemHeight = m_listItemHeight;
-    }
-}
-
-void CBlueClickDlg::OnInsert() 
+void CBlueClickDlg::OnButtonCancel() 
 {
 	// TODO: Add your control notification handler code here
-	UpdateData(TRUE);
-	int count = m_listResource.GetItemCount();
-
-	m_listResource.InsertItem(count, "");
-	m_listResource.SetItemText(count, 0, "电影");
-	m_listResource.SetItemText(count, 1, "后会无期.rmvb");
-	m_listResource.SetItemText(count, 2, "100");
+	CDialog::OnCancel();	
 }
 
-void CBlueClickDlg::ToTray()
+void CBlueClickDlg::OnButtonMin() 
 {
-	NOTIFYICONDATA nid;
-	nid.cbSize=(DWORD)sizeof(NOTIFYICONDATA);
-	nid.hWnd=this->m_hWnd;
-	nid.uID=IDR_MAINFRAME;
-	nid.uFlags=NIF_ICON|NIF_MESSAGE|NIF_TIP ;
-	nid.uCallbackMessage=WM_SHOWTASK;//自定义的消息名称
-	nid.hIcon=LoadIcon(AfxGetInstanceHandle(),MAKEINTRESOURCE(IDR_MAINFRAME));
-	
-	strcpy(nid.szTip,"蓝点下载器"); //信息提示条
-	Shell_NotifyIcon(NIM_ADD,&nid); //在托盘区添加图标
-	ShowWindow(SW_HIDE); //隐藏主窗口
+	// TODO: Add your control notification handler code here
+	ToTray();	
 }
 
 LRESULT CBlueClickDlg::OnShowTask(WPARAM wParam,LPARAM lParam)
@@ -310,6 +396,20 @@ LRESULT CBlueClickDlg::OnShowTask(WPARAM wParam,LPARAM lParam)
 	return 0;
 }
 
+void CBlueClickDlg::ToTray()
+{
+	NOTIFYICONDATA nid;
+	nid.cbSize=(DWORD)sizeof(NOTIFYICONDATA);
+	nid.hWnd=this->m_hWnd;
+	nid.uID=IDR_MAINFRAME;
+	nid.uFlags=NIF_ICON|NIF_MESSAGE|NIF_TIP ;
+	nid.uCallbackMessage=WM_SHOWTASK;//自定义的消息名称
+	nid.hIcon=LoadIcon(AfxGetInstanceHandle(),MAKEINTRESOURCE(IDR_MAINFRAME));
+	
+	strcpy(nid.szTip,"蓝点下载器"); //信息提示条
+	Shell_NotifyIcon(NIM_ADD,&nid); //在托盘区添加图标
+	ShowWindow(SW_HIDE); //隐藏主窗口
+}
 
 void CBlueClickDlg::DeleteTray()
 {
@@ -325,8 +425,82 @@ void CBlueClickDlg::DeleteTray()
 	Shell_NotifyIcon(NIM_DELETE,&nid); //在托盘区删除图标
 }
 
-void CBlueClickDlg::OnMin() 
+void CBlueClickDlg::OnButtonMenu() 
 {
 	// TODO: Add your control notification handler code here
-	ToTray();	
+	CMenu menu, *pPopup;
+	menu.LoadMenu(IDR_MENU_SYSTEM);
+	pPopup = menu.GetSubMenu(0);
+	CPoint myPoint;
+	
+	ClientToScreen(&myPoint);
+	GetCursorPos(&myPoint);
+	
+	pPopup->TrackPopupMenu(TPM_LEFTALIGN | TPM_LEFTBUTTON, myPoint.x, myPoint.y+10, this);		
+}
+
+void CBlueClickDlg::OnButtonTheme() 
+{
+	// TODO: Add your control notification handler code here
+}
+
+void CBlueClickDlg::OnButtonResourceListTab() 
+{
+	// TODO: Add your control notification handler code here
+	m_dlgDownloadList.ShowWindow(SW_HIDE);
+	m_dlgUploadList.ShowWindow(SW_HIDE);	
+	m_dlgResourceList.ShowWindow(SW_SHOW);		
+}
+
+void CBlueClickDlg::OnButtonDownloadListTab() 
+{
+	// TODO: Add your control notification handler code here
+	m_dlgResourceList.ShowWindow(SW_HIDE);
+	m_dlgUploadList.ShowWindow(SW_HIDE);	
+	m_dlgDownloadList.ShowWindow(SW_SHOW);		
+}
+
+void CBlueClickDlg::OnButtonUploadListTab() 
+{
+	// TODO: Add your control notification handler code here
+	m_dlgResourceList.ShowWindow(SW_HIDE);
+	m_dlgDownloadList.ShowWindow(SW_HIDE);
+	m_dlgUploadList.ShowWindow(SW_SHOW);	
+}
+
+BOOL CBlueClickDlg::PreTranslateMessage(MSG* pMsg) 
+{
+	// TODO: Add your specialized code here and/or call the base class
+	if(pMsg->message == WM_KEYDOWN) {  
+        if(pMsg->wParam == VK_ESCAPE) {  
+            return true;  
+        }
+		if(pMsg->wParam == VK_RETURN) {  
+            return true;  
+        }  
+    }		
+	return CDialog::PreTranslateMessage(pMsg);
+}
+
+void CBlueClickDlg::Accept()
+{
+
+}
+
+void CBlueClickDlg::OnMenuitemSystemSetting() 
+{
+	// TODO: Add your command handler code here
+	
+}
+
+void CBlueClickDlg::OnMenuitemAboutUs() 
+{
+	// TODO: Add your command handler code here
+	
+}
+
+void CBlueClickDlg::OnMenuitemQuitProg() 
+{
+	// TODO: Add your command handler code here
+	CDialog::OnOK();
 }

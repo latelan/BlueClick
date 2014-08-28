@@ -164,7 +164,7 @@ private:
  	enum 
 	{
 		TIMER_ELAPSE = 15,		//TIMER时间
-		TRANS_INCREMENT = 10,	//每一次的透明度增加量
+		TRANS_INCREMENT = 3,	//每一次的透明度增加量
 		STATE_NORMAL = 0,		//按钮普通状态
 		STATE_HOVERED,			//鼠标进入按钮状态
 		STATE_PRESSED,			//按钮被按下的状态

@@ -1,8 +1,8 @@
 // BlueClick.h : main header file for the BLUECLICK application
 //
 
-#if !defined(AFX_BLUECLICK_H__F1DB34CC_ADE0_425E_B4EE_6EBDE3495921__INCLUDED_)
-#define AFX_BLUECLICK_H__F1DB34CC_ADE0_425E_B4EE_6EBDE3495921__INCLUDED_
+#if !defined(AFX_BLUECLICK_H__925D5AF4_63E3_4F69_8D91_55476C93B9A2__INCLUDED_)
+#define AFX_BLUECLICK_H__925D5AF4_63E3_4F69_8D91_55476C93B9A2__INCLUDED_
 
 #if _MSC_VER > 1000
 #pragma once
@@ -23,7 +23,9 @@ class CBlueClickApp : public CWinApp
 {
 public:
 	CBlueClickApp();
-
+	static HBITMAP LoadBmpFromFile(CString &bmpPath);
+	static BOOL GetHostAddress(CString &csAddr);
+	static BOOL GetHostMAC(CString &csMac);
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CBlueClickApp)
@@ -46,4 +48,4 @@ public:
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.
 
-#endif // !defined(AFX_BLUECLICK_H__F1DB34CC_ADE0_425E_B4EE_6EBDE3495921__INCLUDED_)
+#endif // !defined(AFX_BLUECLICK_H__925D5AF4_63E3_4F69_8D91_55476C93B9A2__INCLUDED_)

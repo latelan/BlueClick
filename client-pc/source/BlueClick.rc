@@ -61,6 +61,15 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 //
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON    DISCARDABLE     "res\\BlueClick.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
 // Dialog
 //
 
@@ -75,21 +84,62 @@ BEGIN
     DEFPUSHBUTTON   "确定",IDOK,178,7,50,14,WS_GROUP
 END
 
-IDD_BLUECLICK_DIALOG DIALOGEX 0, 0, 409, 239
+IDD_BLUECLICK_DIALOG DIALOGEX 0, 0, 320, 200
 STYLE WS_POPUP | WS_VISIBLE
-EXSTYLE WS_EX_TRANSPARENT | WS_EX_APPWINDOW
+EXSTYLE WS_EX_APPWINDOW
 FONT 9, "宋体"
 BEGIN
-    PUSHBUTTON      "cancel",IDC_CANCEL_BUTTON,381,12,15,16
-    PUSHBUTTON      "min",IDC_MIN_BUTTON,361,12,15,16
-    PUSHBUTTON      "menu",IDC_MENU_BUTTON,342,12,15,16
-    PUSHBUTTON      "theme",IDC_THEME_BUTTON,322,12,15,16
+    PUSHBUTTON      "theme",IDC_BUTTON_THEME,243,7,12,12
+    PUSHBUTTON      "menu",IDC_BUTTON_MENU,257,7,12,12
+    PUSHBUTTON      "min",IDC_BUTTON_MIN,272,7,12,12
+    PUSHBUTTON      "cancel",IDC_BUTTON_CANCEL,288,7,12,12
+    PUSHBUTTON      "resource",IDC_BUTTON_RESOURCE_LIST_TAB,37,7,14,14
+    PUSHBUTTON      "download",IDC_BUTTON_DOWNLOAD_LIST_TAB,62,7,14,14
+    PUSHBUTTON      "upload",IDC_BUTTON_UPLOAD_LIST_TAB,83,7,14,14
+    CONTROL         "Tree1",IDC_TREE_IDC_TREE_DOWNLOAD,"SysTreeView32",
+                    TVS_NOTOOLTIPS | TVS_NOSCROLL | WS_TABSTOP,7,33,52,160
+    LTEXT           "StaticTAB",IDC_STATIC_TAB,72,47,241,146
+    EDITTEXT        IDC_EDIT_SEARCH,201,23,82,12,NOT WS_BORDER
+    PUSHBUTTON      "search",IDC_BUTTON_SEARCH,293,24,14,10
+END
+
+IDD_DLGRESOURCELIST_DIALOG DIALOG DISCARDABLE  0, 0, 320, 201
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
     CONTROL         "List1",IDC_LIST_RESOURCE,"SysListView32",LVS_REPORT | 
-                    LVS_OWNERDRAWFIXED,70,37,323,176,WS_EX_TRANSPARENT
-    PUSHBUTTON      "insert",IDC_BUTTON_INSERT,92,7,30,22
-    CONTROL         "Tree1",IDC_TREE_DOWNLOAD,"SysTreeView32",TVS_NOTOOLTIPS | 
-                    TVS_FULLROWSELECT | TVS_NOSCROLL | WS_TABSTOP,7,40,58,
-                    173
+                    LVS_OWNERDRAWFIXED | WS_TABSTOP,27,20,264,156
+END
+
+IDD_DLGDOWNLOADLIST_DIALOG DIALOG DISCARDABLE  0, 0, 320, 201
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "List1",IDC_LIST_UPLOAD,"SysListView32",LVS_REPORT | 
+                    LVS_OWNERDRAWFIXED | WS_TABSTOP,13,18,291,155
+END
+
+IDD_DLGUPLOADLIST_DIALOG DIALOG DISCARDABLE  0, 0, 320, 201
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "List1",IDC_LIST_UPLOAD,"SysListView32",LVS_REPORT | 
+                    LVS_OWNERDRAWFIXED | WS_TABSTOP,13,27,284,145
+END
+
+IDD_DLGSPLASH_DIALOG DIALOG DISCARDABLE  0, 0, 320, 201
+STYLE WS_POPUP
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "",IDC_STATIC_SPLASH_MSG,18,163,125,16
+END
+
+IDD_BUFFREEMESSAGEBOX_DIALOG DIALOG DISCARDABLE  0, 0, 188, 89
+STYLE WS_POPUP
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,69,58,50,14
+    CTEXT           "",IDC_STATIC_MSG,7,36,174,16
 END
 
 
@@ -155,9 +205,49 @@ BEGIN
     IDD_BLUECLICK_DIALOG, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 402
+        RIGHTMARGIN, 313
         TOPMARGIN, 7
-        BOTTOMMARGIN, 232
+        BOTTOMMARGIN, 193
+    END
+
+    IDD_DLGRESOURCELIST_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 313
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 194
+    END
+
+    IDD_DLGDOWNLOADLIST_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 313
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 194
+    END
+
+    IDD_DLGUPLOADLIST_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 313
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 194
+    END
+
+    IDD_DLGSPLASH_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 313
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 194
+    END
+
+    IDD_BUFFREEMESSAGEBOX_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 181
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 82
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -165,12 +255,47 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// Icon
+// Menu
 //
 
-// Icon with lowest ID value placed first to ensure application icon
-// remains consistent on all systems.
-IDR_MAINFRAME           ICON    DISCARDABLE     "resource\\logo.ico"
+IDR_MENU_DOWNLOAD MENU DISCARDABLE 
+BEGIN
+    POPUP "下载列表"
+    BEGIN
+        MENUITEM "继续下载",                    ID_MENUITEM_CONTINUE_DOWNLOAD
+
+        MENUITEM "暂停下载",                    ID_MENUITEM_PAUSE_DOWNLOAD
+        MENUITEM "删除任务",                    ID_MENUITEM_DELETE_DOWNLOAD
+    END
+END
+
+IDR_MENU_RESOURCE MENU DISCARDABLE 
+BEGIN
+    POPUP "资源列表"
+    BEGIN
+        MENUITEM "开始下载",                    ID_MENUITEM_START_DOWNLOAD
+    END
+END
+
+IDR_MENU_UPLOAD MENU DISCARDABLE 
+BEGIN
+    POPUP "上传列表"
+    BEGIN
+        MENUITEM "新建分享",                    ID_MENUITEM_NEW_SHARE
+        MENUITEM "取消分享",                    ID_MENUITEM_DELETE_SHARE
+    END
+END
+
+IDR_MENU_SYSTEM MENU DISCARDABLE 
+BEGIN
+    POPUP "系统菜单"
+    BEGIN
+        MENUITEM "系统设置",                    ID_MENUITEM_SYSTEM_SETTING
+        MENUITEM "关于我们",                    ID_MENUITEM_ABOUT_US
+        MENUITEM "退出程序",                    ID_MENUITEM_QUIT_PROG
+    END
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -180,6 +305,7 @@ IDR_MAINFRAME           ICON    DISCARDABLE     "resource\\logo.ico"
 STRINGTABLE DISCARDABLE 
 BEGIN
     IDS_ABOUTBOX            "关于 BlueClick(&A)..."
+    IDP_SOCKETS_INIT_FAILED "Windows 通信端口初始化失败。"
 END
 
 #endif    // Chinese (P.R.C.) resources

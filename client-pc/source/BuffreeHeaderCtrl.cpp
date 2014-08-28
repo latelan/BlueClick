@@ -58,7 +58,6 @@ void CBuffreeHeaderCtrl::OnPaint()
 	CPen pen(PS_SOLID, 1, m_spColor);
 	CPen *pOldPen = dc.SelectObject(&pen);
 
-
 	CFont *pOldFont = dc.SelectObject(&m_textFont);
 
 	dc.SetTextColor(m_textColor);
