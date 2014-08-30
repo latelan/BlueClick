@@ -2,10 +2,9 @@
 	> File Name: dbconect.h
 	> Author: latelan, coolboy1353@163.com
 	> Created Time: 2014-08-28 20:50:55
- ************************************************************************/
-
-#ifndef dbconnect__h
-#define dbconnect__h
+ ************************************************************************/ 
+#ifndef dbconnect__h 
+#define dbconnect__h 
 
 #include "common.h"
 #include "/usr/include/mysql/mysql.h"
@@ -21,7 +20,8 @@
 MYSQL *open();
 
 int add_share_resource(const struct resource_type *res);
-int query_res_md5(const char *key, char *res_md5);
+int query_res_md5(const char *key, char (*res_md5)[33], int *len);
 int query_res_info(const char *res_md5, struct resource_type *resinfo);
 
+int get_res_list(struct queryres key, struct resource_type *res, int *len);
 #endif

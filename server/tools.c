@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "cJSON.h"
+#include "message.h"
+#include "dbconnect.h"
 
 void doit(char *text)
 {
@@ -22,4 +24,3 @@ void doit(char *text)
 		free(out);
 	}
 }
-

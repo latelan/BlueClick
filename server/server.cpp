@@ -14,13 +14,15 @@
 #include "common.h"
 #include "tools.h"
 #include "message.h"
+#include "cJSON.h"
+#include "dbconnect.h"
 
 #define MAX_EVENT_NUMBER 1024
-#define TCP_BUFFER_SIZE 1024
-#define UDP_BUFFER_SIZE 1024
+#define TCP_BUFFER_SIZE 2048
+#define UDP_BUFFER_SIZE 2048
 #define MAX_CLIENT_NUMBER 200
 
-int workthread(int sockfd);
+int workhandler(int sockfd);
 
 void debug(const char *err_string, int line)
 {
@@ -151,8 +153,8 @@ int main( int argc, char* argv[] )
 			//		perror("pthread_create");
 			//		exit(1);
 			//	}
-			    workhandler(int sockfd);
-
+				printf("recv tcp\n");
+			    workhandler(sockfd);
 			}
 			else
 			{
@@ -165,13 +167,14 @@ int main( int argc, char* argv[] )
 	return 0;
 }
 
-int workthread(int sockfd)
+int workhandler(int sockfd)
 {
 	int ret;
 	char buf[ TCP_BUFFER_SIZE ];
 	memset( buf, '\0', TCP_BUFFER_SIZE );
-	ret = recv( sockfd, buf, TCP_BUFFER_SIZE-1, 0 );
+	ret = recv( sockfd, buf, TCP_BUFFER_SIZE, 0 );
 
+	printf("buf: %d %s\n",ret, buf);
 	if( ret < 0 ) {
 		if( ( errno != EAGAIN ) && ( errno != EWOULDBLOCK ) ) {
 			close( sockfd );
@@ -184,23 +187,61 @@ int workthread(int sockfd)
 	}
 	
 	cJSON *msg = cJSON_Parse(buf);
+	cJSON_Print(msg);
 	if(!msg) {
+		return -1;
 		debug("parse json",__LINE__);
 	}
 
-	char msgtype[64];
+	char msgtype[64] = "";
 	strcpy(msgtype,cJSON_GetObjectItem(msg,"MsgType")->valuestring);
-	if(strcmp(MSG_QUERY_RES,msgtype)){ 	/* search resource */
-		char key[256];
-		strcpy(key,cJSON_GetObjectItem(msg,"QueryKey")->valuestring);
+	printf("msgType: %s\n",msgtype);
+	if(strcmp(MSG_QUERY_RES,msgtype) == 0){ 	/* search resource */
+		printf("MsgType: MSG_QUERY_RES\n");
+		struct queryres query;
+		
+		cJSON *child = NULL;
+		child = cJSON_GetObjectItem(msg,"QueryKey");
+		if(child == NULL) { /* not found child */
+			return 0;
+		}
+
+		if(strlen(cJSON_GetObjectItem(msg,"QueryKey")->valuestring) <= 1) { /* key is shorter */
+			return 0;
+		}
+		strcpy(query.key, cJSON_GetObjectItem(msg,"QueryKey")->valuestring);
+		printf("query.key: %s\n", query.key);
+		
 		// query database 
+		struct resource_type res[10];
+		int len;
+		char *text = NULL;
+		get_res_list(query,res,&len);
+		text = res_list_to_json(text,res,len);
 		
 		// response query msg
+		printf("send: %s\n",text);
+		send(sockfd,text,strlen(text)+1, 0);
 	}
-	else if (strcmp(MSG_GET_PUSH,msgtype)) { /* get push */
-		char 		
-	}
-	else if (strcmp(MSG_DOWNLOAD_RES,msgtype)) { /* download resource */
+	else if (strcmp(MSG_GET_PUSH,msgtype) == 0) { /* get push */
+		printf("MsgType: MSG_GET_PUSH\n");
+		int numwanted = cJSON_GetObjectItem(msg,"NumWanted")->valueint;
+
+		struct queryres query = {"liang"};
+		struct resource_type res[10];
+		int len;
+		char *text = NULL;
+		get_res_list(query,res,&len);
+		text = res_list_to_json(text,res,len);
+
+		// response query msg
+		printf("send: %s\n",text);
+		send(sockfd,text,strlen(text)+1, 0);
 		
 	}
+	else if (strcmp(MSG_DOWNLOAD_RES,msgtype) == 0) { /* download resource */
+		printf("MsgType: MSG_DOWNLOAD_RES\n");
+	}
+
+	free(msg);
 }

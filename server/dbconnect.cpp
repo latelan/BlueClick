@@ -87,7 +87,7 @@ int add_share_resource(const struct resource_type *res)
  *		 res_md5 - 返回值，资源md5
  *返回值：成功查询返回0，所得md5放在_md5中，败返回-1
  */
-int query_res_md5(const char *key, char *res_md5)
+int query_res_md5(const char *key, char (*res_md5)[33], int *len)
 {
 	MYSQL *mysql = NULL;
 	char query_str[256];
@@ -98,24 +98,22 @@ int query_res_md5(const char *key, char *res_md5)
 		mysql = open();
 	}
 
-	sprintf(query_str,"SELECT f_res_md5 FROM tbl_resource_tags WHERE f_res_tags = '%s'",key);
+	sprintf(query_str,"SELECT f_res_md5 FROM tbl_resource_tags WHERE f_res_tags = '%s' limit 10",key);
 	if(mysql_query(mysql,query_str)) {
 		fprintf(stderr,"Error: %s\n",mysql_error(mysql));
 		return -1;
 	}
 
 	result = mysql_use_result(mysql);
+	int cnt = 0;
 
-	if((query_rows = mysql_fetch_row(result)) != NULL) {
-		// ret res_md5
-		strcpy(res_md5, query_rows[0]);
-		mysql_close(mysql);
-		
-		return 0;
+	while((query_rows = mysql_fetch_row(result))) {
+		strcpy(res_md5[cnt++],query_rows[0]);
 	}
-	mysql_close(mysql);
+	*len = cnt;
 
-	return -1;
+	return 0;
+	mysql_close(mysql);
 }
 
 /**
@@ -138,7 +136,6 @@ int query_res_info(const char *res_md5,
 
 //	sprintf(query_str,"SELECT tbl_resource.f_res_name,tbl_resource.f_res_size, tbl_resource.f_res_piececount,tbl_resource_owner.f_res_sharetime FROM tbl_resource,tbl_resource_owner WHERE tbl_resource.f_res_md5 = '%s' and tbl_resource.f_res_md5 = tbl_resource_owner.f_res_md5)",res_md5);
 	sprintf(query_str,"SELECT f_res_name,f_res_size, f_res_piececount FROM tbl_resource WHERE f_res_md5 = '%s'",res_md5);
-	printf("%s\n",query_str);		
 	if(mysql_query(mysql,query_str)) {
 		fprintf(stderr,"Error: %s\n",mysql_error(mysql));
 		return -1;
@@ -159,6 +156,20 @@ int query_res_info(const char *res_md5,
 	mysql_close(mysql);
 	return -1;
 }
+
+/* 根据关键字获得资源 */
+int get_res_list(struct queryres key, struct resource_type *res, int *len)
+{
+	char md5_list[10][33];
+	query_res_md5(key.key,md5_list,len);
+
+	for(int i=0;i<*len;i++) {
+		query_res_info(md5_list[i],&res[i]);
+	}
+
+	return 0;
+}
+
 
 
 /**

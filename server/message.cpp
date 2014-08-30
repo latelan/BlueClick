@@ -38,7 +38,7 @@ void json_to_msg_queryres(char *text, struct queryres *qres)
 		printf("Error before: [%s]\n",cJSON_GetErrorPtr());
 	}
 	else {
-		strcpy(qres->qres,cJSON_GetObjectItem(json, "ClientIP")->valuestring);
+		strcpy(qres->key,cJSON_GetObjectItem(json, "ClientIP")->valuestring);
 	}
 }
 
@@ -62,15 +62,20 @@ void server_info_to_json(char *text, struct server_info *server)
 	free(out);
 }
 
-void res_info_to_json(char *text, struct resource_type *res, int len)
+char* res_list_to_json(char *text, struct resource_type *res, int len)
 {
-	cJSON *root,*fmt;
+	cJSON *root,*fmt, *sub;
 	root = cJSON_CreateObject();
 	cJSON_AddStringToObject(root,"MsgType","ResList");
 	cJSON_AddNumberToObject(root,"ResCount",len);
-	fmt = cJSON_CreateArray();
+	cJSON_AddItemToObject(root,"Resource",sub = cJSON_CreateArray());
 	for(int i=0;i<len;i++) {
-		cJSON_AddItemToArray(root,)
+		cJSON_AddItemToArray(sub,fmt=cJSON_CreateObject());
+		cJSON_AddStringToObject(fmt,"ResName",res[i].name);
+		cJSON_AddStringToObject(fmt,"ResSize",res[i].size);
+		cJSON_AddStringToObject(fmt,"ResMD5",res[i].md5);
+		cJSON_AddNumberToObject(fmt,"ResPieceCount",res[i].piececount);
 	}
-	cJSON_
+
+	return cJSON_PrintUnformatted(root);
 }
