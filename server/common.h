@@ -14,6 +14,8 @@
 
 #define MAX_CLIENT_ONLINE 200
 #define MAX_HEARTBEAT_NUM 3
+#define FLAG_ONLINE 1
+#define FLAG_OFFLINE 0
 
 // online clients info
 struct client_info {
@@ -58,6 +60,7 @@ struct client {
 
 struct online_list {
 	int clientnum;
+	int totalclient;
 	struct client *onlist;
 };
 
