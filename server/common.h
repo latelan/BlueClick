@@ -12,6 +12,9 @@
 #define MSG_DOWNLOAD_RES "MsgDownloadRes"
 #define MSG_HEARTBEAT	"MsgHeartbeat"
 
+#define MAX_CLIENT_ONLINE 200
+#define MAX_HEARTBEAT_NUM 3
+
 // online clients info
 struct client_info {
 	char mac[32];
@@ -44,5 +47,18 @@ struct resource_type {
 	int piececount;
 };
 
+struct client {
+	int online;
+	char mac[32];
+	char ip[32];
+	int listenport;
+	int heartbeats;
+	struct client *next;
+};
+
+struct online_list {
+	int clientnum;
+	struct client *onlist;
+};
 
 #endif

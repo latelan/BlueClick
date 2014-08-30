@@ -123,7 +123,7 @@ int main( int argc, char* argv[] )
 					// 客户端心跳请求消息
 
 					struct server_info server;
-					strcpy(server.ip,"192.168.0.29");
+					strcpy(server.ip,"192.168.0.206");
 					strcpy(server.reserved,"null");
 					char buff[1024];
 
@@ -205,12 +205,14 @@ int workhandler(int sockfd)
 		if(child == NULL) { /* not found child */
 			return 0;
 		}
-
+		
+		int l = strlen(cJSON_GetObjectItem(msg,"QueryKey")->valuestring);
+		printf("querykey len: %d\n",l);
 		if(strlen(cJSON_GetObjectItem(msg,"QueryKey")->valuestring) <= 1) { /* key is shorter */
 			return 0;
 		}
 		strcpy(query.key, cJSON_GetObjectItem(msg,"QueryKey")->valuestring);
-		printf("query.key: %s\n", query.key);
+		printf("query.key: %x\n", query.key);
 		
 		// query database 
 		struct resource_type res[10];
@@ -225,9 +227,11 @@ int workhandler(int sockfd)
 	}
 	else if (strcmp(MSG_GET_PUSH,msgtype) == 0) { /* get push */
 		printf("MsgType: MSG_GET_PUSH\n");
+		/* get want number */
 		int numwanted = cJSON_GetObjectItem(msg,"NumWanted")->valueint;
 
-		struct queryres query = {"liang"};
+		/* default push method */
+		struct queryres query = {"梁静茹"};
 		struct resource_type res[10];
 		int len;
 		char *text = NULL;
@@ -238,6 +242,7 @@ int workhandler(int sockfd)
 		printf("send: %s\n",text);
 		send(sockfd,text,strlen(text)+1, 0);
 		
+		free(text);
 	}
 	else if (strcmp(MSG_DOWNLOAD_RES,msgtype) == 0) { /* download resource */
 		printf("MsgType: MSG_DOWNLOAD_RES\n");
