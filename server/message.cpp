@@ -30,7 +30,16 @@ void json_to_msg_client_info(char *text, struct client_info *client)
 
 void json_to_msg_queryres(char *text, struct queryres *qres) 
 {
+	char *out;
+	cJSON *json;
 
+	json = cJSON_Parse(text);
+	if(!json) {
+		printf("Error before: [%s]\n",cJSON_GetErrorPtr());
+	}
+	else {
+		strcpy(qres->qres,cJSON_GetObjectItem(json, "ClientIP")->valuestring);
+	}
 }
 
 void json_to_msg_downloadres(char *text, struct downloadres * dres)
@@ -40,7 +49,6 @@ void json_to_msg_downloadres(char *text, struct downloadres * dres)
 
 void server_info_to_json(char *text, struct server_info *server)
 {
-	printf("%s %s\n", server->ip,server->reserved);
 	cJSON *root,*fmt;
 	root = cJSON_CreateObject();
 	cJSON_AddStringToObject(root, "MsgType", "MsgOnlineResponse");
@@ -52,4 +60,17 @@ void server_info_to_json(char *text, struct server_info *server)
 	strcpy(text,out);
 
 	free(out);
+}
+
+void res_info_to_json(char *text, struct resource_type *res, int len)
+{
+	cJSON *root,*fmt;
+	root = cJSON_CreateObject();
+	cJSON_AddStringToObject(root,"MsgType","ResList");
+	cJSON_AddNumberToObject(root,"ResCount",len);
+	fmt = cJSON_CreateArray();
+	for(int i=0;i<len;i++) {
+		cJSON_AddItemToArray(root,)
+	}
+	cJSON_
 }

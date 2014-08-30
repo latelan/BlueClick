@@ -16,11 +16,11 @@
 #include "message.h"
 
 #define MAX_EVENT_NUMBER 1024
-#define TCP_BUFFER_SIZE 512
+#define TCP_BUFFER_SIZE 1024
 #define UDP_BUFFER_SIZE 1024
 #define MAX_CLIENT_NUMBER 200
 
-int *workthread(void *);
+int workthread(int sockfd);
 
 void debug(const char *err_string, int line)
 {
@@ -125,15 +125,16 @@ int main( int argc, char* argv[] )
 					strcpy(server.reserved,"null");
 					char buff[1024];
 
+					// response online msg
 					server_info_to_json(buff,&server);
 					printf("%s\n",buff);
 					sendto( udpfd, buff, strlen(buff)+1, 0, ( struct sockaddr* )&client_address, client_addrlength );
-					//				  printf("recv: %s\n",buf);
+					// printf("recv: %s\n",buf);
+					
+					// online msg
 					struct client_info client;
 					json_to_msg_client_info(buf, &client);
 					printf("%s %s %d\n",client.ip,client.mac, client.listenport);
-
-					// user online msg
 
 				}
 			}
@@ -144,12 +145,13 @@ int main( int argc, char* argv[] )
 				// 接受客户端下载状态上报消息
 
 				// 开新线程
-				//pthread_t thid;
+			//	pthread_t thid;
 
-				//if(pthread_create(&thid, NULL, (void*)workthread,sockfd) != 0) {
-				//	perror("pthread_create");
-				//	exit(1);
-				//}
+			//	if(pthread_create(&thid, NULL, workthread,sockfd) != 0) {
+			//		perror("pthread_create");
+			//		exit(1);
+			//	}
+			    workhandler(int sockfd);
 
 			}
 			else
@@ -163,42 +165,42 @@ int main( int argc, char* argv[] )
 	return 0;
 }
 
-//int *workthread(void *arg)
-//{
-//	int ret;
-//	char buf[ TCP_BUFFER_SIZE ];
-//	memset( buf, '\0', TCP_BUFFER_SIZE );
-//	ret = recv( sockfd, buf, TCP_BUFFER_SIZE-1, 0 );
-//
-//	if( ret < 0 ) {
-//		if( ( errno != EAGAIN ) && ( errno != EWOULDBLOCK ) )
-//			close( sockfd );
-//	}
-//	else if( ret == 0 )	{
-//		close( sockfd );
-//	}
-//	
-//	cJSON *msg = cJSON_Parse(buf);
-//	if(!msg) {
-//		debug("parse json",__LINE__);
-//	}
-//
-//	char msgtype[64];
-//	strcpy(msgtype,cJSON_GetObjectItem(msg,"MsgType")->valuestring);
-//	if(strcmp(MSG_QUERY_RES,msgtype)){
-//		// search resource
-//		char key[256];
-//		strcpy(key,cJSON_GetObjectItem(msg,"QueryKey")->valuestring);
-//		// query database 
-//		
-//		// response query msg
-//	}
-//	else if (strcmp(MSG_GET_PUSH,msgtype)) {
-//		// get push
-//
-//	}
-//	else if (strcmp(MSG_DOWNLOAD_RES,msgtype)) {
-//		// download resource
-//		
-//	}
-//}
+int workthread(int sockfd)
+{
+	int ret;
+	char buf[ TCP_BUFFER_SIZE ];
+	memset( buf, '\0', TCP_BUFFER_SIZE );
+	ret = recv( sockfd, buf, TCP_BUFFER_SIZE-1, 0 );
+
+	if( ret < 0 ) {
+		if( ( errno != EAGAIN ) && ( errno != EWOULDBLOCK ) ) {
+			close( sockfd );
+			return -1;
+		}
+	}
+	else if( ret == 0 )	{
+		close( sockfd );
+		return -1;
+	}
+	
+	cJSON *msg = cJSON_Parse(buf);
+	if(!msg) {
+		debug("parse json",__LINE__);
+	}
+
+	char msgtype[64];
+	strcpy(msgtype,cJSON_GetObjectItem(msg,"MsgType")->valuestring);
+	if(strcmp(MSG_QUERY_RES,msgtype)){ 	/* search resource */
+		char key[256];
+		strcpy(key,cJSON_GetObjectItem(msg,"QueryKey")->valuestring);
+		// query database 
+		
+		// response query msg
+	}
+	else if (strcmp(MSG_GET_PUSH,msgtype)) { /* get push */
+		char 		
+	}
+	else if (strcmp(MSG_DOWNLOAD_RES,msgtype)) { /* download resource */
+		
+	}
+}

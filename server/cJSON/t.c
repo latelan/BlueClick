@@ -15,12 +15,18 @@ int main()
 	char text[1024];
 	cJSON *root, *fmt;
 	root = cJSON_CreateObject();
-	cJSON_AddStringToObject(root,"MsgType","MsgOnine");
-	cJSON_AddStringToObject(root,"ClientIP","192.168.0.25");
-	cJSON_AddStringToObject(root,"ClientMac","123");
-	cJSON_AddNumberToObject(root,"ListenPort",33443);
+	cJSON_AddStringToObject(root,"MsgType","ResList");
+	cJSON_AddNumberToObject(root,"ResCount", 4);
+	cJSON_AddItemToArray(root,fmt = cJSON_CreateObject());
 	
-	out = cJSON_PrintUnformatted(root);
+	for(int i=0;i<3;i++) {
+		cJSON_AddStringToObject(fmt,"ResName","zhang");
+		cJSON_AddStringToObject(fmt,"ResSize","567MB");
+		cJSON_AddStringToObject(fmt,"ResMD5","40FBB9FD5CD299F95A032D2B4F705432");
+		cJSON_AddNumberToObject(fmt,"ResPieceCount",3456);
+	}
+
+	out = cJSON_Print(root);
 
 	printf("%s\n",out);
 	strcpy(text,out);

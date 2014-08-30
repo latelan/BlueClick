@@ -36,4 +36,13 @@ struct downloadres {
 	char md5[33];
 };
 
+// resource type
+struct resource_type {
+	char name[256];
+	char size[64];
+	char md5[33];
+	int piececount;
+};
+
+
 #endif
