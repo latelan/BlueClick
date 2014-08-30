@@ -26,6 +26,8 @@ public:
 public:
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CDownloadSocket)
+	public:
+	virtual void OnReceive(int nErrorCode);
 	//}}AFX_VIRTUAL
 
 	// Generated message map functions

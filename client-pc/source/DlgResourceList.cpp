@@ -59,7 +59,7 @@ BOOL CDlgResourceList::OnInitDialog()
 	m_listResource.SetWindowPos(NULL, 0, 0, listRect.Width(), listRect.Height(), SWP_SHOWWINDOW); 
 	
 	m_listResource.SetExtendedStyle( LVS_EX_FLATSB | LVS_EX_FULLROWSELECT |
-		LVS_EX_ONECLICKACTIVATE |LVS_EX_GRIDLINES | LVS_OWNERDRAWFIXED | LVS_EX_DOUBLEBUFFER);
+		LVS_EX_ONECLICKACTIVATE | LVS_OWNERDRAWFIXED | LVS_EX_DOUBLEBUFFER);
 	//设置资源列表视图行高，前提是需要设置自绘风格，即LVS_OWNERDRAWFIXED
 	m_listResource.SetItemHeight(40);
 	m_listResource.ModifyStyle( LVS_OWNERDRAWFIXED, 0, 0 );//去掉自绘风格
@@ -71,9 +71,10 @@ BOOL CDlgResourceList::OnInitDialog()
 	//这块需要注意的是，第一列宽度设置为0，即不使用第一列，因为第一列不能设置居中对齐
 	//并且通过GetClientRect()获取到的第一列宽度并不是真正的第一列宽度，而是整个列表的宽度
 	m_listResource.InsertColumn(0, "第一列，已废弃", LVCFMT_LEFT, 0, 0);
-	m_listResource.InsertColumn(1, "类型", LVCFMT_LEFT, 80, 1);//第二列
-	m_listResource.InsertColumn(2, "文件名", LVCFMT_LEFT, 200, 2);
-	m_listResource.InsertColumn(3, "时间", LVCFMT_LEFT, listRect.Width()-298, 3);//通过计算，使得最后一列刚好填满列表宽度
+	m_listResource.InsertColumn(1, "类型", LVCFMT_LEFT, 50, 1);//第二列
+	m_listResource.InsertColumn(2, "文件名", LVCFMT_LEFT, 300, 2);
+	m_listResource.InsertColumn(3, "大小", LVCFMT_LEFT, 70, 3);
+	m_listResource.InsertColumn(4, "分享时间", LVCFMT_LEFT, listRect.Width()-438, 4);//通过计算，使得最后一列刚好填满列表宽度
 	
 	return TRUE;  // return TRUE unless you set the focus to a control
 	              // EXCEPTION: OCX Property Pages should return FALSE
@@ -98,18 +99,8 @@ void CDlgResourceList::OnMenuitemStartDownload()
 {
 	// TODO: Add your command handler code here
 	int nItem = m_listResource.GetNextItem(-1, LVNI_SELECTED);
-	CString csFileType = m_listResource.GetItemText(nItem, 1);
-	CString csFilename = m_listResource.GetItemText(nItem, 2);
+
+	CBlueClickDlg *mainWnd = (CBlueClickDlg*)(this->GetParent()->GetParent());
 	
-	CBuffreeListCtrl *listDownload = &(((CBlueClickDlg*)(this->GetParent()->GetParent()))->m_dlgDownloadList.m_listDownload);
-	
-	int count = listDownload->GetItemCount();
-	listDownload->InsertItem(count, "");
-	listDownload->SetItemText(count, 1, csFileType);
-	listDownload->SetItemText(count, 2, csFilename);
-	listDownload->SetItemText(count, 3, "");
-	listDownload->SetItemData(count, 0);
-	
-	CBuffreeMessageBox dlgMessage("已加入下载队列");
-	dlgMessage.DoModal();
+	mainWnd->StartDownload(nItem);
 }

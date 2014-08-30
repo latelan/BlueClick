@@ -71,10 +71,12 @@ public:
 	// Generated message map functions
 protected:
 	//{{AFX_MSG(CBuffreeListCtrl)
+	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
 	afx_msg void OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct);
 	afx_msg void OnNcCalcSize(BOOL bCalcValidRects, NCCALCSIZE_PARAMS FAR* lpncsp);
 	afx_msg void MeasureItem(LPMEASUREITEMSTRUCT lpMeasureItemStruct);
 	afx_msg void OnRclick(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnPaint();
 	//}}AFX_MSG
 
 	DECLARE_MESSAGE_MAP()

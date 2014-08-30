@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "BlueClick.h"
 #include "DlgUploadList.h"
+#include "BlueClickDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -94,19 +95,8 @@ BOOL CDlgUploadList::PreTranslateMessage(MSG* pMsg)
 void CDlgUploadList::OnMenuitemNewShare() 
 {
 	// TODO: Add your command handler code here
-	CFileDialog dlgFile(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, "ALL Files(*.*)|*.*||", AfxGetMainWnd());
-	
-	if (dlgFile.DoModal() == IDOK) {
-		CString csFileType = dlgFile.GetFileExt();
-		CString csFilename = dlgFile.GetFileName();
-		int count = m_listUpload.GetItemCount();
-		m_listUpload.InsertItem(count, "");
-		m_listUpload.SetItemText(count, 1, "rmvb");
-		m_listUpload.SetItemText(count, 2, csFilename);
-		m_listUpload.SetItemText(count, 3, "");
-		m_listUpload.SetItemData(count, 0);
-		//	UpdateData(FALSE);
-	}	
+	CBlueClickDlg * mainWnd = (CBlueClickDlg*)AfxGetMainWnd();
+	mainWnd->AddNewShare();
 }
 
 void CDlgUploadList::OnMenuitemDeleteShare() 
@@ -114,6 +104,4 @@ void CDlgUploadList::OnMenuitemDeleteShare()
 	// TODO: Add your command handler code here
 	int nItem = m_listUpload.GetNextItem(-1, LVNI_SELECTED);
 	m_listUpload.DeleteItem(nItem);
-	
-	UpdateData(TRUE);	
 }

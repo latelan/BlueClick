@@ -1,10 +1,10 @@
-// ListenSocket.cpp : implementation file
+// SearchSocket.cpp : implementation file
 //
 
 #include "stdafx.h"
 #include "BlueClick.h"
-#include "ListenSocket.h"
 #include "BlueClickDlg.h"
+#include "SearchSocket.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -13,32 +13,41 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 /////////////////////////////////////////////////////////////////////////////
-// CListenSocket
+// CSearchSocket
 
-CListenSocket::CListenSocket(CWnd *pParentWnd)
+CSearchSocket::CSearchSocket(CWnd *pParentWnd)
 {
 	m_pParentWnd = pParentWnd;
 }
 
-CListenSocket::~CListenSocket()
+CSearchSocket::~CSearchSocket()
 {
 }
 
 
 // Do not edit the following lines, which are needed by ClassWizard.
 #if 0
-BEGIN_MESSAGE_MAP(CListenSocket, CSocket)
-	//{{AFX_MSG_MAP(CListenSocket)
+BEGIN_MESSAGE_MAP(CSearchSocket, CSocket)
+	//{{AFX_MSG_MAP(CSearchSocket)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 #endif	// 0
 
 /////////////////////////////////////////////////////////////////////////////
-// CListenSocket member functions
+// CSearchSocket member functions
 
-void CListenSocket::OnAccept(int nErrorCode) 
+void CSearchSocket::OnReceive(int nErrorCode) 
 {
 	// TODO: Add your specialized code here and/or call the base class
-	((CBlueClickDlg*)m_pParentWnd)->AcceptClient();
-//	CSocket::OnAccept(nErrorCode);
+	
+	//((CBlueClickDlg*)m_pParentWnd)->ReceiveResourceList();	
+	
+	CSocket::OnReceive(nErrorCode);
+}
+
+void CSearchSocket::OnClose(int nErrorCode) 
+{
+	// TODO: Add your specialized code here and/or call the base class
+	
+	CSocket::OnClose(nErrorCode);
 }

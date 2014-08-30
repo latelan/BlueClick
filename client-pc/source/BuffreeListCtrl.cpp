@@ -22,15 +22,15 @@ CBuffreeListCtrl::CBuffreeListCtrl()
 	m_crNormalDoubleText = RGB(100, 100, 100);
 	m_crNormalSingleBg = RGB(255, 255, 255);
 	m_crNormalDoubleBg = RGB(220, 230, 255);
-	m_crSelectedSingleBg = RGB(150, 200, 255);
+	m_crSelectedSingleBg = RGB(200, 220, 255);
 	m_crSelectedDoubleBg = RGB(150, 200, 255);
 	m_crSelectedSingleText = RGB(255, 255, 255);
 	m_crSelectedDoubleText = RGB(255, 255, 255);
 	m_crProgress = RGB(35, 122, 174);
-	m_crProgressBg = RGB(200, 230, 230);
+	m_crProgressBg = RGB(200, 220, 220);
 	m_crProgressText = RGB(255, 255, 255);
 	memset(m_columnType, 0, BUFFREE_MAX_COLUMN);
-	m_typeSet = "text.txt|doc.doc|audio.mp3|video.mp4.avi.mkv.rmvb.flv.3gp|pack.zip.tar.7z.rar|";
+	m_typeSet = "text.txt|doc.doc|audio.mp3|image.jpg.bmp.png.gif.psd|video.mp4.avi.mkv.rmvb.flv.3gp|pack.zip.tar.7z.rar|";
 }
 
 CBuffreeListCtrl::~CBuffreeListCtrl()
@@ -41,10 +41,12 @@ CBuffreeListCtrl::~CBuffreeListCtrl()
 BEGIN_MESSAGE_MAP(CBuffreeListCtrl, CListCtrl)
 	//{{AFX_MSG_MAP(CBuffreeListCtrl)
 	ON_WM_DRAWITEM()
+	ON_WM_ERASEBKGND()
 	ON_WM_NCCALCSIZE()
 	ON_WM_MEASUREITEM_REFLECT()
 	ON_NOTIFY_REFLECT(NM_CUSTOMDRAW, OnCustomDraw)
 	ON_NOTIFY_REFLECT(NM_RCLICK, OnRclick)
+	ON_WM_PAINT()
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -63,6 +65,51 @@ void CBuffreeListCtrl::PreSubclassWindow()
 	}
 
 	CListCtrl::PreSubclassWindow();
+}
+
+void CBuffreeListCtrl::OnPaint() 
+{
+	CPaintDC dc(this); // device context for painting
+	
+	// TODO: Add your message handler code here
+    CRect rect;
+    CRect headerRect;
+    CDC menDC;//内存ID表   
+    CBitmap memMap;
+
+    GetClientRect(&rect);    
+    GetDlgItem(0)->GetWindowRect(&headerRect);   
+    menDC.CreateCompatibleDC(&dc);   
+    memMap.CreateCompatibleBitmap(
+        &dc,   
+        rect.Width(),   
+        rect.Height()); 
+    menDC.SelectObject(&memMap);
+    menDC.FillSolidRect(&rect,RGB(255,255,255));   
+
+    //这一句是调用默认的OnPaint(),把图形画在内存DC表上   
+    DefWindowProc(WM_PAINT,(WPARAM)menDC.m_hDC,(LPARAM)0);   
+    
+    //输出   
+    dc.BitBlt(0,
+        headerRect.Height(),   
+        rect.Width(),   
+        rect.Height(),   
+        &menDC,   
+        0,     
+        headerRect.Height(),   
+        SRCCOPY);   
+    menDC.DeleteDC();
+    memMap.DeleteObject();	
+	// Do not call CListCtrl::OnPaint() for painting messages
+}
+
+BOOL CBuffreeListCtrl::OnEraseBkgnd(CDC* pDC) 
+{
+	// TODO: Add your message handler code here and/or call default
+
+	return FALSE;
+	//return CListCtrl::OnEraseBkgnd(pDC);
 }
 
 void CBuffreeListCtrl::OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct) 
@@ -160,6 +207,7 @@ void CBuffreeListCtrl::DrawText(int nItem, int nSubItem, CDC *pDC, COLORREF crTe
 	CString csText = "";
 	if (m_columnType[nSubItem] == BUFFREE_COLUMN_ICON) {
 		csText = GetItemText(nItem, nSubItem);
+		csText.MakeLower();
 		int nRet = m_typeSet.Find(csText);
 		csText = "";
 		CString csIconPath;
@@ -169,6 +217,8 @@ void CBuffreeListCtrl::DrawText(int nItem, int nSubItem, CDC *pDC, COLORREF crTe
 			csIconPath = "./resource/theme/icon-pack.bmp";				
 		} else if (nRet >= m_typeSet.Find("video")) {
 			csIconPath = "./resource/theme/icon-video.bmp";			
+		} else if (nRet >= m_typeSet.Find("image")) {
+			csIconPath = "./resource/theme/icon-image.bmp";			
 		} else if (nRet >= m_typeSet.Find("audio")) {
 			csIconPath = "./resource/theme/icon-audio.bmp";			
 		} else if (nRet >= m_typeSet.Find("doc")) {
@@ -193,7 +243,7 @@ void CBuffreeListCtrl::DrawText(int nItem, int nSubItem, CDC *pDC, COLORREF crTe
 		iconRect.bottom = iconRect.top + m_iItemHeight * 80 / 100;
 		pDC->SetStretchBltMode(HALFTONE);
 		//pDC->StretchBlt(iconRect.left, iconRect.top, 30, 30, &imageDC, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCCOPY);
-		TransparentBlt(pDC->m_hDC, iconRect.left, iconRect.top, 30, 30, imageDC, 0, 0, bmp.bmWidth, bmp.bmHeight, RGB(0, 0, 0));
+		TransparentBlt(pDC->m_hDC, iconRect.left, iconRect.top, 30, 30, imageDC, 0, 0, bmp.bmWidth, bmp.bmHeight, RGB(255, 255, 255));
 		//imageDC.SelectObject(pOldImageBmp);
 	} else if (m_columnType[nSubItem] == BUFFREE_COLUMN_PROGRESS) {
 		int nProcess = GetItemData(nItem);

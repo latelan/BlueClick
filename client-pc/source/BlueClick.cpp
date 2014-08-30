@@ -159,5 +159,39 @@ BOOL CBlueClickApp::GetHostMAC(CString &csMac)
 		Adapter.adapt.adapter_address[4],   
 		Adapter.adapt.adapter_address[5] 
 		); 
+
 	return TRUE;  
 }
+
+BOOL CBlueClickApp::GetWorkSpacePath(CString &csPath) 
+{  
+	char pFileName[MAX_PATH]; 
+	int nPos = GetCurrentDirectory( MAX_PATH, pFileName); 
+ 
+	CString csFullPath(pFileName);  
+	
+	if( nPos < 0 ) {
+		csPath = "";
+		return FALSE;
+	} else { 
+		csPath = csFullPath;
+		return TRUE;
+	}
+}
+
+
+void CBlueClickApp::ConvertANSIToUTF8(CString &strANSI) 
+{ 
+	int nLen = ::MultiByteToWideChar(CP_ACP,MB_ERR_INVALID_CHARS,(LPCTSTR)strANSI,-1,NULL,0); 
+	unsigned short * wszUTF_8 = new unsigned short[nLen+1]; 
+	memset(wszUTF_8, 0, nLen * 2 + 2); 
+	nLen = MultiByteToWideChar(CP_ACP, 0, (LPCTSTR)strANSI, -1, wszUTF_8, nLen); 
+	
+	nLen = WideCharToMultiByte(CP_UTF8, 0, wszUTF_8, -1, NULL, 0, NULL, NULL); 
+    char *szUTF8=new char[nLen + 1]; 
+    memset(szUTF8, 0, nLen + 1); 
+    WideCharToMultiByte (CP_UTF8, 0, wszUTF_8, -1, szUTF8, nLen, NULL,NULL); 
+	strANSI = szUTF8; 
+	delete wszUTF_8; 
+	delete szUTF8; 
+} 

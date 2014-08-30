@@ -2,41 +2,51 @@
 
 [General Info]
 Version=1
-LastClass=CUdpSocket
-LastTemplate=CSocket
+LastClass=CBlueClickDlg
+LastTemplate=CDialog
 NewFileInclude1=#include "stdafx.h"
 NewFileInclude2=#include "BlueClick.h"
 
-ClassCount=9
+ClassCount=13
 Class1=CBlueClickApp
 Class2=CBlueClickDlg
 Class3=CAboutDlg
 
-ResourceCount=12
-Resource1=IDD_DLGSPLASH_DIALOG
+ResourceCount=17
+Resource1=IDR_MENU_DOWNLOAD
 Resource2=IDR_MAINFRAME
-Resource3=IDD_BLUECLICK_DIALOG
+Resource3=IDD_DLGNEWSHARE_DIALOG
 Class4=CDlgResourceList
-Resource4=IDD_BUFFREEMESSAGEBOX_DIALOG
+Resource4=IDD_DLGSERVERSETTING_DIALOG
 Class5=CDlgDownloadList
-Resource5=IDD_DLGUPLOADLIST_DIALOG
+Resource5=IDD_DLGSYSTEMSETTING_DIALOG
 Class6=CDlgUploadList
-Resource6=IDR_MENU_UPLOAD
+Resource6=IDD_BUFFREEMESSAGEBOX_DIALOG
 Class7=CDlgSplash
-Resource7=IDR_MENU_DOWNLOAD
-Resource8=IDD_DLGRESOURCELIST_DIALOG
-Resource9=IDD_DLGDOWNLOADLIST_DIALOG
-Resource10=IDD_ABOUTBOX
-Resource11=IDR_MENU_RESOURCE
+Resource7=IDR_MENU_UPLOAD
+Resource8=IDD_DLGUPLOADLIST_DIALOG
+Resource9=IDD_ABOUTBOX
+Resource10=IDD_DLGDOWNLOADLIST_DIALOG
+Resource11=IDD_DLGSPLASH_DIALOG
 Class8=CBuffreeMessageBox
 Class9=CUdpSocket
-Resource12=IDR_MENU_SYSTEM
+Resource12=IDR_MENU_SUSPENSION
+Class10=CDlgSystemSetting
+Resource13=IDR_MENU_RESOURCE
+Class11=CDlgServerSetting
+Resource14=IDD_DLGRESOURCELIST_DIALOG
+Class12=CDlgSuspension
+Resource15=IDD_DLGSUSPENSION_DIALOG
+Resource16=IDR_MENU_SYSTEM
+Class13=CDlgNewShare
+Resource17=IDD_BLUECLICK_DIALOG
 
 [CLS:CBlueClickApp]
 Type=0
 HeaderFile=BlueClick.h
 ImplementationFile=BlueClick.cpp
 Filter=N
+LastObject=CBlueClickApp
 
 [CLS:CBlueClickDlg]
 Type=0
@@ -45,7 +55,7 @@ ImplementationFile=BlueClickDlg.cpp
 Filter=D
 BaseClass=CDialog
 VirtualFilter=dWC
-LastObject=IDC_BUTTON_CANCEL
+LastObject=CBlueClickDlg
 
 [CLS:CAboutDlg]
 Type=0
@@ -65,7 +75,7 @@ Control4=IDOK,button,1342373889
 [DLG:IDD_BLUECLICK_DIALOG]
 Type=1
 Class=CBlueClickDlg
-ControlCount=11
+ControlCount=12
 Control1=IDC_BUTTON_THEME,button,1342242816
 Control2=IDC_BUTTON_MENU,button,1342242816
 Control3=IDC_BUTTON_MIN,button,1342242816
@@ -76,7 +86,8 @@ Control7=IDC_BUTTON_UPLOAD_LIST_TAB,button,1342242816
 Control8=IDC_TREE_IDC_TREE_DOWNLOAD,SysTreeView32,1342251136
 Control9=IDC_STATIC_TAB,static,1342308352
 Control10=IDC_EDIT_SEARCH,edit,1342242816
-Control11=IDC_BUTTON_SEARCH,button,1342242816
+Control11=IDC_BUTTON_SEARCH,button,1342242817
+Control12=IDC_STATIC_CAPTION,static,1342308352
 
 [DLG:IDD_DLGRESOURCELIST_DIALOG]
 Type=1
@@ -91,7 +102,7 @@ ImplementationFile=DlgResourceList.cpp
 BaseClass=CDialog
 Filter=W
 VirtualFilter=dWC
-LastObject=ID_MENUITEM_CONTINUE_DOWNLOAD
+LastObject=CDlgResourceList
 
 [DLG:IDD_DLGDOWNLOADLIST_DIALOG]
 Type=1
@@ -106,7 +117,7 @@ ImplementationFile=DlgDownloadList.cpp
 BaseClass=CDialog
 Filter=D
 VirtualFilter=dWC
-LastObject=ID_MENUITEM_DELETE_DOWNLOAD
+LastObject=CDlgDownloadList
 
 [DLG:IDD_DLGUPLOADLIST_DIALOG]
 Type=1
@@ -134,8 +145,9 @@ Type=0
 HeaderFile=DlgSplash.h
 ImplementationFile=DlgSplash.cpp
 BaseClass=CDialog
-Filter=D
+Filter=W
 VirtualFilter=dWC
+LastObject=CDlgSplash
 
 [MNU:IDR_MENU_DOWNLOAD]
 Type=1
@@ -189,4 +201,85 @@ ImplementationFile=UdpSocket.cpp
 BaseClass=CSocket
 Filter=N
 VirtualFilter=uq
+
+[DLG:IDD_DLGSYSTEMSETTING_DIALOG]
+Type=1
+Class=CDlgSystemSetting
+ControlCount=6
+Control1=IDOK,button,1342242817
+Control2=IDCANCEL,button,1342242816
+Control3=IDC_STATIC,static,1342308352
+Control4=IDC_STATIC,static,1342308352
+Control5=IDC_SERVER_IPADDRESS,SysIPAddress32,1342242816
+Control6=IDC_EDIT_SERVER_PORT,edit,1350631552
+
+[CLS:CDlgSystemSetting]
+Type=0
+HeaderFile=DlgSystemSetting.h
+ImplementationFile=DlgSystemSetting.cpp
+BaseClass=CDialog
+Filter=D
+VirtualFilter=dWC
+LastObject=CDlgSystemSetting
+
+[DLG:IDD_DLGSERVERSETTING_DIALOG]
+Type=1
+Class=CDlgServerSetting
+ControlCount=6
+Control1=IDOK,button,1342242817
+Control2=IDCANCEL,button,1342242816
+Control3=IDC_STATIC,static,1342308352
+Control4=IDC_STATIC,static,1342308352
+Control5=IDC_EDIT_SERVER_PORT,edit,1350631552
+Control6=IDC_SERVER_IPADDRESS,SysIPAddress32,1342242816
+
+[CLS:CDlgServerSetting]
+Type=0
+HeaderFile=DlgServerSetting.h
+ImplementationFile=DlgServerSetting.cpp
+BaseClass=CDialog
+Filter=D
+VirtualFilter=dWC
+LastObject=CDlgServerSetting
+
+[DLG:IDD_DLGSUSPENSION_DIALOG]
+Type=1
+Class=CDlgSuspension
+ControlCount=1
+Control1=IDC_LOGO,static,1342177294
+
+[CLS:CDlgSuspension]
+Type=0
+HeaderFile=DlgSuspension.h
+ImplementationFile=DlgSuspension.cpp
+BaseClass=CDialog
+Filter=D
+
+[MNU:IDR_MENU_SUSPENSION]
+Type=1
+Class=?
+Command1=ID_SHOW
+Command2=ID_EXIT
+CommandCount=2
+
+[DLG:IDD_DLGNEWSHARE_DIALOG]
+Type=1
+Class=CDlgNewShare
+ControlCount=7
+Control1=IDOK,button,1342242817
+Control2=IDCANCEL,button,1342242816
+Control3=IDC_STATIC,static,1342308352
+Control4=IDC_STATIC,static,1342308352
+Control5=IDC_STATIC_FILENAME,static,1342308364
+Control6=IDC_STATIC_FILEPATH,static,1342308364
+Control7=IDC_BUTTON_SCAN,button,1342242816
+
+[CLS:CDlgNewShare]
+Type=0
+HeaderFile=DlgNewShare.h
+ImplementationFile=DlgNewShare.cpp
+BaseClass=CDialog
+Filter=W
+VirtualFilter=dWC
+LastObject=CDlgNewShare
 

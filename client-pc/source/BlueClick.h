@@ -14,6 +14,10 @@
 
 #include "resource.h"		// main symbols
 
+#define BLUECLICK_MAX_FILE_PATH 256
+#define BLUECLICK_PROFILE_VAL_LENGTH 256
+#define BLUECLICK_MSG_BUF_LENGTH 2048
+#define BLUECLICK_MAX_CLIENT_NUM 5
 /////////////////////////////////////////////////////////////////////////////
 // CBlueClickApp:
 // See BlueClick.cpp for the implementation of this class
@@ -26,6 +30,8 @@ public:
 	static HBITMAP LoadBmpFromFile(CString &bmpPath);
 	static BOOL GetHostAddress(CString &csAddr);
 	static BOOL GetHostMAC(CString &csMac);
+	static BOOL CBlueClickApp::GetWorkSpacePath(CString &csPath);
+	static void CBlueClickApp::ConvertANSIToUTF8(CString &strANSI);
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CBlueClickApp)

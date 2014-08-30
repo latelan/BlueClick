@@ -40,6 +40,7 @@ BEGIN_MESSAGE_MAP(CBuffreeMessageBox, CDialog)
 	//{{AFX_MSG_MAP(CBuffreeMessageBox)
 	ON_WM_ERASEBKGND()
 	ON_WM_CTLCOLOR()
+	ON_WM_NCHITTEST()
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -56,21 +57,35 @@ BOOL CBuffreeMessageBox::OnInitDialog()
 
 	CBlueClickDlg *mainWnd = (CBlueClickDlg*)AfxGetMainWnd();
 	CString themePath = mainWnd->m_themePath;
-	CString okBtnBmpPath = themePath + "msg-ok-btn.bmp";
-	
+	CString okBtnBmpPath = themePath + "btn-ok.bmp";
+
+	CenterWindow();
+
 	CRect rcRect;
 	GetClientRect(&rcRect);
 	m_btnOk.SetWindowPos(NULL, rcRect.Width()/2-30, rcRect.Height()-35, 60, 27, SWP_SHOWWINDOW);
 	m_btnOk.LoadBitmap(okBtnBmpPath);
 
-	CString bmpBgPath = themePath + _T("bg.bmp");
+	CString bmpBgPath = themePath + _T("dlg-bg.bmp");
 	HBITMAP hBmpBg = CBlueClickApp::LoadBmpFromFile(bmpBgPath);
 	CBitmap bmpBg;
 	bmpBg.Attach(hBmpBg);
 	m_brushBg.CreatePatternBrush(&bmpBg);
 	bmpBg.Detach();
 	DeleteObject(hBmpBg);
-	
+
+	CFont font;
+	font.CreatePointFont(120, "ËÎÌו");
+	m_staticMsg.SetFont(&font);
+
+	DWORD dwStyle = AW_BLEND;
+	HINSTANCE hInst = LoadLibrary("User32.DLL");
+	typedef BOOL (WINAPI MYFUNC(HWND, DWORD, DWORD));
+	MYFUNC* AnimateWindow;
+	AnimateWindow = (MYFUNC*)::GetProcAddress(hInst, "AnimateWindow");
+	AnimateWindow(this->m_hWnd, 500, dwStyle);
+	FreeLibrary(hInst);
+
 	return TRUE;  // return TRUE unless you set the focus to a control
 	              // EXCEPTION: OCX Property Pages should return FALSE
 }
@@ -78,7 +93,14 @@ BOOL CBuffreeMessageBox::OnInitDialog()
 void CBuffreeMessageBox::OnOK() 
 {
 	// TODO: Add extra validation here
-	
+	DWORD dwStyle = AW_BLEND;
+	HINSTANCE hInst = LoadLibrary("User32.DLL");
+	typedef BOOL (WINAPI MYFUNC(HWND, DWORD, DWORD));
+	MYFUNC* AnimateWindow;
+	AnimateWindow = (MYFUNC*)::GetProcAddress(hInst, "AnimateWindow");
+	AnimateWindow(this->m_hWnd, 500, AW_HIDE | dwStyle);
+	FreeLibrary(hInst);
+
 	CDialog::OnOK();
 }
 
@@ -103,9 +125,25 @@ HBRUSH CBuffreeMessageBox::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
     {
         pDC->SetBkMode(TRANSPARENT);
         pDC->SetTextColor(RGB(255,255,255));
+
         return  m_brushBg;// (HBRUSH)::GetStockObject(NULL_BRUSH);
     }
 	
 	// TODO: Return a different brush if the default is not desired
 	return hbr;
+}
+
+UINT CBuffreeMessageBox::OnNcHitTest(CPoint point) 
+{
+	// TODO: Add your message handler code here and/or call default
+	ScreenToClient(&point);
+	
+	CRect rc;
+	GetClientRect(&rc);
+	if (rc.PtInRect(point)) {
+		//UpdateData(FALSE);
+		return HTCAPTION;
+	} else {
+		return CDialog::OnNcHitTest(point);
+	}
 }

@@ -1,38 +1,39 @@
-#if !defined(AFX_UDPSOCKET_H__D29F2D3D_9D7D_4EBE_AA0C_D040D36BE253__INCLUDED_)
-#define AFX_UDPSOCKET_H__D29F2D3D_9D7D_4EBE_AA0C_D040D36BE253__INCLUDED_
+#if !defined(AFX_SearchSocket_H__1F4A6A63_3A16_4112_8233_A15ADE4F5F1F__INCLUDED_)
+#define AFX_SearchSocket_H__1F4A6A63_3A16_4112_8233_A15ADE4F5F1F__INCLUDED_
 
 #if _MSC_VER > 1000
 #pragma once
 #endif // _MSC_VER > 1000
-// UdpSocket.h : header file
+// SearchSocket.h : header file
 //
 
 
 
 /////////////////////////////////////////////////////////////////////////////
-// COnlineSocket command target
+// CSearchSocket command target
 
-class COnlineSocket : public CSocket
+class CSearchSocket : public CSocket
 {
 // Attributes
 public:
-	CWnd *m_pParentWnd;
 
 // Operations
 public:
-	COnlineSocket(CWnd *pParentWnd);
-	virtual ~COnlineSocket();
+	CSearchSocket(CWnd *pParentWnd);
+	virtual ~CSearchSocket();
 
 // Overrides
 public:
+	CWnd * m_pParentWnd;
 	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(COnlineSocket)
+	//{{AFX_VIRTUAL(CSearchSocket)
 	public:
 	virtual void OnReceive(int nErrorCode);
+	virtual void OnClose(int nErrorCode);
 	//}}AFX_VIRTUAL
 
 	// Generated message map functions
-	//{{AFX_MSG(COnlineSocket)
+	//{{AFX_MSG(CSearchSocket)
 		// NOTE - the ClassWizard will add and remove member functions here.
 	//}}AFX_MSG
 
@@ -45,4 +46,4 @@ protected:
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.
 
-#endif // !defined(AFX_UDPSOCKET_H__D29F2D3D_9D7D_4EBE_AA0C_D040D36BE253__INCLUDED_)
+#endif // !defined(AFX_SearchSocket_H__1F4A6A63_3A16_4112_8233_A15ADE4F5F1F__INCLUDED_)

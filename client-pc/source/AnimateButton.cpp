@@ -264,7 +264,7 @@ BOOL CAnimateButton::LoadBitmap(CString szFileName, COLORREF clrTrans)
 
 	if(!hBitmap)
 	{
-		MessageBox(_T("错误"), _T("主题资源未加载失败"), MB_OK | MB_ICONERROR);
+		MessageBox(_T("主题资源未加载失败"), _T("错误"), MB_OK | MB_ICONERROR);
 		return FALSE;
 	}
 

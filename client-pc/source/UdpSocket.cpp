@@ -13,30 +13,30 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 /////////////////////////////////////////////////////////////////////////////
-// CUdpSocket
+// COnlineSocket
 
-CUdpSocket::CUdpSocket(CWnd *pParentWnd)
+COnlineSocket::COnlineSocket(CWnd *pParentWnd)
 {
 	m_pParentWnd = pParentWnd;
 }
 
-CUdpSocket::~CUdpSocket()
+COnlineSocket::~COnlineSocket()
 {
 }
 
 
 // Do not edit the following lines, which are needed by ClassWizard.
 #if 0
-BEGIN_MESSAGE_MAP(CUdpSocket, CSocket)
-	//{{AFX_MSG_MAP(CUdpSocket)
+BEGIN_MESSAGE_MAP(COnlineSocket, CSocket)
+	//{{AFX_MSG_MAP(COnlineSocket)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 #endif	// 0
 
 /////////////////////////////////////////////////////////////////////////////
-// CUdpSocket member functions
+// COnlineSocket member functions
 
-void CUdpSocket::OnReceive(int nErrorCode) 
+void COnlineSocket::OnReceive(int nErrorCode) 
 {
 	// TODO: Add your specialized code here and/or call the base class
 	((CDlgSplash*)m_pParentWnd)->OnReceive();

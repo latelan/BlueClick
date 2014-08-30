@@ -3,42 +3,9 @@
 <pre>
 <h1>Build Log</h1>
 <h3>
---------------------Configuration: BlueClick - Win32 Debug--------------------
+--------------------Configuration: BlueClick - Win32 Release--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "C:\Users\ZYJ\AppData\Local\Temp\RSP46EC.tmp" with contents
-[
-/nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /FR"Debug/" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
-"L:\ѧϰ\ruanko\blueclick_v1.4\DlgSplash.cpp"
-]
-Creating command line "cl.exe @C:\Users\ZYJ\AppData\Local\Temp\RSP46EC.tmp" 
-Creating temporary file "C:\Users\ZYJ\AppData\Local\Temp\RSP46ED.tmp" with contents
-[
-netapi32.lib /nologo /subsystem:windows /incremental:yes /pdb:"Debug/BlueClick.pdb" /debug /machine:I386 /out:"Debug/BlueClick.exe" /pdbtype:sept 
-".\Debug\AnimateButton.obj"
-".\Debug\BlueClick.obj"
-".\Debug\BlueClickDlg.obj"
-".\Debug\BuffreeHeaderCtrl.obj"
-".\Debug\BuffreeListCtrl.obj"
-".\Debug\BuffreeMessageBox.obj"
-".\Debug\BuffreeTreeCtrl.obj"
-".\Debug\DlgDownloadList.obj"
-".\Debug\DlgResourceList.obj"
-".\Debug\DlgSplash.obj"
-".\Debug\DlgUploadList.obj"
-".\Debug\DownloadSocket.obj"
-".\Debug\IndexSocket.obj"
-".\Debug\Json.obj"
-".\Debug\ListenSocket.obj"
-".\Debug\StdAfx.obj"
-".\Debug\UdpSocket.obj"
-".\Debug\BlueClick.res"
-]
-Creating command line "link.exe @C:\Users\ZYJ\AppData\Local\Temp\RSP46ED.tmp"
-<h3>Output Window</h3>
-Compiling...
-DlgSplash.cpp
-Linking...
 
 
 

@@ -14,12 +14,18 @@
 #include "DlgDownloadList.h"	// Added by ClassView
 #include "DlgResourceList.h"	// Added by ClassView
 #include "DlgUploadList.h"	// Added by ClassView
-#include "IndexSocket.h"
+#include "SearchSocket.h"
 #include "ListenSocket.h"
 #include "DownloadSocket.h"
+#include "DlgSuspension.h"
+#include "TransStatic.h"
 
 #define WM_SHOWTASK (WM_USER +1)
 #define BUFFREE_MAX_CLIENT_NUM 5 //客户端支持的最大连接数
+
+DWORD _stdcall InitThreadProc(LPVOID lpParameter);
+DWORD _stdcall SearchThreadProc(LPVOID lpParameter);
+DWORD _stdcall DownloadThreadProc(LPVOID lpParameter);
 
 /////////////////////////////////////////////////////////////////////////////
 // CBlueClickDlg dialog
@@ -28,28 +34,39 @@ class CBlueClickDlg : public CDialog
 {
 // Construction
 public:
-	void Accept();
-	CIndexSocket		*m_indexSocket;
+	CDlgSuspension * m_dlgSuspension;
+	void ReceiveDownloadRequest(CDownloadSocket *downloadSocket);
+	HANDLE m_hThreadSearch;
+	HANDLE m_hThreadDownload;
+	void ReceiveResourceList();
+	void AcceptClient();
+	void StartDownload(UINT nItem);
+	void AddNewShare();
+	
+	int		m_width;
+	int		m_height;
+	int		m_listItemHeight;
+	CString m_serverAddr;
+	UINT	m_serverPort;
+	CString m_csWorkSpace;
+	CString m_themePath;
+	CSearchSocket		*m_searchSocket;
 	CListenSocket		*m_listenSocket;
+	int					m_clientNum;
 	CDownloadSocket		*m_downloadSocket[BUFFREE_MAX_CLIENT_NUM];
-	CDlgUploadList m_dlgUploadList;
-	CDlgResourceList m_dlgResourceList;
-	CDlgDownloadList m_dlgDownloadList;
-	CBrush m_brushBg;
+	CString				m_configFilename;
+	CDlgUploadList		m_dlgUploadList;
+	CDlgResourceList	m_dlgResourceList;
+	CDlgDownloadList	m_dlgDownloadList;
+	CBrush				m_brushBg;
 	CBlueClickDlg(CWnd* pParent = NULL);	// standard constructor
 	void ToTray();
 	void DeleteTray();
 
 // Dialog Data
-	int m_width;
-	int m_height;
-	int m_listItemHeight;
-	int m_clientConnectNum;
-	CString m_ServerIP;
-	int m_ServerPort;
-	CString m_themePath;
 	//{{AFX_DATA(CBlueClickDlg)
 	enum { IDD = IDD_BLUECLICK_DIALOG };
+	CTransStatic	m_staticCaption;
 	CEdit	m_editSearch;
 	CStatic	m_staticListTab;
 	CTreeCtrl	m_treeDownload;
@@ -95,6 +112,7 @@ protected:
 	afx_msg void OnMenuitemSystemSetting();
 	afx_msg void OnMenuitemAboutUs();
 	afx_msg void OnMenuitemQuitProg();
+	afx_msg void OnButtonSearch();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

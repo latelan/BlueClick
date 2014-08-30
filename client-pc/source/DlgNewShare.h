@@ -1,38 +1,38 @@
-#if !defined(AFX_BUFFREEMESSAGEBOX_H__EEE21FBC_98E9_42D6_9953_EB82328298C0__INCLUDED_)
-#define AFX_BUFFREEMESSAGEBOX_H__EEE21FBC_98E9_42D6_9953_EB82328298C0__INCLUDED_
+#if !defined(AFX_DLGNEWSHARE_H__E3A3DEA9_B4BB_440F_947A_7C87DD048148__INCLUDED_)
+#define AFX_DLGNEWSHARE_H__E3A3DEA9_B4BB_440F_947A_7C87DD048148__INCLUDED_
 
 #if _MSC_VER > 1000
 #pragma once
 #endif // _MSC_VER > 1000
-
-#define AW_BLEND 0x00080000
-#define AW_HIDE  0x00010000
-
-// BuffreeMessageBox.h : header file
+// DlgNewShare.h : header file
 //
-#include "AnimateButton.h"
-/////////////////////////////////////////////////////////////////////////////
-// CBuffreeMessageBox dialog
 
-class CBuffreeMessageBox : public CDialog
+#include "AnimateButton.h"
+
+/////////////////////////////////////////////////////////////////////////////
+// CDlgNewShare dialog
+
+class CDlgNewShare : public CDialog
 {
 // Construction
 public:
-	CBuffreeMessageBox(CString csMsg, CWnd* pParent = NULL);   // standard constructor
+	CBrush m_brushBg;
+	CDlgNewShare(CWnd* pParent = NULL);   // standard constructor
 
 // Dialog Data
-	//{{AFX_DATA(CBuffreeMessageBox)
-	enum { IDD = IDD_BUFFREEMESSAGEBOX_DIALOG };
-	CStatic	m_staticMsg;
+	//{{AFX_DATA(CDlgNewShare)
+	enum { IDD = IDD_DLGNEWSHARE_DIALOG };
 	CAnimateButton	m_btnOk;
-	CString	m_csMsg;
-	CBrush	m_brushBg;
+	CAnimateButton	m_btnCancel;
+	CAnimateButton	m_btnScan;
+	CString	m_csFilename;
+	CString	m_csFilePath;
 	//}}AFX_DATA
 
 
 // Overrides
 	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CBuffreeMessageBox)
+	//{{AFX_VIRTUAL(CDlgNewShare)
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	//}}AFX_VIRTUAL
@@ -41,12 +41,12 @@ public:
 protected:
 
 	// Generated message map functions
-	//{{AFX_MSG(CBuffreeMessageBox)
+	//{{AFX_MSG(CDlgNewShare)
+	afx_msg void OnButtonScan();
+	afx_msg UINT OnNcHitTest(CPoint point);
 	virtual BOOL OnInitDialog();
-	virtual void OnOK();
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
-	afx_msg UINT OnNcHitTest(CPoint point);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
@@ -54,4 +54,4 @@ protected:
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.
 
-#endif // !defined(AFX_BUFFREEMESSAGEBOX_H__EEE21FBC_98E9_42D6_9953_EB82328298C0__INCLUDED_)
+#endif // !defined(AFX_DLGNEWSHARE_H__E3A3DEA9_B4BB_440F_947A_7C87DD048148__INCLUDED_)

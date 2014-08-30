@@ -1,10 +1,10 @@
-// DownloadSocket.cpp : implementation file
+// UdpSocket.cpp : implementation file
 //
 
 #include "stdafx.h"
 #include "BlueClick.h"
-#include "BlueClickDlg.h"
-#include "DownloadSocket.h"
+#include "OnlineSocket.h"
+#include "DlgSplash.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -13,33 +13,32 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 /////////////////////////////////////////////////////////////////////////////
-// CDownloadSocket
+// COnlineSocket
 
-CDownloadSocket::CDownloadSocket(CWnd *pParent)
+COnlineSocket::COnlineSocket(CWnd *pParentWnd)
 {
-	m_pParentWnd = pParent;
+	m_pParentWnd = pParentWnd;
 }
 
-CDownloadSocket::~CDownloadSocket()
+COnlineSocket::~COnlineSocket()
 {
 }
+
 
 // Do not edit the following lines, which are needed by ClassWizard.
 #if 0
-BEGIN_MESSAGE_MAP(CDownloadSocket, CSocket)
-	//{{AFX_MSG_MAP(CDownloadSocket)
+BEGIN_MESSAGE_MAP(COnlineSocket, CSocket)
+	//{{AFX_MSG_MAP(COnlineSocket)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 #endif	// 0
 
 /////////////////////////////////////////////////////////////////////////////
-// CDownloadSocket member functions
+// COnlineSocket member functions
 
-void CDownloadSocket::OnReceive(int nErrorCode) 
+void COnlineSocket::OnReceive(int nErrorCode) 
 {
 	// TODO: Add your specialized code here and/or call the base class
-	
-	((CBlueClickDlg*)m_pParentWnd)->ReceiveDownloadRequest(this);	
-	
-	//CSocket::OnReceive(nErrorCode);
+	((CDlgSplash*)m_pParentWnd)->OnReceive();
+//	CSocket::OnReceive(nErrorCode);
 }
