@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "BlueClick.h"
 #include "DlgSuspension.h"
+#include "BlueClickDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -94,7 +95,6 @@ UINT CDlgSuspension::OnNcHitTest(CPoint pt)
 	return nHitTest;
 }
 
-
 void CDlgSuspension::OnOK()
 {
 	// TODO: Add extra cleanup here
@@ -134,15 +134,16 @@ void CDlgSuspension::OnExit()
 void CDlgSuspension::OnShow() 
 {
 	// TODO: Add your command handler code here
-	CWnd *pParent = GetParent();
+	CBlueClickDlg *pParent = (CBlueClickDlg*)GetParent();
 	ASSERT(pParent);
 	
 	if (pParent->IsWindowVisible()) {
 		pParent->ShowWindow(SW_HIDE);
 		this->ShowWindow(SW_SHOW);
 	} else {
-		pParent->ShowWindow(SW_SHOW);
+		//pParent->ShowWindow(SW_SHOW);
 		this->ShowWindow(SW_HIDE);
+		pParent->AnimateWindow(1);
 	}
 }
 

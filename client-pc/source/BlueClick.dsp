@@ -44,7 +44,6 @@ RSC=rc.exe
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MD /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_AFXDLL" /Yu"stdafx.h" /FD /c
 # ADD CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /FD /c
-# SUBTRACT CPP /YX /Yc /Yu
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x804 /d "NDEBUG" /d "_AFXDLL"
@@ -110,6 +109,10 @@ SOURCE=.\BlueClickDlg.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\BuffreeEdit.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\BuffreeHeaderCtrl.cpp
 # End Source File
 # Begin Source File
@@ -123,6 +126,10 @@ SOURCE=.\BuffreeMessageBox.cpp
 # Begin Source File
 
 SOURCE=.\BuffreeTreeCtrl.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Converter.cpp
 # End Source File
 # Begin Source File
 
@@ -151,6 +158,10 @@ SOURCE=.\DlgSuspension.cpp
 # Begin Source File
 
 SOURCE=.\DlgSystemSetting.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\DlgThemeSelecter.cpp
 # End Source File
 # Begin Source File
 
@@ -207,6 +218,10 @@ SOURCE=.\BlueClickDlg.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\BuffreeEdit.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\BuffreeHeaderCtrl.h
 # End Source File
 # Begin Source File
@@ -220,6 +235,10 @@ SOURCE=.\BuffreeMessageBox.h
 # Begin Source File
 
 SOURCE=.\BuffreeTreeCtrl.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Converter.h
 # End Source File
 # Begin Source File
 
@@ -248,6 +267,10 @@ SOURCE=.\DlgSuspension.h
 # Begin Source File
 
 SOURCE=.\DlgSystemSetting.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\DlgThemeSelecter.h
 # End Source File
 # Begin Source File
 

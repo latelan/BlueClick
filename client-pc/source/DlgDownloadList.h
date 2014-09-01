@@ -42,6 +42,7 @@ protected:
 	afx_msg void OnMenuitemContinueDownload();
 	afx_msg void OnMenuitemPauseDownload();
 	afx_msg void OnMenuitemDeleteDownload();
+	afx_msg void OnPaint();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

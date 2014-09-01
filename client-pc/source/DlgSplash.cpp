@@ -24,7 +24,8 @@ CDlgSplash::CDlgSplash(CWnd* pParent /*=NULL*/)
 	//{{AFX_DATA_INIT(CDlgSplash)
 	m_width = 400;
 	m_height = 250;
-	m_configFilename = ((CBlueClickDlg*)m_pParentWnd)->m_configFilename;
+	m_csConfigFilename = ((CBlueClickDlg*)m_pParentWnd)->m_csConfigFilename;
+	m_csResListFilename = ((CBlueClickDlg*)m_pParentWnd)->m_csResListFilename;
 	//}}AFX_DATA_INIT
 }
 
@@ -81,6 +82,7 @@ BOOL CDlgSplash::OnInitDialog()
 	AnimateWindow(this->m_hWnd, 750, dwStyle);
 	FreeLibrary(hInst);
 
+	m_staticSplashMsg.SetWindowText("正在初始化...");
 
 	m_udpSocket = new COnlineSocket(this);
 
@@ -93,7 +95,7 @@ BOOL CDlgSplash::OnInitDialog()
 	BOOL bBroadCast = true;
 	m_udpSocket->SetSockOpt(SO_BROADCAST, &bBroadCast, sizeof(BOOL));
 
-	m_hThreadInit = CreateThread(NULL, 0, SearchServerProc, this, 0, NULL);
+	m_hThreadInit = CreateThread(NULL, 0, SplashInitProc, this, 0, NULL);
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	              // EXCEPTION: OCX Property Pages should return FALSE
@@ -129,8 +131,6 @@ HBRUSH CDlgSplash::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 
 void CDlgSplash::OnReceive()
 {
-	m_staticSplashMsg.SetWindowText("已发现服务器，正在连接...");
-
 	char buf[BLUECLICK_MSG_BUF_LENGTH];
 	memset(buf, 0, BLUECLICK_MSG_BUF_LENGTH);
 	int nRet = m_udpSocket->Receive(buf, BLUECLICK_MSG_BUF_LENGTH);
@@ -147,20 +147,33 @@ void CDlgSplash::OnReceive()
 		return;
 	}
 
-	CString msgType = cJSON_GetObjectItem(pRoot, "MsgType")->valuestring;
-	if (msgType != "MsgOnlineResponse") {
+	CString csMsgType = cJSON_GetObjectItem(pRoot, "MsgType")->valuestring;
+	if (csMsgType != "MsgOnlineResponse") {
 		//AfxMessageBox("错误的信息类型");
 		return;
 	}
 
-	m_serverAddr = cJSON_GetObjectItem(pRoot, "ServerIP")->valuestring;
+	CString csMsgReserved = cJSON_GetObjectItem(pRoot, "Reserved")->valuestring;
+	if (csMsgReserved != "null") {
+		//AfxMessageBox("错误的信息类型");
+		return;
+	}
+
+	m_staticSplashMsg.SetWindowText("已发现服务器，正在连接...");
+
+	//解析JSON获取
+	m_csServerAddr = cJSON_GetObjectItem(pRoot, "ServerIP")->valuestring;
 	cJSON_Delete(pRoot);
 
-//	AfxMessageBox(m_serverAddr);
+	//AfxMessageBox(m_csServerAddr);
 
-	WritePrivateProfileString("服务端配置", "IP", m_serverAddr, m_configFilename);
+	WritePrivateProfileString("服务端配置", "IP", m_csServerAddr, m_csConfigFilename);
 	
-	((CBlueClickDlg*)m_pParentWnd)->m_serverAddr = m_serverAddr;
+	((CBlueClickDlg*)m_pParentWnd)->m_csServerAddr = m_csServerAddr;
+	((CBlueClickDlg*)m_pParentWnd)->m_nServerPort = m_nServerPort;
+	((CBlueClickDlg*)m_pParentWnd)->m_csHostAddr = m_csHostAddr;
+	((CBlueClickDlg*)m_pParentWnd)->m_csHostMAC = m_csHostMAC;
+	((CBlueClickDlg*)m_pParentWnd)->m_nHostPort = m_nHostPort;
 	
 	Sleep(2000);
 
@@ -187,60 +200,79 @@ void CDlgSplash::Close()
 	AnimateWindow(this->m_hWnd, 750, AW_HIDE | dwStyle);
 	FreeLibrary(hInst);		
 
-//	if (m_hThreadInit != NULL) {
-//		TerminateThread(m_hThreadInit, 0);
-//		m_hThreadInit = NULL;
-//	}
+	//if (m_hThreadInit != NULL) {
+	//	TerminateThread(m_hThreadInit, 0);
+	//	m_hThreadInit = NULL;
+	//}
 
 	CDialog::OnCancel();
 }
 
-DWORD _stdcall SearchServerProc(LPVOID lpParameter) {
+DWORD _stdcall SplashInitProc(LPVOID lpParameter) {
 	CDlgSplash *pDlg = (CDlgSplash*)lpParameter;
-	CString configFilename = pDlg->m_configFilename;
-	CString serverAddr;
-	UINT serverPort;
+	CString csConfigFilename = pDlg->m_csConfigFilename;
+	CString csServerAddr, csHostAddr, csHostMAC;
+	UINT nServerPort, nHostPort;
 	char jsonOnline[BLUECLICK_MSG_BUF_LENGTH];
-	
-	pDlg->m_staticSplashMsg.SetWindowText("正在初始化...");
-
 
 	//查找是否存在配置文件，若不存在，则生成一个新的默认设置的ini文件
 	CFileFind finder;
-	BOOL bRet = finder.FindFile(pDlg->m_configFilename);  
-	if( !bRet ) {  
-		WritePrivateProfileString("服务端配置", "IP", "0.0.0.0", configFilename);
-		WritePrivateProfileString("服务端配置", "Port", "6666", configFilename);
+	BOOL bRet = finder.FindFile(pDlg->m_csConfigFilename);  
+	if( !bRet ) {
+		CBlueClickApp::GetHostAddress(csHostAddr);
+		CBlueClickApp::GetHostMAC(csHostMAC);
+		WritePrivateProfileString("服务端配置", "IP", "0.0.0.0", csConfigFilename);
+		WritePrivateProfileString("服务端配置", "Port", "5566", csConfigFilename);
+		WritePrivateProfileString("客户端配置", "IP", csHostAddr, csConfigFilename);
+		WritePrivateProfileString("客户端配置", "MAC", csHostMAC, csConfigFilename);
+		WritePrivateProfileString("客户端配置", "Port", "6666", csConfigFilename);
 	}
 
 	//读写本地配置文件
-	GetPrivateProfileString("服务端配置", "IP", "0.0.0.0", serverAddr.GetBuffer(BLUECLICK_PROFILE_VAL_LENGTH), BLUECLICK_PROFILE_VAL_LENGTH, configFilename);
-	serverPort = GetPrivateProfileInt("服务端配置", "Port", 6666, configFilename);
-	serverAddr.ReleaseBuffer();
-	pDlg->m_serverAddr = serverAddr;
-	pDlg->m_serverPort = serverPort;
+	GetPrivateProfileString("服务端配置", "IP", "0.0.0.0", csServerAddr.GetBuffer(BLUECLICK_PROFILE_VAL_LENGTH), BLUECLICK_PROFILE_VAL_LENGTH, csConfigFilename);
+	nServerPort = GetPrivateProfileInt("服务端配置", "Port", 5566, csConfigFilename);
+	GetPrivateProfileString("客户端配置", "IP", "0.0.0.0", csHostAddr.GetBuffer(BLUECLICK_PROFILE_VAL_LENGTH), BLUECLICK_PROFILE_VAL_LENGTH, csConfigFilename);
+	GetPrivateProfileString("客户端配置", "MAC", "00-00-00-00-00-00", csHostMAC.GetBuffer(BLUECLICK_PROFILE_VAL_LENGTH), BLUECLICK_PROFILE_VAL_LENGTH, csConfigFilename);
+	nHostPort = GetPrivateProfileInt("客户端配置", "Port", 6666, csConfigFilename);
+	csServerAddr.ReleaseBuffer();
+	csHostAddr.ReleaseBuffer();
+	csHostMAC.ReleaseBuffer();
 
+	//获取本机信息
+	//CBlueClickApp::GetHostAddress(csHostAddr);
+	//CBlueClickApp::GetHostMAC(csHostMAC);
 
-	//获取本机信息，封装上线通知数据包
-	CString hostAddr, hostMAC;
-	UINT hostPort = 6666;
-	CBlueClickApp::GetHostAddress(hostAddr);
-	CBlueClickApp::GetHostMAC(hostMAC);
-	pDlg->m_hostAddr = hostAddr;
-	pDlg->m_hostMAC = hostMAC;
+	//查找是否存在资源列表文件，若不存在，则生成一个新的默认列表文件
+	//资源列表读取放在主窗口初始化线程里，即发现服务器之后
+	bRet = finder.FindFile(pDlg->m_csResListFilename);  
+	if( !bRet ) {
+		CFile file(pDlg->m_csResListFilename, CFile::modeCreate|CFile::modeWrite);
+		char buf[BLUECLICK_MAX_SHARE_COUNT] = {'\0'};
+
+		file.Write(buf, BLUECLICK_MAX_SHARE_COUNT);
+		file.Close();
+	}
+
+	//splash窗口成员变量赋值 
+	pDlg->m_csServerAddr = csServerAddr;
+	pDlg->m_nServerPort = nServerPort;
+	pDlg->m_csHostAddr = csHostAddr;
+	pDlg->m_csHostMAC = csHostMAC;
+	pDlg->m_nHostPort = nHostPort;
 
 	cJSON *pRoot;
 	pRoot=cJSON_CreateObject();
 	cJSON_AddStringToObject(pRoot,"MsgType", "MsgOnline");   
-	cJSON_AddStringToObject(pRoot,"ClientIP", hostAddr.GetBuffer(0));   
-	cJSON_AddStringToObject(pRoot,"ClientMAC", hostMAC.GetBuffer(0));
-	cJSON_AddNumberToObject(pRoot,"ClientListenPort", hostPort);
+	cJSON_AddStringToObject(pRoot,"ClientIP", csHostAddr.GetBuffer(0));   
+	cJSON_AddStringToObject(pRoot,"ClientMAC", csHostMAC.GetBuffer(0));
+	cJSON_AddNumberToObject(pRoot,"ClientListenPort", nHostPort);
 
 	char *strJson = cJSON_Print(pRoot);
 	memset(jsonOnline, 0, BLUECLICK_MSG_BUF_LENGTH);
 	strcpy(jsonOnline, strJson);		
 	delete strJson;
-/*
+
+	/*
 	//初始化网络环境
 	if (!AfxSocketInit())
 	{
@@ -248,7 +280,7 @@ DWORD _stdcall SearchServerProc(LPVOID lpParameter) {
 		pDlg->Close();
 	}
 
-//	pDlg->m_udpSocket = new COnlineSocket(pDlg);
+	//pDlg->m_udpSocket = new COnlineSocket(pDlg);
 
 	if(!pDlg->m_udpSocket->Create(0, SOCK_DGRAM, NULL)) {
 		pDlg->m_staticSplashMsg.SetWindowText("网络环境初始化失败，正在退出...");
@@ -258,34 +290,46 @@ DWORD _stdcall SearchServerProc(LPVOID lpParameter) {
 
 	BOOL bBroadCast = true;
 	pDlg->m_udpSocket->SetSockOpt(SO_BROADCAST, &bBroadCast, sizeof(BOOL));
+	*/
 
-*/
 	//连接服务器
-	pDlg->m_staticSplashMsg.SetWindowText("正在连接服务器...");
-	pDlg->m_udpSocket->SendTo(jsonOnline, BLUECLICK_MSG_BUF_LENGTH, serverPort, serverAddr);
-	
-	Sleep(5000);
+	for (int i = 1; i <= 3; i++) {
+		pDlg->m_staticSplashMsg.SetWindowText("正在连接服务器...");
+		pDlg->m_udpSocket->SendTo(jsonOnline, BLUECLICK_MSG_BUF_LENGTH, nServerPort, csServerAddr);
+		Sleep(1000);
+	}
 
 	SOCKADDR_IN addr;
 	addr.sin_family = AF_INET;
 	addr.sin_addr.S_un.S_addr = INADDR_BROADCAST;
-	addr.sin_port = htons(6666);
+	addr.sin_port = htons(nServerPort);
 	
-	UINT timeQuery = 0;
-	CString csMsg;
+	//局域网网络地址获取，即取本机IP地址第三个'.'之前的字串
+	UINT nDotPos = csHostAddr.Find(".");
+	nDotPos = csHostAddr.Find(".", nDotPos+1);
+	nDotPos = csHostAddr.Find(".", nDotPos+1);
+	CString csAddrPrefix = csHostAddr.Left(nDotPos+1);
+	
 	//连接服务器超时, 自动发现服务器
-	while (timeQuery++ < 3) {
-		csMsg = "连接服务器失败，正在搜索服务器...";
+	for (i = 1; i <= 5; i++) {
+		CString csMsg = "连接服务器失败，正在搜索服务器...";
 		pDlg->m_staticSplashMsg.SetWindowText(csMsg);
-
+	
+		//采用局域网广播的方式发现服务器，但在实测中发送太慢
+		//for (int j = 1; j < 255; j++) {
+		//	csServerAddr.Format("%s%d", csAddrPrefix, j);
+		//	pDlg->m_udpSocket->SendTo(jsonOnline, BLUECLICK_MSG_BUF_LENGTH, nServerPort, csServerAddr, 0);
+		//}
+		
+		//采用局域网广播的方式发现服务器，//但在实测中发现有的局域网内发送广播消息无效，因此改用一个循环向局域网内所有主机发送上线请求
 		pDlg->m_udpSocket->SendTo(jsonOnline, BLUECLICK_MSG_BUF_LENGTH, (SOCKADDR*)&addr, sizeof(addr));
-		Sleep(5000);
-	} 
+		Sleep(1000*i);
+	}
 
 	//CDlgServerSetting dlgServerSetting(pDlg);
 	//if (dlgServerSetting.DoModal() == IDOK) {
-	//	m_serverAddr = dlgServerSetting.m_serverAddr;
-	//	m_serverPort = dlgServerSetting.m_serverPort;
+	//	m_csServerAddr = dlgServerSetting.m_csServerAddr;
+	//	m_nServerPort = dlgServerSetting.m_nServerPort;
 	//	SetTimer(1, 0, NULL);
 	//} else {
 	pDlg->m_staticSplashMsg.SetWindowText("未找到服务器，程序正在退出...");

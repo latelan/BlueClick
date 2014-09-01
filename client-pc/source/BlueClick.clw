@@ -2,44 +2,47 @@
 
 [General Info]
 Version=1
-LastClass=CBlueClickDlg
-LastTemplate=CDialog
+LastClass=CDlgNewShare
+LastTemplate=CEdit
 NewFileInclude1=#include "stdafx.h"
 NewFileInclude2=#include "BlueClick.h"
 
-ClassCount=13
+ClassCount=15
 Class1=CBlueClickApp
 Class2=CBlueClickDlg
 Class3=CAboutDlg
 
-ResourceCount=17
-Resource1=IDR_MENU_DOWNLOAD
+ResourceCount=18
+Resource1=IDD_DLGSUSPENSION_DIALOG
 Resource2=IDR_MAINFRAME
-Resource3=IDD_DLGNEWSHARE_DIALOG
+Resource3=IDD_DLGTHEMESELECTER_DIALOG
 Class4=CDlgResourceList
-Resource4=IDD_DLGSERVERSETTING_DIALOG
+Resource4=IDD_DLGNEWSHARE_DIALOG
 Class5=CDlgDownloadList
-Resource5=IDD_DLGSYSTEMSETTING_DIALOG
+Resource5=IDD_BUFFREEMESSAGEBOX_DIALOG
 Class6=CDlgUploadList
-Resource6=IDD_BUFFREEMESSAGEBOX_DIALOG
+Resource6=IDD_DLGDOWNLOADLIST_DIALOG
 Class7=CDlgSplash
-Resource7=IDR_MENU_UPLOAD
-Resource8=IDD_DLGUPLOADLIST_DIALOG
-Resource9=IDD_ABOUTBOX
-Resource10=IDD_DLGDOWNLOADLIST_DIALOG
+Resource7=IDD_DLGRESOURCELIST_DIALOG
+Resource8=IDR_MENU_RESOURCE
+Resource9=IDD_DLGSYSTEMSETTING_DIALOG
+Resource10=IDD_DLGUPLOADLIST_DIALOG
 Resource11=IDD_DLGSPLASH_DIALOG
 Class8=CBuffreeMessageBox
 Class9=CUdpSocket
-Resource12=IDR_MENU_SUSPENSION
+Resource12=IDD_DLGSERVERSETTING_DIALOG
 Class10=CDlgSystemSetting
-Resource13=IDR_MENU_RESOURCE
+Resource13=IDR_MENU_SYSTEM
 Class11=CDlgServerSetting
-Resource14=IDD_DLGRESOURCELIST_DIALOG
+Resource14=IDR_MENU_UPLOAD
 Class12=CDlgSuspension
-Resource15=IDD_DLGSUSPENSION_DIALOG
-Resource16=IDR_MENU_SYSTEM
+Resource15=IDD_ABOUTBOX
+Resource16=IDR_MENU_DOWNLOAD
 Class13=CDlgNewShare
 Resource17=IDD_BLUECLICK_DIALOG
+Class14=CDlgThemeSelecter
+Class15=CBuffreeEdit
+Resource18=IDR_MENU_SUSPENSION
 
 [CLS:CBlueClickApp]
 Type=0
@@ -61,21 +64,25 @@ LastObject=CBlueClickDlg
 Type=0
 HeaderFile=BlueClickDlg.h
 ImplementationFile=BlueClickDlg.cpp
-Filter=D
+Filter=W
+LastObject=CAboutDlg
+BaseClass=CDialog
+VirtualFilter=dWC
 
 [DLG:IDD_ABOUTBOX]
 Type=1
 Class=CAboutDlg
-ControlCount=4
+ControlCount=5
 Control1=IDC_STATIC,static,1342177283
 Control2=IDC_STATIC,static,1342308480
 Control3=IDC_STATIC,static,1342308352
 Control4=IDOK,button,1342373889
+Control5=IDC_STATIC,static,1342308352
 
 [DLG:IDD_BLUECLICK_DIALOG]
 Type=1
 Class=CBlueClickDlg
-ControlCount=12
+ControlCount=13
 Control1=IDC_BUTTON_THEME,button,1342242816
 Control2=IDC_BUTTON_MENU,button,1342242816
 Control3=IDC_BUTTON_MIN,button,1342242816
@@ -88,6 +95,7 @@ Control9=IDC_STATIC_TAB,static,1342308352
 Control10=IDC_EDIT_SEARCH,edit,1342242816
 Control11=IDC_BUTTON_SEARCH,button,1342242817
 Control12=IDC_STATIC_CAPTION,static,1342308352
+Control13=IDC_STATIC_LOGO,static,1342177294
 
 [DLG:IDD_DLGRESOURCELIST_DIALOG]
 Type=1
@@ -265,14 +273,16 @@ CommandCount=2
 [DLG:IDD_DLGNEWSHARE_DIALOG]
 Type=1
 Class=CDlgNewShare
-ControlCount=7
+ControlCount=9
 Control1=IDOK,button,1342242817
 Control2=IDCANCEL,button,1342242816
 Control3=IDC_STATIC,static,1342308352
 Control4=IDC_STATIC,static,1342308352
-Control5=IDC_STATIC_FILENAME,static,1342308364
-Control6=IDC_STATIC_FILEPATH,static,1342308364
-Control7=IDC_BUTTON_SCAN,button,1342242816
+Control5=IDC_BUTTON_SCAN,button,1342242816
+Control6=IDC_EDIT_FILE_PATH,edit,1342242944
+Control7=IDC_EDIT_FILENAME,edit,1342242944
+Control8=IDC_EDIT_FILE_TAGS,edit,1342242944
+Control9=IDC_STATIC,static,1342308352
 
 [CLS:CDlgNewShare]
 Type=0
@@ -281,5 +291,30 @@ ImplementationFile=DlgNewShare.cpp
 BaseClass=CDialog
 Filter=W
 VirtualFilter=dWC
-LastObject=CDlgNewShare
+LastObject=IDC_EDIT_FILENAME
+
+[DLG:IDD_DLGTHEMESELECTER_DIALOG]
+Type=1
+Class=CDlgThemeSelecter
+ControlCount=4
+Control1=IDOK,button,1342242817
+Control2=IDCANCEL,button,1342242816
+Control3=IDC_STATIC_THEME1,static,1342177294
+Control4=IDC_STATIC_THEME2,static,1342177287
+
+[CLS:CDlgThemeSelecter]
+Type=0
+HeaderFile=DlgThemeSelecter.h
+ImplementationFile=DlgThemeSelecter.cpp
+BaseClass=CDialog
+Filter=D
+VirtualFilter=dWC
+LastObject=IDC_STATIC_THEME1
+
+[CLS:CBuffreeEdit]
+Type=0
+HeaderFile=BuffreeEdit.h
+ImplementationFile=BuffreeEdit.cpp
+BaseClass=CEdit
+Filter=W
 

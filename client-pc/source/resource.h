@@ -16,6 +16,7 @@
 #define IDD_DLGSERVERSETTING_DIALOG     110
 #define IDD_DLGSUSPENSION_DIALOG        111
 #define IDD_DLGNEWSHARE_DIALOG          112
+#define IDD_DLGTHEMESELECTER_DIALOG     113
 #define IDR_MAINFRAME                   128
 #define IDR_MENU_DOWNLOAD               129
 #define IDR_MENU_RESOURCE               130
@@ -45,6 +46,12 @@
 #define IDC_STATIC_FILENAME             1025
 #define IDC_STATIC_FILEPATH             1026
 #define IDC_STATIC_CAPTION              1027
+#define IDC_STATIC_THEME1               1028
+#define IDC_STATIC_THEME2               1029
+#define IDC_STATIC_LOGO                 1029
+#define IDC_EDIT_FILE_PATH              1030
+#define IDC_EDIT_FILENAME               1031
+#define IDC_EDIT_FILE_TAGS              1032
 #define ID_MENUITEM_CONTINUE_DOWNLOAD   32771
 #define ID_MENUITEM_PAUSE_DOWNLOAD      32772
 #define ID_MENUITEM_DELETE_DOWNLOAD     32773
@@ -63,7 +70,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        139
 #define _APS_NEXT_COMMAND_VALUE         32782
-#define _APS_NEXT_CONTROL_VALUE         1028
-#define _APS_NEXT_SYMED_VALUE           113
+#define _APS_NEXT_CONTROL_VALUE         1032
+#define _APS_NEXT_SYMED_VALUE           114
 #endif
 #endif

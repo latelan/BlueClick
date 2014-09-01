@@ -22,6 +22,7 @@ CDlgNewShare::CDlgNewShare(CWnd* pParent /*=NULL*/)
 	//{{AFX_DATA_INIT(CDlgNewShare)
 	m_csFilename = _T("");
 	m_csFilePath = _T("");
+	m_csFileTags = _T("");
 	//}}AFX_DATA_INIT
 }
 
@@ -30,11 +31,15 @@ void CDlgNewShare::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CDlgNewShare)
+	DDX_Control(pDX, IDC_EDIT_FILENAME, m_editFileName);
+	DDX_Control(pDX, IDC_EDIT_FILE_TAGS, m_editFileTags);
+	DDX_Control(pDX, IDC_EDIT_FILE_PATH, m_editFilePath);
 	DDX_Control(pDX, IDOK, m_btnOk);
 	DDX_Control(pDX, IDCANCEL, m_btnCancel);
 	DDX_Control(pDX, IDC_BUTTON_SCAN, m_btnScan);
-	DDX_Text(pDX, IDC_STATIC_FILENAME, m_csFilename);
-	DDX_Text(pDX, IDC_STATIC_FILEPATH, m_csFilePath);
+	DDX_Text(pDX, IDC_EDIT_FILENAME, m_csFilename);
+	DDX_Text(pDX, IDC_EDIT_FILE_PATH, m_csFilePath);
+	DDX_Text(pDX, IDC_EDIT_FILE_TAGS, m_csFileTags);
 	//}}AFX_DATA_MAP
 }
 
@@ -68,6 +73,10 @@ BOOL CDlgNewShare::OnInitDialog()
 	m_btnScan.LoadBitmap(scanBtnBmpPath);
 	m_btnOk.LoadBitmap(okBtnBmpPath);
 	m_btnCancel.LoadBitmap(cancelBtnBmpPath);
+
+	m_editFilePath.SetMargins(5, 5);
+	m_editFileName.SetMargins(5, 5);
+	m_editFileTags.SetMargins(5, 5);
 
 	CString bmpBgPath = themePath + _T("dlg-bg.bmp");
 	HBITMAP hBmpBg = CBlueClickApp::LoadBmpFromFile(bmpBgPath);

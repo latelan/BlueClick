@@ -6,12 +6,14 @@
 #endif // _MSC_VER > 1000
 // DlgSplash.h : header file
 //
+
+#include "StdAfx.h"
 #include "OnlineSocket.h"
 
 #define AW_BLEND 0x00080000
 #define AW_HIDE  0x00010000
 
-DWORD _stdcall SearchServerProc(LPVOID lpParameter);
+DWORD _stdcall SplashInitProc(LPVOID lpParameter);
 /////////////////////////////////////////////////////////////////////////////
 // CDlgSplash dialog
 
@@ -22,21 +24,18 @@ public:
 	int		m_width;
 	int		m_height;
 	
-	CString m_serverAddr;
-	UINT	m_serverPort;
-
-	CString m_configFilename;
+	CString m_csConfigFilename;
+	CString m_csResListFilename;
+	CString m_csServerAddr;
+	UINT	m_nServerPort;
+	CString m_csHostAddr;
+	CString m_csHostMAC;
+	UINT	m_nHostPort;
 	
 	CBrush	m_brushBg;
-	
-	CString m_hostAddr;
-	CString m_hostMAC;
-	
-	HANDLE m_hThreadInit;
-	
-	COnlineSocket *m_udpSocket;
 
-	char	m_jsonOnline[BLUECLICK_MSG_BUF_LENGTH];
+	HANDLE m_hThreadInit;
+	COnlineSocket *m_udpSocket;
 
 	void OnReceive();
 	void Close();

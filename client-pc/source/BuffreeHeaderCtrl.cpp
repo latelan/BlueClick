@@ -19,7 +19,7 @@ CBuffreeHeaderCtrl::CBuffreeHeaderCtrl()
 	m_height = 25;
 	m_bgColor = RGB(90, 90, 90);
 	m_textColor = RGB(255, 255, 255);
-	m_spColor = RGB(211, 211, 211);
+	m_spColor = RGB(90, 90, 90);
 	m_textFont.CreatePointFont(110, "Î¢ÈíÑÅºÚ");
 	//m_textFont.CreateFont(22, 8, 0, 0, 550, 0, 0, 0, DEFAULT_CHARSET,
 	//	OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH, "Î¢ÈíÑÅºÚ");
@@ -77,7 +77,12 @@ void CBuffreeHeaderCtrl::OnPaint()
 		hditem.cchTextMax = 255;
 		GetItem(i, &hditem);
 
-		UINT uFormat = DT_SINGLELINE | DT_NOPREFIX | DT_TOP | DT_CENTER | DT_END_ELLIPSIS;
+		UINT uFormat;
+		if (i == 0) {
+			uFormat = DT_SINGLELINE | DT_NOPREFIX | DT_TOP | DT_CENTER | DT_END_ELLIPSIS;
+		} else {
+			uFormat = DT_SINGLELINE | DT_NOPREFIX | DT_TOP | DT_CENTER | DT_END_ELLIPSIS;
+		}
 		dc.DrawText(buf, &rectItem, uFormat);
 	}
 

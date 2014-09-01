@@ -195,3 +195,25 @@ void CBlueClickApp::ConvertANSIToUTF8(CString &strANSI)
 	delete wszUTF_8; 
 	delete szUTF8; 
 } 
+
+CString CBlueClickApp::GetFileSizeStr(UINT fileLength)
+{
+	CString csFileSize;
+
+	if (fileLength >= BLUECLICK_GB_SIZE) {
+		FLOAT fFileSize = fileLength / (FLOAT)BLUECLICK_GB_SIZE;
+		csFileSize.Format("%.2fG", fFileSize);
+	} else if (fileLength >= BLUECLICK_MB_SIZE) {
+		FLOAT fFileSize = fileLength / (FLOAT)BLUECLICK_MB_SIZE;
+		csFileSize.Format("%.2fMB", fFileSize);
+	} else if (fileLength >= BLUECLICK_KB_SIZE) {
+		FLOAT fFileSize = fileLength / (FLOAT)BLUECLICK_KB_SIZE;
+		csFileSize.Format("%.2fKB", fFileSize);
+	} else if (fileLength >= 0){
+		csFileSize.Format("%dB", fileLength);
+	} else {
+		csFileSize = "0Btye";
+	}
+
+	return csFileSize;
+}

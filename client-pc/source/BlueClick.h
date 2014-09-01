@@ -13,11 +13,34 @@
 #endif
 
 #include "resource.h"		// main symbols
+#include "BlueClickDlg.h"
+#include "BuffreeListCtrl.h"
 
 #define BLUECLICK_MAX_FILE_PATH 256
 #define BLUECLICK_PROFILE_VAL_LENGTH 256
 #define BLUECLICK_MSG_BUF_LENGTH 2048
-#define BLUECLICK_MAX_CLIENT_NUM 5
+#define BLUECLICK_MAX_SHARE_COUNT 1024
+#define BLUECLICK_FILE_TAG_LENGTH 1024
+#define BLUECLICK_GB_SIZE (1024*1024*1024)
+#define BLUECLICK_MB_SIZE (1024*1024)
+#define BLUECLICK_KB_SIZE (1024)
+
+typedef struct {
+	CBlueClickDlg *m_mainWnd;
+	CBuffreeListCtrl *m_list;
+	UINT m_nItem;
+	UINT m_nThreadIndex;
+} STRUCT_THREAD_PARAMETER;
+
+typedef struct {
+	char m_resPath[MAX_PATH];
+	char m_resName[MAX_PATH];
+	char m_resExt[10];
+	char m_resTag[BLUECLICK_FILE_TAG_LENGTH];
+	char m_resSize[10];
+	char m_resMD5[33];
+} STRUCT_SHARE_FILE_INFO;
+
 /////////////////////////////////////////////////////////////////////////////
 // CBlueClickApp:
 // See BlueClick.cpp for the implementation of this class
@@ -30,8 +53,9 @@ public:
 	static HBITMAP LoadBmpFromFile(CString &bmpPath);
 	static BOOL GetHostAddress(CString &csAddr);
 	static BOOL GetHostMAC(CString &csMac);
-	static BOOL CBlueClickApp::GetWorkSpacePath(CString &csPath);
-	static void CBlueClickApp::ConvertANSIToUTF8(CString &strANSI);
+	static BOOL GetWorkSpacePath(CString &csPath);
+	static void ConvertANSIToUTF8(CString &strANSI);
+	static CString GetFileSizeStr(UINT fileLength);
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CBlueClickApp)

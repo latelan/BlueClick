@@ -59,21 +59,31 @@ BOOL CDlgUploadList::OnInitDialog()
 	m_listUpload.SetWindowPos(NULL, 0, 0, listRect.Width(), listRect.Height(), SWP_SHOWWINDOW); 
 	
 	m_listUpload.SetExtendedStyle( LVS_EX_FLATSB | LVS_EX_FULLROWSELECT |
-		LVS_EX_ONECLICKACTIVATE |LVS_EX_GRIDLINES | LVS_OWNERDRAWFIXED );
+		LVS_EX_ONECLICKACTIVATE | LVS_OWNERDRAWFIXED );
 	//设置资源列表视图行高，前提是需要设置自绘风格，即LVS_OWNERDRAWFIXED
 	m_listUpload.SetItemHeight(40);
 	m_listUpload.ModifyStyle( LVS_OWNERDRAWFIXED, 0, 0 );//去掉自绘风格
 	m_listUpload.SetColumnType(1, BUFFREE_COLUMN_ICON);//设置第二列显示图标
-	m_listUpload.SetColumnType(3, BUFFREE_COLUMN_PROGRESS);//设置第四列显示进度条
+	m_listUpload.SetColumnType(4, BUFFREE_COLUMN_PROGRESS);//设置第四列显示进度条
 	m_listUpload.SetRightMenuID(IDR_MENU_UPLOAD);//设置右键菜单
-	
-	//这块需要注意的是，第一列宽度设置为0，即不使用第一列，因为第一列不能设置居中对齐
+
+	//这块需要注意的是，第一列宽度设置为0，即不显示第一列，因为第一列不能设置居中对齐
 	//并且通过GetClientRect()获取到的第一列宽度并不是真正的第一列宽度，而是整个列表的宽度
-	m_listUpload.InsertColumn(0, "第一列，已废弃", LVCFMT_LEFT, 0, 0);
-	m_listUpload.InsertColumn(1, "类型", LVCFMT_LEFT, 80, 1);//第二列
-	m_listUpload.InsertColumn(2, "文件名", LVCFMT_LEFT, 200, 2);
-	m_listUpload.InsertColumn(3, "进度", LVCFMT_LEFT, listRect.Width()-298, 3);//通过计算，使得最后一列刚好填满列表宽度
-		
+	//上传列表：
+	// 0：弃用，这里用来存储资源路径；
+	// 1：文件后缀；
+	// 2：文件名；
+	// 3：文件大小
+	// 4：进度条，字串无效，这里用来存储资源标签；
+	// 5：文件MD5
+	// data：进度条进度
+	m_listUpload.InsertColumn(0, "文件路径", LVCFMT_LEFT, 0, 0);
+	m_listUpload.InsertColumn(1, "类型", LVCFMT_LEFT, 100, 1);//第二列
+	m_listUpload.InsertColumn(2, "文件名", LVCFMT_LEFT, 250, 2);
+	m_listUpload.InsertColumn(3, "大小", LVCFMT_LEFT, 70, 3);
+	m_listUpload.InsertColumn(4, "进度", LVCFMT_LEFT, listRect.Width()-438, 4);//通过计算，使得最后一列刚好填满列表宽度
+	m_listUpload.InsertColumn(5, "资源标识", LVCFMT_LEFT, 0, 5);//不显示
+
 	return TRUE;  // return TRUE unless you set the focus to a control
 	              // EXCEPTION: OCX Property Pages should return FALSE
 }
@@ -103,5 +113,8 @@ void CDlgUploadList::OnMenuitemDeleteShare()
 {
 	// TODO: Add your command handler code here
 	int nItem = m_listUpload.GetNextItem(-1, LVNI_SELECTED);
-	m_listUpload.DeleteItem(nItem);
+	
+	CBlueClickDlg *mainWnd = (CBlueClickDlg*)(this->GetParent()->GetParent());
+
+	mainWnd->DeleteShare(nItem);
 }

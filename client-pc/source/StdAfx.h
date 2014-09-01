@@ -26,6 +26,7 @@
 #include "Json.h"
 #include <NB30.H>
 
+void HexDump(char *buf,int len);
 
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.

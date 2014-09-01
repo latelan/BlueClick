@@ -8,6 +8,7 @@
 //
 
 #include "AnimateButton.h"
+#include "BuffreeEdit.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CDlgNewShare dialog
@@ -22,11 +23,15 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CDlgNewShare)
 	enum { IDD = IDD_DLGNEWSHARE_DIALOG };
+	CBuffreeEdit	m_editFileName;
+	CBuffreeEdit	m_editFileTags;
+	CBuffreeEdit	m_editFilePath;
 	CAnimateButton	m_btnOk;
 	CAnimateButton	m_btnCancel;
 	CAnimateButton	m_btnScan;
 	CString	m_csFilename;
 	CString	m_csFilePath;
+	CString	m_csFileTags;
 	//}}AFX_DATA
 
 

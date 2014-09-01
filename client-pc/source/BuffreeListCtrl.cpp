@@ -133,7 +133,6 @@ void CBuffreeListCtrl::OnNcCalcSize(BOOL bCalcValidRects, NCCALCSIZE_PARAMS FAR*
 {
 	// TODO: Add your message handler code here and/or call default
     ModifyStyle( WS_HSCROLL | WS_VSCROLL, 0 ); // 去掉水平滚动条和竖直滚动条                   
-    CListCtrl::OnNcCalcSize(bCalcValidRects, lpncsp);  	
 	
 	InitializeFlatSB(this->m_hWnd);                                                 
     FlatSB_EnableScrollBar(this->m_hWnd, SB_BOTH, ESB_DISABLE_BOTH); 
@@ -274,7 +273,7 @@ void CBuffreeListCtrl::DrawText(int nItem, int nSubItem, CDC *pDC, COLORREF crTe
 	
 	if (!csText.IsEmpty()) {
 		UINT nFormat;
-		if (nSubItem == 0) {
+		if (nSubItem == 2) {
 			nFormat = DT_LEFT | DT_VCENTER | DT_SINGLELINE;
 		} else {
 			nFormat = DT_CENTER | DT_VCENTER | DT_SINGLELINE;
@@ -318,9 +317,9 @@ void CBuffreeListCtrl::OnRclick(NMHDR* pNMHDR, LRESULT* pResult)
 	
 	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
 
-	if (m_rightClickMenuID == BUFFREE_INVALID_MENUID || GetSelectedCount() <= 0) {
-		return;
-	}
+//	if (m_rightClickMenuID == BUFFREE_INVALID_MENUID || GetSelectedCount() <= 0) {
+//		return;
+//	}
 
 	CMenu menu, *pPopup;
 	menu.LoadMenu(m_rightClickMenuID);

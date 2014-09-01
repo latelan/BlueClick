@@ -21,12 +21,12 @@
 #include "TransStatic.h"
 
 #define WM_SHOWTASK (WM_USER +1)
-#define BUFFREE_MAX_CLIENT_NUM 5 //客户端支持的最大连接数
+#define BUFFREE_MAX_SYN_NUM 5 //客户端支持的最大连接数
 
 DWORD _stdcall InitThreadProc(LPVOID lpParameter);
 DWORD _stdcall SearchThreadProc(LPVOID lpParameter);
 DWORD _stdcall DownloadThreadProc(LPVOID lpParameter);
-
+DWORD _stdcall UploadThreadProc(LPVOID lpParameter);
 /////////////////////////////////////////////////////////////////////////////
 // CBlueClickDlg dialog
 
@@ -34,40 +34,53 @@ class CBlueClickDlg : public CDialog
 {
 // Construction
 public:
-	CDlgSuspension * m_dlgSuspension;
-	void ReceiveDownloadRequest(CDownloadSocket *downloadSocket);
+	void DeleteShare(UINT nItem);
+	UINT	m_screenHeight;
+	UINT	m_screenWidth;
+	int		m_width;
+	int		m_height;
+	int		m_listItemHeight;
+
+	CString m_csServerAddr;
+	UINT	m_nServerPort;
+	CString m_csHostAddr;
+	CString m_csHostMAC;
+	UINT	m_nHostPort;
+
+	CString m_csWorkSpace;
+	CString m_themePath;
+	CString	m_csConfigFilename;
+	CString m_csResListFilename;
+	CBrush	m_brushBg;
+
+	CDlgSuspension * m_dlgSuspension;	
+
+	CSearchSocket		*m_searchSocket;
+	CListenSocket		*m_listenSocket;
+	CDownloadSocket		*m_downloadSocket[BUFFREE_MAX_SYN_NUM];
+	int					m_clientNum;
+
 	HANDLE m_hThreadSearch;
-	HANDLE m_hThreadDownload;
+	HANDLE m_hThreadDownload[BUFFREE_MAX_SYN_NUM];
+	HANDLE m_hThreadUpload[BUFFREE_MAX_SYN_NUM];
+
+	CBlueClickDlg(CWnd* pParent = NULL);	// standard constructor
+	void AnimateWindow(UINT flag);
+	void ReceiveDownloadRequest(CDownloadSocket *downloadSocket);
 	void ReceiveResourceList();
 	void AcceptClient();
 	void StartDownload(UINT nItem);
 	void AddNewShare();
-	
-	int		m_width;
-	int		m_height;
-	int		m_listItemHeight;
-	CString m_serverAddr;
-	UINT	m_serverPort;
-	CString m_csWorkSpace;
-	CString m_themePath;
-	CSearchSocket		*m_searchSocket;
-	CListenSocket		*m_listenSocket;
-	int					m_clientNum;
-	CDownloadSocket		*m_downloadSocket[BUFFREE_MAX_CLIENT_NUM];
-	CString				m_configFilename;
-	CDlgUploadList		m_dlgUploadList;
-	CDlgResourceList	m_dlgResourceList;
-	CDlgDownloadList	m_dlgDownloadList;
-	CBrush				m_brushBg;
-	CBlueClickDlg(CWnd* pParent = NULL);	// standard constructor
 	void ToTray();
 	void DeleteTray();
 
 // Dialog Data
 	//{{AFX_DATA(CBlueClickDlg)
 	enum { IDD = IDD_BLUECLICK_DIALOG };
+	CStatic	m_staticLogo;
 	CTransStatic	m_staticCaption;
 	CEdit	m_editSearch;
+	CString	m_csKeyword;
 	CStatic	m_staticListTab;
 	CTreeCtrl	m_treeDownload;
 	CAnimateButton	m_btnSearch;
@@ -78,7 +91,9 @@ public:
 	CAnimateButton	m_btnSysMenu;
 	CAnimateButton	m_btnDownloadListTab;
 	CAnimateButton	m_btnCancel;
-	CString	m_csKeyword;
+	CDlgUploadList		m_dlgUploadList;
+	CDlgResourceList	m_dlgResourceList;
+	CDlgDownloadList	m_dlgDownloadList;
 	//}}AFX_DATA
 
 	// ClassWizard generated virtual function overrides
