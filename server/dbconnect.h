@@ -18,10 +18,10 @@
 #define TBL_RESOURCE_TAGS "tbl_resource_tags"
 
 MYSQL *open();
-
 int add_share_resource(const struct resource_type *res);
 int query_res_md5(const char *key, char (*res_md5)[33], int *len);
 int query_res_info(const char *res_md5, struct resource_type *resinfo);
-
+int remove_duplicate_md5(char md5[][33], int *len);
 int get_res_list(struct queryres key, struct resource_type *res, int *len);
+
 #endif

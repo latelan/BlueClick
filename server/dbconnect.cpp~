@@ -1,15 +1,10 @@
-/*************************************************************************
-	> File Name: dbconect.cpp
-	> Author: latelan, coolboy1353@163.com
-	> Created Time: 2014-08-28 20:50:55
- ************************************************************************/ 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "/usr/include/mysql/mysql.h"
 #include "common.h"
 #include "dbconnect.h"
-#include "tools.h"
 
 const char *host = HOST;
 const char *user = USER;
@@ -51,88 +46,40 @@ MYSQL *open()
 }
 /**
  * 功能：添加分享资源
- * 参数：resource_share - 分享资源结构体
+ * 参数：res_name - 资源名称
+ *		 res_size - 资源大小
+ *		 res_md5 - 资源md5
+ *		 res_piececount - 资源分片数
+ *		 res_sharetime - 分享时间
  *	返回值：添加成功返回0，失败返回1，数据库内部错误返回-1
  */
-int add_share_resource(const struct resource_share *res)
+int add_share_resource(const struct resource_type *res)
 {
 	
 	MYSQL *mysql = NULL;
 	char query_str[512];
 	int affect_rows;
-	int has;
+
 	if(mysql == NULL) {
 		mysql = open();
 	}
 	
-	/* insert into tbl_resoure */
+	/* 检查是否为已分享 */
 	sprintf(query_str,"INSERT INTO tbl_resource(f_res_name,\
 		f_res_size,f_res_md5,f_res_piececount) VALUES('%s',\
 		'%s','%s','%d')", res->name,res->size,res->md5,res->piececount);
 	if(mysql_query(mysql,query_str)) {
 		fprintf(stderr,"Error: %s\n",mysql_error(mysql));
-		
-		mysql_close(mysql);
 		return -1;
 	}
-	
+
 	affect_rows = mysql_affected_rows(mysql);
-	if(affect_rows <= 0) {
-
-		mysql_close(mysql);
-		return -1;
-	}
-	
-	/* get sharetime */
-	char *sharetime;
-	sharetime = get_curr_time();
-
-	/* insert into tbl_resource_owner */
-	if(strlen(res->mac) <= 0) {
-
-		mysql_close(mysql);
-		return 0;
-	}
-	memset(query_str,'\0',sizeof(query_str));
-	sprintf(query_str,"INSERT INTO tbl_resource_owner(f_res_md5,\
-		f_res_owner,f_res_sharetime) VALUES('%s','%s','%s')",res->md5
-		,res->mac,sharetime);
-
-
-	/* insert into tbl_resource_tags */
-	if(strlen(res->tag) <= 0) {
-
-		mysql_close(mysql);
-		return 0;
-	}
-	const char *sp = ",";
-	char *tag = NULL;
-	char key[512];
-
-	int tag_failed = 0;
-	strcpy(key,res->tag);
-	tag = strtok(key,sp);
-	while(tag) {
-		memset(query_str,'\0',sizeof(query_str));
-		sprintf(query_str,"INSERT INTO tbl_resource_tags(f_res_md5,\
-			f_res_tags) VALUES('%s','%s')",res->md5,tag);
-		if(mysql_query(mysql,query_str)) {
-			fprintf(stderr,"Error: %s\n",mysql_error(mysql));
-
-			mysql_close(mysql);
-			return -1;
-		}
-		affect_rows = mysql_affected_rows(mysql);
-		if(affect_rows < 0) {
-			tag_failed = 1;
-		}
-
-		strtok(NULL,sp);
-	}
-
 	mysql_close(mysql);
+	if(affect_rows > 0) {
+		return 0;
+	}
 
-	return tag_failed == 1 ? -1:0;
+	return -1;
 }
 
 /**
@@ -211,27 +158,10 @@ int query_res_info(const char *res_md5,
 	return -1;
 }
 
-/* remove duplicat md5 in md5 list */
-int remove_duplicate_md5(char md5[][33], int *len)
+int remove_duplicate_mac(char md5[][33], int *len)
 {
-	int tlen = *len;
-
-	for(int i=0; i<tlen-1; i++) {
-		for(int j=tlen-1; j>i; j--) {
-			if(strcmp(md5[i],md5[j]) == 0 ) {
-				for(int k=j; k<tlen-1; k++) {
-					strcpy(md5[k],md5[k+1]);
-				}
-				tlen -= 1;
-			}		
-		}
-	}
-	int count = *len - tlen;
-	*len = tlen;
-
-	return count;
+	
 }
-
 /* 根据关键字获得资源 */
 int get_res_list(struct queryres key, struct resource_type *res, int *len)
 {
@@ -239,18 +169,17 @@ int get_res_list(struct queryres key, struct resource_type *res, int *len)
 	int cnt = 10;
 	
 	/* query md5 by mac */
-	query_res_md5(key.key,md5_list,&cnt);
+	query_res_md5(key.key,md5_list,cnt);
 
 	/* remove duplicate item */
-	remove_duplicate_md5(md5_list,&cnt);
-
-	*len = cnt;
+	
 	for(int i=0;i<*len;i++) {
 		query_res_info(md5_list[i],&res[i]);
 	}
 
 	return 0;
 }
+
 
 
 /**
