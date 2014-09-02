@@ -106,9 +106,10 @@ int msg_tcp_handler(int sockfd,struct online_list *clientlist)
 		return -1;
 	}
 	
-	printf("tcp buf: %d bytes, %s\n",ret, buf);
 	cJSON *msg = cJSON_Parse(buf);
-	cJSON_Print(msg);
+	char *out = cJSON_Print(msg);
+	printf("recv buf: %s\n",out);
+	free(out);
 
 	if(!msg) {
 		return -1;
@@ -117,7 +118,6 @@ int msg_tcp_handler(int sockfd,struct online_list *clientlist)
 
 	char msgtype[64] = "";
 	strcpy(msgtype,cJSON_GetObjectItem(msg,"MsgType")->valuestring);
-	printf("msgType: %s\n",msgtype);
 
 	if(strcmp(MSG_QUERY_RES,msgtype) == 0) { 	/* search resource */
 		printf("MsgType: MSG_QUERY_RES\n");
@@ -145,6 +145,8 @@ int msg_tcp_handler(int sockfd,struct online_list *clientlist)
 		// response query msg
 		printf("send: %s\n",text);
 		send(sockfd,text,strlen(text)+1, 0);
+
+		free(text);
 	}
 	else if (strcmp(MSG_GET_PUSH,msgtype) == 0) { /* get push */
 		printf("MsgType: MSG_GET_PUSH\n");
@@ -152,10 +154,16 @@ int msg_tcp_handler(int sockfd,struct online_list *clientlist)
 		int numwanted = cJSON_GetObjectItem(msg,"NumWanted")->valueint;
 
 		/* default push method */
-		struct queryres query = {"梁静茹"};
+		struct queryres query = {"she"};
 		struct resource_type res[10];
 		int len;
 		char *text = NULL;
+	
+		len = 10;
+		if(numwanted < 10 || numwanted > 0) {
+			len = numwanted;
+		}
+
 		get_res_list(query,res,&len);
 		text = res_list_to_json(text,res,len);
 
@@ -169,14 +177,23 @@ int msg_tcp_handler(int sockfd,struct online_list *clientlist)
 		printf("MsgType: MSG_SHARE_RES\n");
 		
 		struct resource_share share_res;
-		strcpy(share_res.name,cJSON_GetObjectItem(msg,"ResName")->valuestring);
-		strcpy(share_res.tag,cJSON_GetObjectItem(msg,"ResTag")->valuestring);
-		strcpy(share_res.size,cJSON_GetObjectItem(msg,"ResSize")->valuestring);
-		strcpy(share_res.md5,cJSON_GetObjectItem(msg,"ResMD5")->valuestring);
-		strcpy(share_res.mac,cJSON_GetObjectItem(msg,"ResOwner")->valuestring);
-		share_res.piececount = cJSON_GetObjectItem(msg,"ResPieceCount")->valueint;
-
 		
+		cJSON *child = cJSON_GetObjectItem(msg,"Resource");
+		strcpy(share_res.name,cJSON_GetObjectItem(child,"ResName")->valuestring);
+		strcpy(share_res.tag,cJSON_GetObjectItem(child,"ResTag")->valuestring);
+		strcpy(share_res.size,cJSON_GetObjectItem(child,"ResSize")->valuestring);
+		strcpy(share_res.md5,cJSON_GetObjectItem(child,"ResMD5")->valuestring);
+		strcpy(share_res.mac,cJSON_GetObjectItem(child,"ResOwner")->valuestring);
+		share_res.piececount = cJSON_GetObjectItem(child,"ResPieceCount")->valueint;
+		
+		/* add share resource into db */
+		add_share_resource(&share_res);
+			
+		printf("Resource: Name:%s, Tag:%s, Size:%s, MD5:%s, Owner:%s, PieceCount:%d\n",
+				share_res.name,share_res.tag,share_res.size,share_res.md5,
+				share_res.mac,share_res.piececount);
+
+		printf("run to here\n");		
 
 	}
 	else if (strcmp(MSG_DOWNLOAD_RES,msgtype) == 0) { /* download resource */

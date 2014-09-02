@@ -14,6 +14,8 @@
 #define MSG_ONLINE			"MsgOnline"
 #define MSG_SHARE_RES		"MsgShareRes"
 
+#define TAG_SEPERATOR		"#"
+
 #define MAX_CLIENT_ONLINE 200
 #define MAX_HEARTBEAT_NUM 3
 #define FLAG_ONLINE 1

@@ -23,6 +23,13 @@ const char *server_ip = NULL; /* server ip */
 const char *server_port = NULL; /*server port */
 
 struct online_list *clist;	/* online client list */
+static bool stop = false;
+
+void handler_sigint(int signo)
+{
+	printf("server is stopping...\n");
+	stop = true;
+}
 
 int setnonblocking( int fd )
 {
@@ -93,10 +100,10 @@ int main( int argc, char* argv[] )
 	addfd( epollfd, udpfd );
 
 	/* set signal alarm */
-//	signal(SIGALRM,signalarm_handler);
+	signal(SIGINT,handler_sigint);
 //	raise(SIGALRM);
 
-	while( 1 ) 	{
+	while( !stop) 	{
 		int number = epoll_wait( epollfd, events, MAX_EVENT_NUMBER, -1 );
 		if ( number < 0 ) {
 			printf( "epoll failure\n" );

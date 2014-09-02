@@ -71,16 +71,6 @@ int add_share_resource(const struct resource_share *res)
 		'%s','%s','%d')", res->name,res->size,res->md5,res->piececount);
 	if(mysql_query(mysql,query_str)) {
 		fprintf(stderr,"Error: %s\n",mysql_error(mysql));
-		
-		mysql_close(mysql);
-		return -1;
-	}
-	
-	affect_rows = mysql_affected_rows(mysql);
-	if(affect_rows <= 0) {
-
-		mysql_close(mysql);
-		return -1;
 	}
 	
 	/* get sharetime */
@@ -97,6 +87,9 @@ int add_share_resource(const struct resource_share *res)
 	sprintf(query_str,"INSERT INTO tbl_resource_owner(f_res_md5,\
 		f_res_owner,f_res_sharetime) VALUES('%s','%s','%s')",res->md5
 		,res->mac,sharetime);
+	if(mysql_query(mysql,query_str)) {
+		fprintf(stderr,"Error: %s\n",mysql_error(mysql));
+	}
 
 
 	/* insert into tbl_resource_tags */
@@ -105,7 +98,7 @@ int add_share_resource(const struct resource_share *res)
 		mysql_close(mysql);
 		return 0;
 	}
-	const char *sp = ",";
+	const char *sp = TAG_SEPERATOR;
 	char *tag = NULL;
 	char key[512];
 
@@ -127,7 +120,7 @@ int add_share_resource(const struct resource_share *res)
 			tag_failed = 1;
 		}
 
-		strtok(NULL,sp);
+		tag = strtok(NULL,sp);
 	}
 
 	mysql_close(mysql);
@@ -152,7 +145,7 @@ int query_res_md5(const char *key, char (*res_md5)[33], int *len)
 		mysql = open();
 	}
 
-	sprintf(query_str,"SELECT f_res_md5 FROM tbl_resource_tags WHERE f_res_tags = '%s' limit 10",key);
+	sprintf(query_str,"SELECT f_res_md5 FROM tbl_resource_tags WHERE f_res_tags = '%s' limit %d",key,*len);
 	if(mysql_query(mysql,query_str)) {
 		fprintf(stderr,"Error: %s\n",mysql_error(mysql));
 		return -1;
@@ -236,7 +229,7 @@ int remove_duplicate_md5(char md5[][33], int *len)
 int get_res_list(struct queryres key, struct resource_type *res, int *len)
 {
 	char md5_list[10][33];
-	int cnt = 10;
+	int cnt = *len;
 	
 	/* query md5 by mac */
 	query_res_md5(key.key,md5_list,&cnt);
