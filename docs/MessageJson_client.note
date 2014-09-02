@@ -1,0 +1,74 @@
+1.客户端上线消息json
+{
+	"MsgType": "MsgOnline",
+	"ClientIP": "192.168.1.23",
+	"ClientMAC": "C8-9C-DC-61-03-9F",
+	"ClientListenPort": 3443
+}
+
+2.客户端搜索资源消息json
+{
+	"MsgType": "MsgQueryRes",
+	"QueryKey": "Key1"
+}
+
+3.客户端请求推送消息json
+{
+	"MsgType": "MsgGetPush",
+	"NumWanted": 3	
+}
+
+4.客户端资源下载请求消息json
+{
+	"MsgType": "MsgDownloadRes",
+	"ClientIP" "192.168.0.34",
+	"ResMD5": "1C7D74B459AB47C0403BD27A2DEC77E2",
+	"NumWant": [0,1,2,3,4,5,6],
+	"Event": ["started","stopped","completed","null"]
+}
+注：numwant - 0到5表示请求客户端数量
+			  6 表示请求更优资源客户端，数量不做要求
+	started - 加入下载队列
+	stopped - 推出下载队列
+	completed - 成为种子
+
+5.客户端心跳请求消息json
+{
+	"MsgType": "MsgHeartbeat",
+	"ClientIP": "192.168.1.23",
+	"ClientMAC": "C8-9C-DC-61-03-9F",
+	"Reserved": "null"	
+}
+
+6.客户端分享资源消息json
+{
+	"MsgType": "MsgShareRes",
+	"Resource":
+	{
+		"ResName": "后会无期.rmvb",
+		"ResTag": "韩寒,平凡之路",
+		"ResSize": "956MB",
+		"ResMD5": "1C7D74B459AB47C0403BD27A2DEC77E2",
+		"ResOwner": "C8-9C-DC-61-03-9F",
+		"ResPieceCount": 3456
+	}	
+}
+
+7.客户端下载进度消息json
+{
+	"MsgType": "MsgDownloadInfo",
+	"ClientIP" "192.168.0.34",
+	"ResMD5": "1C7D74B459AB47C0403BD27A2DEC77E2",
+	"Uploaded": 123,
+	"Downloaded": 234,
+	"Left": 123,
+	"AvailabelConnections": 3
+}
+
+8.客户端协商资源拥有信息消息json
+{
+	"MsgType": "MsgResConfirm",
+	"ResMD5": "1C7D74B459AB47C0403BD27A2DEC77E2",
+	"PieceWant": [1,2,4,5,6],
+	""
+}
