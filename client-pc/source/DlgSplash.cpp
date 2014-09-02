@@ -131,9 +131,9 @@ HBRUSH CDlgSplash::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 
 void CDlgSplash::OnReceive()
 {
-	char buf[BLUECLICK_MSG_BUF_LENGTH];
-	memset(buf, 0, BLUECLICK_MSG_BUF_LENGTH);
-	int nRet = m_udpSocket->Receive(buf, BLUECLICK_MSG_BUF_LENGTH);
+	char buf[BLUECLICK_MSG_BUF_SIZE];
+	memset(buf, 0, BLUECLICK_MSG_BUF_SIZE);
+	int nRet = m_udpSocket->Receive(buf, BLUECLICK_MSG_BUF_SIZE);
 
 	if (nRet <= 0) {
 		return;
@@ -213,7 +213,7 @@ DWORD _stdcall SplashInitProc(LPVOID lpParameter) {
 	CString csConfigFilename = pDlg->m_csConfigFilename;
 	CString csServerAddr, csHostAddr, csHostMAC;
 	UINT nServerPort, nHostPort;
-	char jsonOnline[BLUECLICK_MSG_BUF_LENGTH];
+	char jsonOnline[BLUECLICK_MSG_BUF_SIZE];
 
 	//查找是否存在配置文件，若不存在，则生成一个新的默认设置的ini文件
 	CFileFind finder;
@@ -268,7 +268,7 @@ DWORD _stdcall SplashInitProc(LPVOID lpParameter) {
 	cJSON_AddNumberToObject(pRoot,"ClientListenPort", nHostPort);
 
 	char *strJson = cJSON_Print(pRoot);
-	memset(jsonOnline, 0, BLUECLICK_MSG_BUF_LENGTH);
+	memset(jsonOnline, 0, BLUECLICK_MSG_BUF_SIZE);
 	strcpy(jsonOnline, strJson);		
 	delete strJson;
 
@@ -295,7 +295,7 @@ DWORD _stdcall SplashInitProc(LPVOID lpParameter) {
 	//连接服务器
 	for (int i = 1; i <= 3; i++) {
 		pDlg->m_staticSplashMsg.SetWindowText("正在连接服务器...");
-		pDlg->m_udpSocket->SendTo(jsonOnline, BLUECLICK_MSG_BUF_LENGTH, nServerPort, csServerAddr);
+		pDlg->m_udpSocket->SendTo(jsonOnline, BLUECLICK_MSG_BUF_SIZE, nServerPort, csServerAddr);
 		Sleep(1000);
 	}
 
@@ -318,11 +318,11 @@ DWORD _stdcall SplashInitProc(LPVOID lpParameter) {
 		//采用局域网广播的方式发现服务器，但在实测中发送太慢
 		//for (int j = 1; j < 255; j++) {
 		//	csServerAddr.Format("%s%d", csAddrPrefix, j);
-		//	pDlg->m_udpSocket->SendTo(jsonOnline, BLUECLICK_MSG_BUF_LENGTH, nServerPort, csServerAddr, 0);
+		//	pDlg->m_udpSocket->SendTo(jsonOnline, BLUECLICK_MSG_BUF_SIZE, nServerPort, csServerAddr, 0);
 		//}
 		
 		//采用局域网广播的方式发现服务器，//但在实测中发现有的局域网内发送广播消息无效，因此改用一个循环向局域网内所有主机发送上线请求
-		pDlg->m_udpSocket->SendTo(jsonOnline, BLUECLICK_MSG_BUF_LENGTH, (SOCKADDR*)&addr, sizeof(addr));
+		pDlg->m_udpSocket->SendTo(jsonOnline, BLUECLICK_MSG_BUF_SIZE, (SOCKADDR*)&addr, sizeof(addr));
 		Sleep(1000*i);
 	}
 

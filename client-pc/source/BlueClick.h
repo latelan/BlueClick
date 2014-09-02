@@ -18,19 +18,14 @@
 
 #define BLUECLICK_MAX_FILE_PATH 256
 #define BLUECLICK_PROFILE_VAL_LENGTH 256
-#define BLUECLICK_MSG_BUF_LENGTH 2048
+#define BLUECLICK_MSG_BUF_SIZE 2048
+#define BLUECLICK_RES_PACK_SIZE 1024
+#define BLUECLICK_RES_PIECE_SIZE (1024*256)
 #define BLUECLICK_MAX_SHARE_COUNT 1024
 #define BLUECLICK_FILE_TAG_LENGTH 1024
 #define BLUECLICK_GB_SIZE (1024*1024*1024)
 #define BLUECLICK_MB_SIZE (1024*1024)
 #define BLUECLICK_KB_SIZE (1024)
-
-typedef struct {
-	CBlueClickDlg *m_mainWnd;
-	CBuffreeListCtrl *m_list;
-	UINT m_nItem;
-	UINT m_nThreadIndex;
-} STRUCT_THREAD_PARAMETER;
 
 typedef struct {
 	char m_resPath[MAX_PATH];
@@ -40,6 +35,18 @@ typedef struct {
 	char m_resSize[10];
 	char m_resMD5[33];
 } STRUCT_SHARE_FILE_INFO;
+
+typedef struct {
+	char m_csServerAddr[32];
+	UINT m_nServerPort;
+	char m_csHostAddr[32];
+	char m_csResMD5[33];
+	char m_csEvent[32];
+	UINT m_nPeerNumWanted;
+	UINT m_nUploaded;
+	UINT m_nDownloaded;
+	UINT m_nLeft;
+} STRUCT_DOWNLOAD_QUERY_PARAM;
 
 /////////////////////////////////////////////////////////////////////////////
 // CBlueClickApp:
@@ -56,7 +63,9 @@ public:
 	static BOOL GetWorkSpacePath(CString &csPath);
 	static void ConvertANSIToUTF8(CString &strANSI);
 	static CString GetFileSizeStr(UINT fileLength);
-// Overrides
+	static BOOL CBlueClickApp::GetPeerList(CString resAddr[], UINT resPort[], UINT &resCount, STRUCT_DOWNLOAD_QUERY_PARAM &queryParam);
+	static BOOL GetResPiece(char *pieceBuf, UINT nPieceId, CString csResAddr, UINT nResPort, CString fileMD5);
+	// Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CBlueClickApp)
 	public:

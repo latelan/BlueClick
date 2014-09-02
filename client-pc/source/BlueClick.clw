@@ -2,7 +2,7 @@
 
 [General Info]
 Version=1
-LastClass=CDlgNewShare
+LastClass=CBlueClickDlg
 LastTemplate=CEdit
 NewFileInclude1=#include "stdafx.h"
 NewFileInclude2=#include "BlueClick.h"
@@ -13,33 +13,33 @@ Class2=CBlueClickDlg
 Class3=CAboutDlg
 
 ResourceCount=18
-Resource1=IDD_DLGSUSPENSION_DIALOG
+Resource1=IDD_DLGSPLASH_DIALOG
 Resource2=IDR_MAINFRAME
-Resource3=IDD_DLGTHEMESELECTER_DIALOG
+Resource3=IDD_BUFFREEMESSAGEBOX_DIALOG
 Class4=CDlgResourceList
-Resource4=IDD_DLGNEWSHARE_DIALOG
+Resource4=IDR_MENU_SYSTEM
 Class5=CDlgDownloadList
-Resource5=IDD_BUFFREEMESSAGEBOX_DIALOG
+Resource5=IDD_DLGSERVERSETTING_DIALOG
 Class6=CDlgUploadList
 Resource6=IDD_DLGDOWNLOADLIST_DIALOG
 Class7=CDlgSplash
-Resource7=IDD_DLGRESOURCELIST_DIALOG
-Resource8=IDR_MENU_RESOURCE
-Resource9=IDD_DLGSYSTEMSETTING_DIALOG
-Resource10=IDD_DLGUPLOADLIST_DIALOG
-Resource11=IDD_DLGSPLASH_DIALOG
+Resource7=IDR_MENU_DOWNLOAD
+Resource8=IDD_DLGUPLOADLIST_DIALOG
+Resource9=IDD_ABOUTBOX
+Resource10=IDD_DLGNEWSHARE_DIALOG
+Resource11=IDD_DLGTHEMESELECTER_DIALOG
 Class8=CBuffreeMessageBox
 Class9=CUdpSocket
-Resource12=IDD_DLGSERVERSETTING_DIALOG
+Resource12=IDD_BLUECLICK_DIALOG
 Class10=CDlgSystemSetting
-Resource13=IDR_MENU_SYSTEM
+Resource13=IDR_MENU_RESOURCE
 Class11=CDlgServerSetting
 Resource14=IDR_MENU_UPLOAD
 Class12=CDlgSuspension
-Resource15=IDD_ABOUTBOX
-Resource16=IDR_MENU_DOWNLOAD
+Resource15=IDD_DLGSYSTEMSETTING_DIALOG
+Resource16=IDD_DLGSUSPENSION_DIALOG
 Class13=CDlgNewShare
-Resource17=IDD_BLUECLICK_DIALOG
+Resource17=IDD_DLGRESOURCELIST_DIALOG
 Class14=CDlgThemeSelecter
 Class15=CBuffreeEdit
 Resource18=IDR_MENU_SUSPENSION
@@ -58,7 +58,7 @@ ImplementationFile=BlueClickDlg.cpp
 Filter=D
 BaseClass=CDialog
 VirtualFilter=dWC
-LastObject=CBlueClickDlg
+LastObject=IDC_STATIC_PEER_NUM_ONLINE
 
 [CLS:CAboutDlg]
 Type=0
@@ -82,7 +82,7 @@ Control5=IDC_STATIC,static,1342308352
 [DLG:IDD_BLUECLICK_DIALOG]
 Type=1
 Class=CBlueClickDlg
-ControlCount=13
+ControlCount=15
 Control1=IDC_BUTTON_THEME,button,1342242816
 Control2=IDC_BUTTON_MENU,button,1342242816
 Control3=IDC_BUTTON_MIN,button,1342242816
@@ -96,6 +96,8 @@ Control10=IDC_EDIT_SEARCH,edit,1342242816
 Control11=IDC_BUTTON_SEARCH,button,1342242817
 Control12=IDC_STATIC_CAPTION,static,1342308352
 Control13=IDC_STATIC_LOGO,static,1342177294
+Control14=IDC_STATIC_STATUS,static,1342308352
+Control15=IDC_STATIC_PEER_NUM_ONLINE,static,1342308352
 
 [DLG:IDD_DLGRESOURCELIST_DIALOG]
 Type=1
@@ -262,6 +264,7 @@ HeaderFile=DlgSuspension.h
 ImplementationFile=DlgSuspension.cpp
 BaseClass=CDialog
 Filter=D
+LastObject=CDlgSuspension
 
 [MNU:IDR_MENU_SUSPENSION]
 Type=1
@@ -273,7 +276,7 @@ CommandCount=2
 [DLG:IDD_DLGNEWSHARE_DIALOG]
 Type=1
 Class=CDlgNewShare
-ControlCount=9
+ControlCount=11
 Control1=IDOK,button,1342242817
 Control2=IDCANCEL,button,1342242816
 Control3=IDC_STATIC,static,1342308352
@@ -283,6 +286,8 @@ Control6=IDC_EDIT_FILE_PATH,edit,1342242944
 Control7=IDC_EDIT_FILENAME,edit,1342242944
 Control8=IDC_EDIT_FILE_TAGS,edit,1342242944
 Control9=IDC_STATIC,static,1342308352
+Control10=IDC_STATIC,static,1342308352
+Control11=IDC_STATIC,static,1342308352
 
 [CLS:CDlgNewShare]
 Type=0

@@ -52,10 +52,12 @@ BOOL CDlgSuspension::OnInitDialog()
 	CDialog::OnInitDialog();
 	
 	// TODO: Add extra initialization here
+	CBlueClickDlg *mainWnd = (CBlueClickDlg*)AfxGetMainWnd();
+	CString logoBmpPath = mainWnd->m_themePath + "logo.bmp";
+	HBITMAP hBitmap = CBlueClickApp::LoadBmpFromFile(logoBmpPath);
+	m_Logo.SetBitmap(hBitmap);
+	
 	CBitmap m_Bitmap;
-	HBITMAP hBitmap = m_Logo.GetBitmap();
-	ASSERT(hBitmap);
-
 	m_Bitmap.Attach(hBitmap);
 	BITMAP bmp;
 	m_Bitmap.GetBitmap(&bmp);

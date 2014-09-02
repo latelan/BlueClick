@@ -13,7 +13,7 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// Chinese (中国) resources
+// Chinese (P.R.C.) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
 #ifdef _WIN32
@@ -98,12 +98,14 @@ BEGIN
     PUSHBUTTON      "download",IDC_BUTTON_DOWNLOAD_LIST_TAB,62,10,14,14
     PUSHBUTTON      "upload",IDC_BUTTON_UPLOAD_LIST_TAB,83,10,14,14
     CONTROL         "Tree1",IDC_TREE_IDC_TREE_DOWNLOAD,"SysTreeView32",
-                    TVS_NOTOOLTIPS | TVS_NOSCROLL | WS_TABSTOP,7,41,52,142
-    LTEXT           "StaticTAB",IDC_STATIC_TAB,72,37,241,146
+                    TVS_NOTOOLTIPS | TVS_NOSCROLL | WS_TABSTOP,7,41,52,131
+    LTEXT           "StaticTAB",IDC_STATIC_TAB,72,37,241,129
     EDITTEXT        IDC_EDIT_SEARCH,201,23,82,12,NOT WS_BORDER
     DEFPUSHBUTTON   "search",IDC_BUTTON_SEARCH,293,24,14,10
     LTEXT           "蓝点文件共享系统",IDC_STATIC_CAPTION,7,1,100,8
     CONTROL         137,IDC_STATIC_LOGO,"Static",SS_BITMAP,7,9,23,19
+    LTEXT           "",IDC_STATIC_STATUS,7,173,71,10
+    LTEXT           "",IDC_STATIC_PEER_NUM_ONLINE,242,173,71,10
 END
 
 IDD_DLGRESOURCELIST_DIALOG DIALOG DISCARDABLE  0, 0, 320, 201
@@ -182,18 +184,20 @@ IDD_DLGNEWSHARE_DIALOG DIALOG DISCARDABLE  0, 0, 257, 130
 STYLE WS_POPUP
 FONT 8, "MS Sans Serif"
 BEGIN
-    DEFPUSHBUTTON   "确定",IDOK,25,104,50,14
-    PUSHBUTTON      "取消",IDCANCEL,194,104,50,14
-    LTEXT           "资源名称",IDC_STATIC,26,53,36,15
-    LTEXT           "资源路径",IDC_STATIC,26,29,36,15
-    PUSHBUTTON      "浏览",IDC_BUTTON_SCAN,193,24,42,14
-    EDITTEXT        IDC_EDIT_FILE_PATH,70,24,117,18,ES_AUTOHSCROLL | NOT 
+    DEFPUSHBUTTON   "确定",IDOK,194,51,50,14
+    PUSHBUTTON      "取消",IDCANCEL,194,78,50,14
+    LTEXT           "资源名称",IDC_STATIC,20,57,33,10
+    LTEXT           "资源路径",IDC_STATIC,20,29,33,12
+    PUSHBUTTON      "浏览",IDC_BUTTON_SCAN,194,24,48,14
+    EDITTEXT        IDC_EDIT_FILE_PATH,55,24,124,18,ES_AUTOHSCROLL | NOT 
                     WS_BORDER
-    EDITTEXT        IDC_EDIT_FILENAME,70,47,117,18,ES_AUTOHSCROLL | NOT 
+    EDITTEXT        IDC_EDIT_FILENAME,55,51,124,18,ES_AUTOHSCROLL | NOT 
                     WS_BORDER
-    EDITTEXT        IDC_EDIT_FILE_TAGS,71,71,117,18,ES_AUTOHSCROLL | NOT 
+    EDITTEXT        IDC_EDIT_FILE_TAGS,55,78,124,18,ES_AUTOHSCROLL | NOT 
                     WS_BORDER
-    LTEXT           "资源标签",IDC_STATIC,25,76,36,12
+    LTEXT           "资源标签",IDC_STATIC,19,83,33,11
+    LTEXT           "多个关键字以逗号隔开",IDC_STATIC,55,100,155,11
+    LTEXT           "",IDC_STATIC,3,2,100,13
 END
 
 IDD_DLGTHEMESELECTER_DIALOG DIALOG DISCARDABLE  0, 0, 199, 114
@@ -339,9 +343,9 @@ BEGIN
 
     IDD_DLGNEWSHARE_DIALOG, DIALOG
     BEGIN
-        LEFTMARGIN, 7
+        LEFTMARGIN, 3
         RIGHTMARGIN, 250
-        TOPMARGIN, 7
+        TOPMARGIN, 2
         BOTTOMMARGIN, 123
     END
 
@@ -411,13 +415,6 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// Bitmap
-//
-
-IDB_BITMAP_LOGO         BITMAP  DISCARDABLE     "res\\LOGO.bmp"
-
-/////////////////////////////////////////////////////////////////////////////
-//
 // String Table
 //
 
@@ -427,7 +424,7 @@ BEGIN
     IDP_SOCKETS_INIT_FAILED "Windows 通信端口初始化失败。"
 END
 
-#endif    // Chinese (中国) resources
+#endif    // Chinese (P.R.C.) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

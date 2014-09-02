@@ -52,6 +52,8 @@
 #define IDC_EDIT_FILE_PATH              1030
 #define IDC_EDIT_FILENAME               1031
 #define IDC_EDIT_FILE_TAGS              1032
+#define IDC_STATIC_STATUS               1032
+#define IDC_STATIC_PEER_NUM_ONLINE      1033
 #define ID_MENUITEM_CONTINUE_DOWNLOAD   32771
 #define ID_MENUITEM_PAUSE_DOWNLOAD      32772
 #define ID_MENUITEM_DELETE_DOWNLOAD     32773
@@ -70,7 +72,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        139
 #define _APS_NEXT_COMMAND_VALUE         32782
-#define _APS_NEXT_CONTROL_VALUE         1032
+#define _APS_NEXT_CONTROL_VALUE         1033
 #define _APS_NEXT_SYMED_VALUE           114
 #endif
 #endif

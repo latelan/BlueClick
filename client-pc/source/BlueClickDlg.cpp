@@ -97,8 +97,8 @@ BOOL CAboutDlg::OnInitDialog()
 	bmpBg.Detach();
 	DeleteObject(hBmpBg);
 	
-	CFont font;
-	font.CreatePointFont(120, "宋体");
+	//CFont font;
+	//font.CreatePointFont(120, "宋体");
 	//	m_staticMsg.SetFont(&font);
 	
 	DWORD dwStyle = AW_BLEND;
@@ -184,10 +184,11 @@ CBlueClickDlg::CBlueClickDlg(CWnd* pParent /*=NULL*/)
 	m_csServerAddr = "0.0.0.0";
 	m_nServerPort = 5566;
 	m_clientNum = 0;
+	m_serviceNum = 0;
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
-	for (int i = 0; i < BUFFREE_MAX_SYN_NUM; i++) {
+	for (int i = 0; i < BLUECLICK_MAX_SYN_COUNT; i++) {
 		m_downloadSocket[i] = NULL;
 	}
 }
@@ -197,9 +198,12 @@ void CBlueClickDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CBlueClickDlg)
+	DDX_Control(pDX, IDC_STATIC_STATUS, m_staticStatus);
+	DDX_Control(pDX, IDC_STATIC_PEER_NUM_ONLINE, m_staticPeerNumOnline);
 	DDX_Control(pDX, IDC_STATIC_LOGO, m_staticLogo);
 	DDX_Control(pDX, IDC_STATIC_CAPTION, m_staticCaption);
 	DDX_Control(pDX, IDC_EDIT_SEARCH, m_editSearch);
+	DDX_Text(pDX, IDC_EDIT_SEARCH, m_csKeyword);
 	DDX_Control(pDX, IDC_STATIC_TAB, m_staticListTab);
 	DDX_Control(pDX, IDC_TREE_IDC_TREE_DOWNLOAD, m_treeDownload);
 	DDX_Control(pDX, IDC_BUTTON_SEARCH, m_btnSearch);
@@ -210,7 +214,6 @@ void CBlueClickDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BUTTON_MENU, m_btnSysMenu);
 	DDX_Control(pDX, IDC_BUTTON_DOWNLOAD_LIST_TAB, m_btnDownloadListTab);
 	DDX_Control(pDX, IDC_BUTTON_CANCEL, m_btnCancel);
-	DDX_Text(pDX, IDC_EDIT_SEARCH, m_csKeyword);
 	//}}AFX_DATA_MAP
 }
 
@@ -233,6 +236,7 @@ BEGIN_MESSAGE_MAP(CBlueClickDlg, CDialog)
 	ON_COMMAND(ID_MENUITEM_ABOUT_US, OnMenuitemAboutUs)
 	ON_COMMAND(ID_MENUITEM_QUIT_PROG, OnMenuitemQuitProg)
 	ON_BN_CLICKED(IDC_BUTTON_SEARCH, OnButtonSearch)
+	ON_WM_CTLCOLOR()
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -273,18 +277,20 @@ BOOL CBlueClickDlg::OnInitDialog()
 	m_csConfigFilename = m_csWorkSpace + "/Config.ini";
 	m_csResListFilename = m_csWorkSpace + "/ResList.bc";
 	m_themePath = m_csWorkSpace + "/resource/theme/";
-	for (int i = 0; i < BUFFREE_MAX_SYN_NUM; i++) {
+	for (int i = 0; i < BLUECLICK_MAX_SYN_COUNT; i++) {
 		m_hThreadDownload[i] = NULL;
 		m_hThreadUpload[i] = NULL;
+		m_hThreadService[i] = NULL;
 	}
 
-	CDlgSplash dlgSplash(this);
-	if (dlgSplash.DoModal() != IDOK) {
-		CDialog::OnCancel();
-	}
+//	CDlgSplash dlgSplash(this);
+//	if (dlgSplash.DoModal() != IDOK) {
+//		CDialog::OnCancel();
+//	}
 
 	//设置资源路径
 	CString bgBmpPath = m_themePath + "bg.bmp";
+	CString logoBmpPath = m_themePath + "logo.bmp";
 	CString cancelBtnBmpPath = m_themePath + "close-btn.bmp";
 	CString minBtnBmpPath = m_themePath + "min-btn.bmp";
 	CString menuBtnBmpPath = m_themePath + "menu-btn.bmp";
@@ -302,20 +308,24 @@ BOOL CBlueClickDlg::OnInitDialog()
 	
 	MoveWindow((m_screenWidth-m_width)/2, (m_screenHeight-m_height)/2, m_width, m_height, TRUE);
 	
-	m_staticCaption.SetWindowPos(NULL, 10, 8, 200, 29, SWP_SHOWWINDOW);
+	m_staticCaption.SetWindowPos(NULL, 10, 5, 200, 20, SWP_SHOWWINDOW);
 	m_staticLogo.SetWindowPos(NULL, 20, 25, 50, 50, SWP_SHOWWINDOW);
+	m_staticStatus.SetWindowPos(NULL, 10, m_height-25, 200, 20, SWP_SHOWWINDOW);
+	m_staticPeerNumOnline.SetWindowPos(NULL, m_width-210, m_height-25, 200, 20, SWP_SHOWWINDOW);
 	m_btnCancel.SetWindowPos(NULL, CBlueClickDlg::m_width-45, 0, 45, 20, SWP_SHOWWINDOW);
 	m_btnMin.SetWindowPos(NULL, CBlueClickDlg::m_width-80, 0, 35, 29, SWP_SHOWWINDOW);
 	m_btnSysMenu.SetWindowPos(NULL, CBlueClickDlg::m_width-115, 0, 35, 29, SWP_SHOWWINDOW);
 	m_btnTheme.SetWindowPos(NULL, CBlueClickDlg::m_width-150, 0, 35, 29, SWP_SHOWWINDOW);
-	m_editSearch.SetWindowPos(NULL, CBlueClickDlg::m_width-150, 45, 120, 20, SWP_SHOWWINDOW);
-	m_btnSearch.SetWindowPos(NULL, CBlueClickDlg::m_width-30, 45, 20, 20, SWP_SHOWWINDOW);
+	m_editSearch.SetWindowPos(NULL, CBlueClickDlg::m_width-179, 45, 140, 29, SWP_SHOWWINDOW);
+	m_btnSearch.SetWindowPos(NULL, CBlueClickDlg::m_width-39, 45, 29, 29, SWP_SHOWWINDOW);
 	m_staticListTab.SetWindowPos(NULL, 10, 80, CBlueClickDlg::m_width-20, this->m_height-110, SWP_SHOWWINDOW); 
 	m_treeDownload.SetWindowPos(NULL, 10, 70, 0, this->m_height-80, SWP_SHOWWINDOW); 
-	m_btnResourceListTab.SetWindowPos(NULL, 150, 36, 35, 29, SWP_SHOWWINDOW);
-	m_btnDownloadListTab.SetWindowPos(NULL, 200, 36, 35, 29, SWP_SHOWWINDOW);
-	m_btnUploadListTab.SetWindowPos(NULL, 250, 36, 35, 29, SWP_SHOWWINDOW);
+	m_btnResourceListTab.SetWindowPos(NULL, 150, 45, 35, 29, SWP_SHOWWINDOW);
+	m_btnDownloadListTab.SetWindowPos(NULL, 200, 45, 35, 29, SWP_SHOWWINDOW);
+	m_btnUploadListTab.SetWindowPos(NULL, 250, 45, 35, 29, SWP_SHOWWINDOW);
 //	m_btnInsert.SetWindowPos(NULL, 10, 20, 35, 29, SWP_SHOWWINDOW);
+
+	m_editSearch.SetMargins(5, 5);
 
 	//LIST TREE
 //	m_treeDownload.SetBkMode( CBuffreeTreeCtrl::BK_MODE_FILL );
@@ -332,8 +342,8 @@ BOOL CBlueClickDlg::OnInitDialog()
 	m_dlgUploadList.ShowWindow(SW_HIDE);
 	
 	//加载主窗口背景主题
-	CString bmpBgPath = m_themePath + _T("bg.bmp");
-	HBITMAP hBmpBg = CBlueClickApp::LoadBmpFromFile(bmpBgPath);
+	HBITMAP hBmpBg = CBlueClickApp::LoadBmpFromFile(bgBmpPath);
+	HBITMAP hBmpLogo = CBlueClickApp::LoadBmpFromFile(logoBmpPath);
 	CBitmap bmpBg;
 	bmpBg.Attach(hBmpBg);
 	m_brushBg.CreatePatternBrush(&bmpBg);
@@ -341,6 +351,7 @@ BOOL CBlueClickDlg::OnInitDialog()
 	DeleteObject(hBmpBg);
 
 	//加载控件主题资源
+	m_staticLogo.SetBitmap(hBmpLogo);
 	m_btnCancel.LoadBitmap(cancelBtnBmpPath);
 	m_btnMin.LoadBitmap(minBtnBmpPath);
 	m_btnSysMenu.LoadBitmap(menuBtnBmpPath);
@@ -352,13 +363,14 @@ BOOL CBlueClickDlg::OnInitDialog()
 //	m_btnInsert.LoadBitmap(insertBtnBmpPath);
 	UpdateData(FALSE);
 
+
 	//初始化悬浮窗
 	m_dlgSuspension = new CDlgSuspension();
 	m_dlgSuspension->Create(IDD_DLGSUSPENSION_DIALOG,this);
 	m_dlgSuspension->ShowWindow(SW_HIDE);
 
 	m_dlgSuspension->OnUpdateTransparent(220);
-/*
+
 	int count = m_dlgResourceList.m_listResource.GetItemCount();
 	m_dlgResourceList.m_listResource.InsertItem(count, "");
 	m_dlgResourceList.m_listResource.SetItemText(count, 1, "rmvb");
@@ -461,7 +473,7 @@ BOOL CBlueClickDlg::OnInitDialog()
 	m_dlgUploadList.m_listUpload.SetItemText(count, 2, "欢乐斗地主.rmvb");
 	m_dlgUploadList.m_listUpload.SetItemText(count, 3, "20%");
 	m_dlgUploadList.m_listUpload.SetItemData(count, 20);
-*/
+
 	m_listenSocket = new CListenSocket(this);
 	
 	if (m_listenSocket->Create(6666, SOCK_STREAM) == NULL) {
@@ -542,6 +554,23 @@ BOOL CBlueClickDlg::OnEraseBkgnd(CDC* pDC)
 	
 	return TRUE;
 	//return CDialog::OnEraseBkgnd(pDC);
+}
+
+HBRUSH CBlueClickDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) 
+{
+	HBRUSH hbr = CDialog::OnCtlColor(pDC, pWnd, nCtlColor);
+	
+	// TODO: Change any attributes of the DC here
+	if((CTLCOLOR_STATIC==nCtlColor))
+    {
+        pDC->SetBkMode(TRANSPARENT);
+        pDC->SetTextColor(RGB(255,255,255));
+		
+        return  m_brushBg;// (HBRUSH)::GetStockObject(NULL_BRUSH);
+    }
+	
+	// TODO: Return a different brush if the default is not desired
+	return hbr;
 }
 
 UINT CBlueClickDlg::OnNcHitTest(CPoint point) 
@@ -741,41 +770,58 @@ void CBlueClickDlg::StartDownload(UINT nItem)
 {
 	// TODO: Add your command handler code here
 	
-	CString fileMD5 = m_dlgResourceList.m_listResource.GetItemText(nItem, 0);
-	CString fileExt = m_dlgResourceList.m_listResource.GetItemText(nItem, 1);
-	CString fileName = m_dlgResourceList.m_listResource.GetItemText(nItem, 2);
-	CString fileSize = m_dlgResourceList.m_listResource.GetItemText(nItem, 3);
+	//资源列表：
+	// 0：不显示
+	// 1：文件后缀；
+	// 2：文件名；
+	// 3：文件大小
+	// 4：文件MD5
+	// data：资源分片数
+	CString csResExt = m_dlgResourceList.m_listResource.GetItemText(nItem, 1);
+	CString csResName = m_dlgResourceList.m_listResource.GetItemText(nItem, 2);
+	CString csResSize = m_dlgResourceList.m_listResource.GetItemText(nItem, 3);
+	CString csResMD5 = m_dlgResourceList.m_listResource.GetItemText(nItem, 4);
+	UINT nResPieceCount = (UINT)m_dlgResourceList.m_listResource.GetItemData(nItem);
 
+	//下载列表：
+	// 0：不显示，存储资源MD5
+	// 1：资源类型（文件后缀）
+	// 2：资源名
+	// 3：资源大小
+	// data：资源分片数
 	int count = m_dlgDownloadList.m_listDownload.GetItemCount();
-	m_dlgDownloadList.m_listDownload.InsertItem(count, fileMD5);
-	m_dlgDownloadList.m_listDownload.SetItemText(count, 1, fileExt);
-	m_dlgDownloadList.m_listDownload.SetItemText(count, 2, fileName);
-	m_dlgDownloadList.m_listDownload.SetItemText(count, 3, fileSize);
+	m_dlgDownloadList.m_listDownload.InsertItem(count, "");
+	m_dlgDownloadList.m_listDownload.SetItemText(count, 0, csResMD5);
+	m_dlgDownloadList.m_listDownload.SetItemText(count, 1, csResExt);
+	m_dlgDownloadList.m_listDownload.SetItemText(count, 2, csResName);
+	m_dlgDownloadList.m_listDownload.SetItemText(count, 3, csResSize);
 	m_dlgDownloadList.m_listDownload.SetItemData(count, 0);
 
-	CBuffreeMessageBox dlgMessageBox("已加入下载列表");
 
-	OnButtonDownloadListTab();
+//	CBuffreeMessageBox dlgMessageBox("已加入下载列表");
+//	dlgMessageBox.DoModal();
 
-	dlgMessageBox.DoModal();
-
-	STRUCT_THREAD_PARAMETER param;
-	param.m_mainWnd = this;
-	param.m_list = &(m_dlgDownloadList.m_listDownload);
-	param.m_nItem = count;
-
-	for (int i = 0; i < BUFFREE_MAX_SYN_NUM; i++) {
+	for (UINT i = 0; i < BLUECLICK_MAX_SYN_COUNT; i++) {
 		if (m_hThreadDownload[i] == NULL) {
-			m_dlgDownloadList.m_listDownload.SetItemText(count, 5, "dwonloading");
-			param.m_nThreadIndex = i;
-			m_hThreadDownload[i] = CreateThread(NULL, 0, DownloadThreadProc, &param, 0, NULL);
+			//m_dlgDownloadList.m_listDownload.SetItemText(count, 5, "dwonloading");
+			memset(&m_downloadInfo[i], 0, sizeof(STRUCT_THREAD_PARAMETER));
+			m_downloadInfo[i].m_mainWnd = this;
+			m_downloadInfo[i].m_listDownload = &(m_dlgDownloadList.m_listDownload);
+			m_downloadInfo[i].m_nDownloadItem = count;
+			m_downloadInfo[i].m_nPieceCount = nResPieceCount;
+			strcpy(m_downloadInfo[i].m_csResMD5, csResMD5);
+			m_downloadInfo[i].m_nThreadIndex = i;
+			m_hThreadDownload[i] = CreateThread(NULL, 0, DownloadThreadProc, &m_downloadInfo[i], 0, NULL);
 			break;
 		}
 	}
 
 	if (i >= 5) {
-		m_dlgDownloadList.m_listDownload.SetItemText(count, 5, "pause");
+		//m_dlgDownloadList.m_listDownload.SetItemText(count, 5, "pause");
 	}
+
+	//切换到下载列表视图
+	OnButtonDownloadListTab();
 }
 
 void CBlueClickDlg::DeleteShare(UINT nItem)
@@ -794,9 +840,9 @@ void CBlueClickDlg::DeleteShare(UINT nItem)
 
 void CBlueClickDlg::ReceiveResourceList()
 {
-	char buf[BLUECLICK_MSG_BUF_LENGTH];
-	memset(buf, 0, BLUECLICK_MSG_BUF_LENGTH);
-	int nRet = m_searchSocket->Receive(buf, BLUECLICK_MSG_BUF_LENGTH);
+	char buf[BLUECLICK_MSG_BUF_SIZE];
+	memset(buf, 0, BLUECLICK_MSG_BUF_SIZE);
+	int nRet = m_searchSocket->Receive(buf, BLUECLICK_MSG_BUF_SIZE);
 
 	if (nRet <= 0) {
 		return;
@@ -833,15 +879,12 @@ void CBlueClickDlg::ReceiveResourceList()
 *********************************************************/
 void CBlueClickDlg::AcceptClient()
 {
-	for (int i = 0; i < BUFFREE_MAX_SYN_NUM; i++) {
-		if (m_downloadSocket[m_clientNum++] == NULL) {
-			m_downloadSocket[m_clientNum] = new CDownloadSocket(this);
-			if (!m_listenSocket->Accept(*m_downloadSocket[m_clientNum])) {
-			//	AfxMessageBox("客户端连接失败");
-			} else {
-			//	AfxMessageBox("客户端连接成功");
-				return;
-			}
+	for (int i = 0; i < BLUECLICK_MAX_SYN_COUNT; i++) {
+		if (m_hThreadService[m_serviceNum++] == NULL) {
+			AfxMessageBox("客户端正在连接");
+			//m_hThreadService[m_serviceNum] = new CDownloadSocket(this);
+			m_hThreadService[i] = CreateThread(NULL, 0, ServiceThreadProc, this, 0, NULL);
+			break;
 		}
 	}
 }
@@ -856,10 +899,10 @@ void CBlueClickDlg::AcceptClient()
 *********************************************************/
 void CBlueClickDlg::ReceiveDownloadRequest(CDownloadSocket *downloadSocket)
 {
-	char buf[BLUECLICK_MSG_BUF_LENGTH];
+	char buf[BLUECLICK_MSG_BUF_SIZE];
 
-	memset(buf, 0, BLUECLICK_MSG_BUF_LENGTH);
-	int nRet = downloadSocket->Receive(buf, BLUECLICK_MSG_BUF_LENGTH);
+	memset(buf, 0, BLUECLICK_MSG_BUF_SIZE);
+	int nRet = downloadSocket->Receive(buf, BLUECLICK_MSG_BUF_SIZE);
 	if (nRet <= 0) {
 		return;
 	}
@@ -893,12 +936,12 @@ void CBlueClickDlg::ReceiveDownloadRequest(CDownloadSocket *downloadSocket)
 	cJSON_AddNumberToObject(pRoot, "ResSize", 122222);
 	
 	char *strJson = cJSON_Print(pRoot);
-	memset(buf, 0, BLUECLICK_MSG_BUF_LENGTH);
+	memset(buf, 0, BLUECLICK_MSG_BUF_SIZE);
 	strcpy(buf, strJson);
 	cJSON_Delete(pRoot);
 	delete strJson;
 	
-	downloadSocket->Send(buf, BLUECLICK_MSG_BUF_LENGTH);	
+	downloadSocket->Send(buf, BLUECLICK_MSG_BUF_SIZE);	
 }
 
 /*********************************************************
@@ -920,6 +963,9 @@ void CBlueClickDlg::AddNewShare()
 	CString csResPath = dlgNewShare.m_csFilePath;
 	CString csResTag = dlgNewShare.m_csFileTags;
 	CString csResExt = csResName.Right(csResName.GetLength() - csResName.Find("."));
+
+	csResTag.Replace("，", "#");
+	csResTag.Replace(",", "#");
 
 	CFileFind finder;
 	BOOL bRet = finder.FindFile(csResPath);  
@@ -952,15 +998,14 @@ void CBlueClickDlg::AddNewShare()
 //	CBuffreeMessageBox dlgMessageBox("已加入分享列表");
 //	dlgMessageBox.DoModal();
 	
-	STRUCT_THREAD_PARAMETER param;
-	param.m_mainWnd = this;
-	param.m_list = &(m_dlgUploadList.m_listUpload);
-	param.m_nItem = count;
-	
-	for (int i = 0; i < BUFFREE_MAX_SYN_NUM; i++) {
+	for (int i = 0; i < BLUECLICK_MAX_SYN_COUNT; i++) {
 		if (m_hThreadUpload[i] == NULL) {
-			param.m_nThreadIndex = i;
-			m_hThreadUpload[i] = CreateThread(NULL, 0, UploadThreadProc, &param, 0, NULL);
+			memset(&m_uploadInfo[i], 0, sizeof(STRUCT_THREAD_PARAMETER));
+			m_uploadInfo[i].m_mainWnd = this;
+			m_uploadInfo[i].m_listUpload = &(m_dlgUploadList.m_listUpload);
+			m_uploadInfo[i].m_nUploadItem = count;
+			m_uploadInfo[i].m_nThreadIndex = i;
+			m_hThreadUpload[i] = CreateThread(NULL, 0, UploadThreadProc, &m_uploadInfo[i], 0, NULL);
 			break;
 		}
 	}
@@ -979,7 +1024,7 @@ DWORD _stdcall InitThreadProc(LPVOID lpParameter) {
 	CBuffreeListCtrl *listResource = &(pDlg->m_dlgResourceList.m_listResource);
 	CBuffreeListCtrl *listUpload = &(pDlg->m_dlgUploadList.m_listUpload);
 	CString csKeyWord = pDlg->m_csKeyword;
-	char buf[BLUECLICK_MSG_BUF_LENGTH];
+	char buf[BLUECLICK_MSG_BUF_SIZE];
 	CSearchSocket searchSocket(pDlg);
 
 	if (!AfxSocketInit())
@@ -1008,34 +1053,35 @@ DWORD _stdcall InitThreadProc(LPVOID lpParameter) {
 //	msg.Format("ip:%s, port:%d", pDlg->m_csServerAddr, pDlg->m_nServerPort);
 //	AfxMessageBox(msg);
 	if (!searchSocket.Connect(pDlg->m_csServerAddr, pDlg->m_nServerPort)) {
-		CBuffreeMessageBox dlgMessageBox("网络连接失败，请重试");
-		dlgMessageBox.DoModal();
+		pDlg->m_staticStatus.SetWindowText("网络连接失败，请重试");
+		//CBuffreeMessageBox dlgMessageBox("网络连接失败，请重试");
+		//dlgMessageBox.DoModal();
 	
 		return 0;
 	}
-	
+	pDlg->m_staticStatus.SetWindowText("服务器连接成功");
+
 	cJSON *pRoot, *pResArray, *pRes;
 	pRoot=cJSON_CreateObject();
 	cJSON_AddStringToObject(pRoot,"MsgType", "MsgGetPush");   
 	cJSON_AddNumberToObject(pRoot,"NumWanted", 10);
 	
 	char *strJson = cJSON_Print(pRoot);
-	memset(buf, 0, BLUECLICK_MSG_BUF_LENGTH);
+	memset(buf, 0, BLUECLICK_MSG_BUF_SIZE);
 	strcpy(buf, strJson);		
 	cJSON_Delete(pRoot);
 	delete strJson;
 	
-	searchSocket.Send(buf, BLUECLICK_MSG_BUF_LENGTH);
+	searchSocket.Send(buf, BLUECLICK_MSG_BUF_SIZE);
 	
-	memset(buf, 0, BLUECLICK_MSG_BUF_LENGTH);
-	int nRet = searchSocket.Receive(buf, BLUECLICK_MSG_BUF_LENGTH);
-
+	memset(buf, 0, BLUECLICK_MSG_BUF_SIZE);
+	int nRet = searchSocket.Receive(buf, BLUECLICK_MSG_BUF_SIZE);
+	
 	if (nRet <= 0) {
 		return 0;
 	}
 
 	pRoot=cJSON_Parse(buf);
-	
 	if (!pRoot) {
 		//AfxMessageBox("解析JSON失败");
 		return 0;
@@ -1043,12 +1089,13 @@ DWORD _stdcall InitThreadProc(LPVOID lpParameter) {
 
 	CString msgType = cJSON_GetObjectItem(pRoot, "MsgType")->valuestring;
 	if (msgType != "ResList") {
-		CBuffreeMessageBox dlgMessageBox("错误的信息类型");
-		dlgMessageBox.DoModal();
+		pDlg->m_staticStatus.SetWindowText("推送消息请求失败");
+		//CBuffreeMessageBox dlgMessageBox("错误的信息类型");
+		//dlgMessageBox.DoModal();
 
 		return 0;
 	}
-	
+	pDlg->m_staticStatus.SetWindowText("推送消息请求成功");
 	//正确返回搜索结果，关闭套接字
 	searchSocket.Close();
 
@@ -1068,20 +1115,21 @@ DWORD _stdcall InitThreadProc(LPVOID lpParameter) {
 		char *json = cJSON_Print(pRes);
 		delete json;
 		
-		CString resName = cJSON_GetObjectItem(pRes, "ResName")->valuestring;
-		CConverter::UTF8toANSI(resName);
-		CString resExt = resName.Right(resName.GetLength()-resName.Find("."));
-		CString resSize = cJSON_GetObjectItem(pRes, "ResSize")->valuestring;
-		CString resMD5 = cJSON_GetObjectItem(pRes, "ResMD5")->valuestring;
-		UINT resPiece= cJSON_GetObjectItem(pRes, "ResPieceCount")->valueint;
+		CString csResName = cJSON_GetObjectItem(pRes, "ResName")->valuestring;
+		CConverter::UTF8toANSI(csResName);
+		CString csResExt = csResName.Right(csResName.GetLength()-csResName.Find("."));
+		CString csResSize = cJSON_GetObjectItem(pRes, "ResSize")->valuestring;
+		CString csResMD5 = cJSON_GetObjectItem(pRes, "ResMD5")->valuestring;
+		UINT nResPiece= cJSON_GetObjectItem(pRes, "ResPieceCount")->valueint;
 
 		int count = listResource->GetItemCount();
 		listResource->InsertItem(count, "");
-		listResource->SetItemText(count, 0, resMD5);
-		listResource->SetItemText(count, 1, resExt);
-		listResource->SetItemText(count, 2, resName);
-		listResource->SetItemText(count, 3, resSize);
-		listResource->SetItemText(count, 4, resMD5);
+		listResource->SetItemText(count, 0, csResMD5);
+		listResource->SetItemText(count, 1, csResExt);
+		listResource->SetItemText(count, 2, csResName);
+		listResource->SetItemText(count, 3, csResSize);
+		listResource->SetItemText(count, 4, csResMD5);
+		listResource->SetItemData(count, nResPiece);
 	}
 	cJSON_Delete(pRoot);
 
@@ -1115,6 +1163,7 @@ DWORD _stdcall InitThreadProc(LPVOID lpParameter) {
 			file.Seek(sizeof(STRUCT_SHARE_FILE_INFO), CFile::SeekPosition::current);
 		}
 	}
+	pDlg->m_staticStatus.SetWindowText("完成");
 
 	return 0;
 }
@@ -1131,7 +1180,7 @@ DWORD _stdcall SearchThreadProc(LPVOID lpParameter) {
 	CBlueClickDlg *pDlg = (CBlueClickDlg*)lpParameter;
 	CBuffreeListCtrl *listResource = &(pDlg->m_dlgResourceList.m_listResource);
 	CString csKeyWord = pDlg->m_csKeyword;
-	char buf[BLUECLICK_MSG_BUF_LENGTH];
+	char buf[BLUECLICK_MSG_BUF_SIZE];
 	CSearchSocket searchSocket(pDlg);
 
 	if (!AfxSocketInit())
@@ -1144,8 +1193,9 @@ DWORD _stdcall SearchThreadProc(LPVOID lpParameter) {
 	}
 
 	if (!searchSocket.Connect(pDlg->m_csServerAddr, pDlg->m_nServerPort)) {
-		CBuffreeMessageBox dlgMessageBox("搜索失败，请重试");
-		dlgMessageBox.DoModal();
+		pDlg->m_staticStatus.SetWindowText("搜索失败，请重试");
+		//CBuffreeMessageBox dlgMessageBox("搜索失败，请重试");
+		//dlgMessageBox.DoModal();
 		
 		return 0;
 	}
@@ -1158,31 +1208,34 @@ DWORD _stdcall SearchThreadProc(LPVOID lpParameter) {
 	cJSON_AddStringToObject(pRoot,"QueryKey", csKeyWord.GetBuffer(0));
 
 	char *strJson = cJSON_PrintUnformatted(pRoot);
-	memset(buf, 0, BLUECLICK_MSG_BUF_LENGTH);
+	memset(buf, 0, BLUECLICK_MSG_BUF_SIZE);
 	strcpy(buf, strJson);
 	cJSON_Delete(pRoot);
 	delete strJson;
 
-	searchSocket.Send(buf, BLUECLICK_MSG_BUF_LENGTH);
+	searchSocket.Send(buf, BLUECLICK_MSG_BUF_SIZE);
 
-	memset(buf, 0, BLUECLICK_MSG_BUF_LENGTH);
-	int nRet = searchSocket.Receive(buf, BLUECLICK_MSG_BUF_LENGTH);
+	memset(buf, 0, BLUECLICK_MSG_BUF_SIZE);
+	int nRet = searchSocket.Receive(buf, BLUECLICK_MSG_BUF_SIZE);
 	
 	searchSocket.Close();
 	
 	if (nRet <= 0) {
+		pDlg->m_staticStatus.SetWindowText("搜索失败，请重试");
 		return 0;
 	}
 
 	pRoot=cJSON_Parse(buf);
 	
 	if (!pRoot) {
+		pDlg->m_staticStatus.SetWindowText("搜索失败，请重试");
 		//AfxMessageBox("解析JSON失败");
 		return 0;
 	}
 	
 	CString msgType = cJSON_GetObjectItem(pRoot, "MsgType")->valuestring;
 	if (msgType != "ResList") {
+		pDlg->m_staticStatus.SetWindowText("搜索失败，请重试");
 //		CBuffreeMessageBox dlgMessageBox("错误的信息类型");
 //		dlgMessageBox.DoModal();
 
@@ -1191,6 +1244,7 @@ DWORD _stdcall SearchThreadProc(LPVOID lpParameter) {
 	
 	pResArray = cJSON_GetObjectItem(pRoot, "Resource");
 	if (pResArray == NULL) {
+		pDlg->m_staticStatus.SetWindowText("搜索失败，请重试");
 		return 0;
 	}
 	
@@ -1217,8 +1271,9 @@ DWORD _stdcall SearchThreadProc(LPVOID lpParameter) {
 		listResource->SetItemText(count, 3, resSize);
 		listResource->SetItemText(count, 4, resMD5);
 	}
-	cJSON_Delete(pRoot);
+	pDlg->m_staticStatus.SetWindowText("搜索已完成");
 
+	cJSON_Delete(pRoot);
 	return 0;
 }
 
@@ -1231,102 +1286,112 @@ DWORD _stdcall SearchThreadProc(LPVOID lpParameter) {
 返 回 值：无
 *********************************************************/
 DWORD _stdcall DownloadThreadProc(LPVOID lpParameter) {
-	STRUCT_THREAD_PARAMETER *param = (STRUCT_THREAD_PARAMETER*)lpParameter;
-	CBuffreeListCtrl *listDownload = param->m_list;
-	UINT nItem = param->m_nItem;
-	UINT nThreadIndex = param->m_nThreadIndex;
-	CBlueClickDlg *pDlg = param->m_mainWnd;
-	CDownloadSocket downloadSocket(pDlg);
-	char buf[BLUECLICK_MSG_BUF_LENGTH];
+	STRUCT_THREAD_PARAMETER param = *(STRUCT_THREAD_PARAMETER*)lpParameter;
+	CBlueClickDlg		*pDlg = (CBlueClickDlg*)param.m_mainWnd;
+	CBuffreeListCtrl	*listDownload = param.m_listDownload;
+	UINT	nItem = param.m_nDownloadItem;
+	UINT	nThreadIndex = param.m_nThreadIndex;
+	CString csResMD5 = param.m_csResMD5;
+	UINT	nResPieceCount = param.m_nPieceCount;
 
-	UINT nProgress = listDownload->GetItemData(nItem);
-/*
-	for (int i = nProgress; i <= 99; i++) {
-		listDownload->SetItemData(nItem, i);
-		Sleep(100);
-	}
-*/
 	if (!AfxSocketInit()) {
 		pDlg->m_hThreadDownload[nThreadIndex] = NULL;
 		return 0;
 	}
-	
-	if (downloadSocket.Create() == FALSE) {
-		pDlg->m_hThreadDownload[nThreadIndex] = NULL;
-		return 0;
-	}
 
-	if (!downloadSocket.Connect(pDlg->m_csServerAddr, pDlg->m_nServerPort)) {
-		CBuffreeMessageBox dlgMessageBox("错误003：网络连接失败");
-		dlgMessageBox.DoModal();
-		pDlg->m_hThreadDownload[nThreadIndex] = NULL;
-		return 0;
-	}
+	//下载列表：
+	// 0：不显示，存储资源MD5
+	// 1：资源类型（文件后缀）
+	// 2：资源名
+	// 3：资源大小
+	// data：资源分片数
 
-	CBuffreeListCtrl *listResource = &(pDlg->m_dlgResourceList.m_listResource);
-	CString fileMD5 = listResource->GetItemText(nItem, 4);
+	UINT nTryTime = 0;
+	CString csHostAddr = pDlg->m_csHostAddr;
+	CString csServerAddr = pDlg->m_csServerAddr;
+	UINT	nServerPort = pDlg->m_nServerPort;
+	CString csPeerAddr[1];
+	UINT	nPeerPort[1];
+//	UINT	nPeerCount;
 
-	cJSON *pRoot;
-	pRoot=cJSON_CreateObject();
-	cJSON_AddStringToObject(pRoot,"MsgType", "MsgDownloadRes");   
-	cJSON_AddStringToObject(pRoot,"ResMD5", fileMD5);
-	
-	char *strJson = cJSON_Print(pRoot);
-	memset(buf, 0, BLUECLICK_MSG_BUF_LENGTH);
-	strcpy(buf, strJson);		
-	cJSON_Delete(pRoot);
-	delete strJson;
-	
-	downloadSocket.Send(buf, BLUECLICK_MSG_BUF_LENGTH);
-	
-	memset(buf, 0, BLUECLICK_MSG_BUF_LENGTH);
-	int nRet = downloadSocket.Receive(buf, BLUECLICK_MSG_BUF_LENGTH);
-	
-	if (nRet <= 0) {
-		pDlg->m_hThreadDownload[nThreadIndex] = NULL;
-		return 0;
-	}
-	
-	pRoot=cJSON_Parse(buf);
-	
-	if (!pRoot) {
-		//AfxMessageBox("解析JSON失败");
-		pDlg->m_hThreadDownload[nThreadIndex] = NULL;
-		return 0;
-	}
-	
-	CString msgType = cJSON_GetObjectItem(pRoot, "MsgType")->valuestring;
-	if (msgType != "MsgDownloadResponse") {
-		CBuffreeMessageBox dlgMessageBox("错误的消息类型");
-		dlgMessageBox.DoModal();
-		pDlg->m_hThreadDownload[nThreadIndex] = NULL;
-		return 0;
-	}
-	
-	AfxMessageBox(msgType);
-	
-	cJSON_Delete(pRoot);
-	
+//	while (bDownloaded != TRUE) {
+	STRUCT_DOWNLOAD_QUERY_PARAM queryParam;
+	memset(&queryParam, 0, sizeof(STRUCT_DOWNLOAD_QUERY_PARAM));
+	strcpy(queryParam.m_csServerAddr, csServerAddr.GetBuffer(0));
+	queryParam.m_nServerPort = nServerPort;
+	strcpy(queryParam.m_csHostAddr, csHostAddr.GetBuffer(0));
+	strcpy(queryParam.m_csResMD5, csResMD5.GetBuffer(0));
+	queryParam.m_nPeerNumWanted = 1;
+	strcpy(queryParam.m_csEvent, "started");
+	queryParam.m_nDownloaded = 0;
+	queryParam.m_nUploaded = 0;
+	queryParam.m_nLeft = nResPieceCount;
+
+	BOOL bRet = TRUE;//CBlueClickApp::GetPeerList(csPeerAddr, nPeerPort, nPeerCount, queryParam);
+//	AfxMessageBox(csPeerAddr[0]);
+//	if (bRet == FALSE) {
+//		return 0;
+//	}
+
+	BOOL bDownloaded = FALSE;
+	while (bDownloaded != TRUE) {
+		BOOL bDone = FALSE;
+		for (UINT pieceId = 0; pieceId < nResPieceCount; pieceId++) {
+			char pieceBuf[BLUECLICK_RES_PIECE_SIZE];
+			bRet = CBlueClickApp::GetResPiece(pieceBuf, pieceId, "127.0.0.1", 6666, csResMD5);//csPeerAddr[0], nPeerPort[0], csResMD5);
+			if (bRet == FALSE) {
+				continue;
+			}
+		}
+	}// while(bDownloaded);
+
 	pDlg->m_hThreadDownload[nThreadIndex] = NULL;
+	return 0;
+}
+
+/*********************************************************
+函数名称：ServiceThreadProc
+功能描述：资源服务线程，负责向资源请求方发送数据
+作者：	  张永军
+创建时间：2014-09-02
+参数说明：lpParameter：主窗口指针
+返 回 值：无
+*********************************************************/
+DWORD _stdcall ServiceThreadProc(LPVOID lpParameter) {
+	CBlueClickDlg	*pDlg = (CBlueClickDlg*)lpParameter;
+	CDownloadSocket serviceSocket(pDlg);
+
+	if (!AfxSocketInit()) {
+	//	pDlg->m_hThreadService[nThreadIndex] = NULL;
+		return 0;
+	}
+
+	if (pDlg->m_listenSocket->Accept(serviceSocket) == FALSE) {
+		return 0;
+	}
+
+
+	//pDlg->m_hThreadService[nThreadIndex] = NULL;
 	return 0;
 }
 
 /*********************************************************
 函数名称：UploadThreadProc
 功能描述：资源上传线程，负责向服务端发送资源分享数据
-作者：	  张永军
+作者：	  张永军 
 创建时间：2014-09-01
 参数说明：lpParameter：资源相关信息结构体（资源在主窗口列表中所在的位置）
 返 回 值：无
 *********************************************************/
 DWORD _stdcall UploadThreadProc(LPVOID lpParameter) {
 	STRUCT_THREAD_PARAMETER *param = (STRUCT_THREAD_PARAMETER*)lpParameter;
-	CBuffreeListCtrl *listUpload = param->m_list;
-	UINT nItem = param->m_nItem;
+	CBlueClickDlg *pDlg = (CBlueClickDlg*)param->m_mainWnd;
+	CBuffreeListCtrl *listUpload = param->m_listUpload;
+	UINT nItem = param->m_nUploadItem;
 	UINT nThreadIndex = param->m_nThreadIndex;
-	CBlueClickDlg *pDlg = param->m_mainWnd;
 	CDownloadSocket uploadSocket(pDlg);
-	char buf[BLUECLICK_MSG_BUF_LENGTH];
+	char buf[BLUECLICK_MSG_BUF_SIZE];
+	delete param;
 
 	for (int i = 0; i < 30; i++) {
 		listUpload->SetItemData(nItem, i);
@@ -1359,8 +1424,6 @@ DWORD _stdcall UploadThreadProc(LPVOID lpParameter) {
 	listUpload->SetItemText(nItem, 5, csResMD5);
 
 	//编码转换
-	csResTag.Replace("，", ",");
-	csResTag.Replace(" ", ",");
 	CConverter::ANSItoUTF8(csResName);
 	CConverter::ANSItoUTF8(csResTag);
 
@@ -1379,29 +1442,32 @@ DWORD _stdcall UploadThreadProc(LPVOID lpParameter) {
 	cJSON_AddItemToObject(pRoot, "Resource", pRes);
 
 	char *strJson = cJSON_PrintUnformatted(pRoot);
-	memset(buf, 0, BLUECLICK_MSG_BUF_LENGTH);
+	memset(buf, 0, BLUECLICK_MSG_BUF_SIZE);
 	strcpy(buf, strJson);
 	cJSON_Delete(pRoot);
 	delete strJson;
 
 	if (!AfxSocketInit()) {
 		pDlg->m_hThreadUpload[nThreadIndex] = NULL;
+		pDlg->m_staticStatus.SetWindowText("分享失败，请重试");
 		return 0;
 	}
 	
 	if (uploadSocket.Create() == FALSE) {
 		pDlg->m_hThreadUpload[nThreadIndex] = NULL;
+		pDlg->m_staticStatus.SetWindowText("分享失败，请重试");
 		return 0;
 	}
 
 	if (!uploadSocket.Connect(pDlg->m_csServerAddr, pDlg->m_nServerPort)) {
+		pDlg->m_staticStatus.SetWindowText("分享失败，请重试");
 		CBuffreeMessageBox dlgMessageBox("错误003：网络连接失败");
 		dlgMessageBox.DoModal();
 		pDlg->m_hThreadUpload[nThreadIndex] = NULL;
 		return 0;
 	}
 	
-	uploadSocket.Send(buf, BLUECLICK_MSG_BUF_LENGTH);
+	uploadSocket.Send(buf, BLUECLICK_MSG_BUF_SIZE);
 
 	//上传列表：
 	// 0：弃用，这里用来存储资源路径；
@@ -1457,8 +1523,8 @@ DWORD _stdcall UploadThreadProc(LPVOID lpParameter) {
 	}
 
 	/*
-	memset(buf, 0, BLUECLICK_MSG_BUF_LENGTH);
-	int nRet = uploadSocket.Receive(buf, BLUECLICK_MSG_BUF_LENGTH);
+	memset(buf, 0, BLUECLICK_MSG_BUF_SIZE);
+	int nRet = uploadSocket.Receive(buf, BLUECLICK_MSG_BUF_SIZE);
 	
 	if (nRet <= 0) {
 		pDlg->m_hThreadUpload[nThreadIndex] = NULL;
@@ -1483,6 +1549,7 @@ DWORD _stdcall UploadThreadProc(LPVOID lpParameter) {
 	
 	cJSON_Delete(pRoot);
 	*/
+	pDlg->m_staticStatus.SetWindowText("资源分享成功");
 
 	uploadSocket.Close();
 	pDlg->m_hThreadUpload[nThreadIndex] = NULL;
