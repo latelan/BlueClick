@@ -138,6 +138,7 @@ int query_res_md5(const char *key, char (*res_md5)[33], int *len)
 {
 	MYSQL *mysql = NULL;
 	char query_str[256];
+	int cnt;
 	MYSQL_RES *result;
 	MYSQL_ROW query_rows;
 
@@ -145,15 +146,20 @@ int query_res_md5(const char *key, char (*res_md5)[33], int *len)
 		mysql = open();
 	}
 
-	sprintf(query_str,"SELECT f_res_md5 FROM tbl_resource_tags WHERE f_res_tags = '%s' limit %d",key,*len);
+	cnt = 10;
+	if(*len > 0 || *len <=10) {
+		cnt = *len;
+	}
+
+	sprintf(query_str,"SELECT f_res_md5 FROM tbl_resource_tags WHERE f_res_tags = '%s' limit %d",key,cnt);
 	if(mysql_query(mysql,query_str)) {
 		fprintf(stderr,"Error: %s\n",mysql_error(mysql));
 		return -1;
 	}
 
 	result = mysql_use_result(mysql);
-	int cnt = 0;
 
+	cnt = 0;
 	while((query_rows = mysql_fetch_row(result))) {
 		strcpy(res_md5[cnt++],query_rows[0]);
 	}
@@ -229,8 +235,12 @@ int remove_duplicate_md5(char md5[][33], int *len)
 int get_res_list(struct queryres key, struct resource_type *res, int *len)
 {
 	char md5_list[10][33];
-	int cnt = *len;
+	int cnt;
 	
+	cnt = 10;
+	if(*len > 0 || *len <=10) {
+		cnt = *len;
+	}
 	/* query md5 by mac */
 	query_res_md5(key.key,md5_list,&cnt);
 

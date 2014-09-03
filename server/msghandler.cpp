@@ -131,13 +131,16 @@ int msg_tcp_handler(int sockfd,struct online_list *clientlist)
 		
 		int l = strlen(cJSON_GetObjectItem(msg,"QueryKey")->valuestring);
 		if(strlen(cJSON_GetObjectItem(msg,"QueryKey")->valuestring) <= 1) { /* key is shorter */
+			cJSON_Delete(msg);
 			return 0;
 		}
 		strcpy(query.key, cJSON_GetObjectItem(msg,"QueryKey")->valuestring);
 		
+		printf("QueryKey: %s\n",query.key);
+
 		// query database 
 		struct resource_type res[10];
-		int len;
+		int len = 10;
 		char *text = NULL;
 		get_res_list(query,res,&len);
 		text = res_list_to_json(text,res,len);
@@ -198,6 +201,23 @@ int msg_tcp_handler(int sockfd,struct online_list *clientlist)
 	}
 	else if (strcmp(MSG_DOWNLOAD_RES,msgtype) == 0) { /* download resource */
 		printf("MsgType: MSG_DOWNLOAD_RES\n");
+		struct peer_info peers[5];
+		int len = 1;
+		strcpy(peers[0].ip,"192.168.0.2");
+		peers[0].port = 6666;
+		peers[0].downloaded = 1000;
+
+		strcpy(peers[1].ip,"192.168.0.35");
+		peers[1].port = 1235;
+		peers[1].downloaded = 1001;
+
+		char *text = NULL;
+		text = peer_info_to_json(peers,len);
+
+//		cJSON *msg = cJSON_Parse(msgbuf);
+		printf("Downloaded: %s\n",text);
+
+		send(sockfd,text,strlen(text)+1, 0);
 	}
 
 	free(msg);

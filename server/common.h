@@ -80,4 +80,11 @@ struct online_list {
 	struct client *onlist;
 };
 
+/* peer node info */
+struct peer_info {
+	char ip[32];
+	int port;
+	int downloaded;
+};
+
 #endif

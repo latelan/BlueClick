@@ -84,3 +84,20 @@ char* res_list_to_json(char *text, struct resource_type *res, int len)
 
 	return cJSON_PrintUnformatted(root);
 }
+
+char *peer_info_to_json(struct peer_info *peers, int len)
+{
+	cJSON *root,*sub,*fmt;
+	root = cJSON_CreateObject();
+	cJSON_AddStringToObject(root,"MsgType","MsgClientList");
+	cJSON_AddNumberToObject(root,"ClientCount",len);
+	cJSON_AddItemToObject(root,"Client",sub = cJSON_CreateArray());
+	for(int i=0;i<len;i++) {
+		cJSON_AddItemToArray(sub,fmt=cJSON_CreateObject());
+		cJSON_AddStringToObject(fmt,"ClientIP",peers[i].ip);
+		cJSON_AddNumberToObject(fmt,"ClientPort",peers[i].port);
+		cJSON_AddNumberToObject(fmt,"Downloaded",peers[i].downloaded);
+	}
+	
+	return cJSON_PrintUnformatted(root);
+}
