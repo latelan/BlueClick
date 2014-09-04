@@ -16,32 +16,38 @@
 #include "DlgUploadList.h"	// Added by ClassView
 #include "SearchSocket.h"
 #include "ListenSocket.h"
+#include "ServiceSocket.h"
 #include "DownloadSocket.h"
+#include "QuerySocket.h"
 #include "DlgSuspension.h"
 #include "BuffreeEdit.h"
 #include "BlueClick.h"	// Added by ClassView
 
 #define WM_SHOWTASK (WM_USER +1)
 
-#define BLUECLICK_MAX_SYN_COUNT 5
+#define BLUECLICK_MAX_SYN_COUNT 10
 #define BLUECLICK_MAX_SERVICE_COUNT 5
 
 typedef struct {
 	CWnd *m_mainWnd;
-	CBuffreeListCtrl *m_listResource;
-	CBuffreeListCtrl *m_listDownload;
-	CBuffreeListCtrl *m_listUpload;
+	CSocket *m_socket;
+	char *m_cpPieceStatus;
+	char m_csResPath[MAX_PATH];
+	char m_csResName[MAX_PATH];
+	char m_csResMD5[33];
 	UINT m_nResourceItem;
 	UINT m_nDownloadItem;
 	UINT m_nUploadItem;
+	UINT m_nSocketId;
 	UINT m_nThreadIndex;
 	UINT m_nPieceCount;
-	char m_csResMD5[33];
+	UINT m_nQueryPieceId;
+	UINT m_nQueryPieceCount;
 } STRUCT_THREAD_PARAMETER;
-
 
 DWORD _stdcall InitThreadProc(LPVOID lpParameter);
 DWORD _stdcall SearchThreadProc(LPVOID lpParameter);
+DWORD _stdcall DownloadCtrlProc(LPVOID lpParameter);
 DWORD _stdcall DownloadThreadProc(LPVOID lpParameter);
 DWORD _stdcall ServiceThreadProc(LPVOID lpParameter);
 DWORD _stdcall UploadThreadProc(LPVOID lpParameter);
@@ -74,16 +80,16 @@ public:
 
 	CDlgSuspension * m_dlgSuspension;	
 
-	CSearchSocket		*m_searchSocket;
-	CListenSocket		*m_listenSocket;
-	CDownloadSocket		*m_downloadSocket[BLUECLICK_MAX_SYN_COUNT];
+	CSearchSocket	*m_searchSocket;
+	CListenSocket	*m_listenSocket;
+	CSocket		*m_Socket[BLUECLICK_MAX_SYN_COUNT];
 
 	UINT   m_clientNum;
+	UINT   m_queryNum;
+	UINT   m_downloadNum;
 	UINT   m_serviceNum;
 	HANDLE m_hThreadSearch;
-	HANDLE m_hThreadDownload[BLUECLICK_MAX_SYN_COUNT];
-	HANDLE m_hThreadService[BLUECLICK_MAX_SERVICE_COUNT];
-	HANDLE m_hThreadUpload[BLUECLICK_MAX_SYN_COUNT];
+	HANDLE m_hThread[BLUECLICK_MAX_SYN_COUNT];
 	STRUCT_THREAD_PARAMETER m_uploadInfo[BLUECLICK_MAX_SYN_COUNT];
 	STRUCT_THREAD_PARAMETER m_downloadInfo[BLUECLICK_MAX_SYN_COUNT];
 
@@ -154,6 +160,8 @@ protected:
 	afx_msg void OnMenuitemQuitProg();
 	afx_msg void OnButtonSearch();
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
+	afx_msg void OnCloseSocket(WPARAM wParam, LPARAM lParam);
+	afx_msg void OnCloseThread(WPARAM wParam, LPARAM lParam);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

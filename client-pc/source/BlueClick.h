@@ -16,6 +16,8 @@
 #include "BlueClickDlg.h"
 #include "BuffreeListCtrl.h"
 
+#define BLUECLICK_MSG_CLOSE_SERVICE 6678
+
 #define BLUECLICK_MAX_FILE_PATH 256
 #define BLUECLICK_PROFILE_VAL_LENGTH 256
 #define BLUECLICK_MSG_BUF_SIZE 2048
@@ -26,6 +28,7 @@
 #define BLUECLICK_GB_SIZE (1024*1024*1024)
 #define BLUECLICK_MB_SIZE (1024*1024)
 #define BLUECLICK_KB_SIZE (1024)
+#define BLUECLICK_MAX_FILENAME_LENGTH 256
 
 typedef struct {
 	char m_resPath[MAX_PATH];
@@ -63,8 +66,6 @@ public:
 	static BOOL GetWorkSpacePath(CString &csPath);
 	static void ConvertANSIToUTF8(CString &strANSI);
 	static CString GetFileSizeStr(UINT fileLength);
-	static BOOL CBlueClickApp::GetPeerList(CString resAddr[], UINT resPort[], UINT &resCount, STRUCT_DOWNLOAD_QUERY_PARAM &queryParam);
-	static BOOL GetResPiece(char *pieceBuf, UINT nPieceId, CString csResAddr, UINT nResPort, CString fileMD5);
 	// Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CBlueClickApp)

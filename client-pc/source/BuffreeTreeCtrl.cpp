@@ -272,9 +272,9 @@ void CBuffreeTreeCtrl::DrawItems( CDC *pDC )
 	CString name;
 	COLORREF color;
 	DWORD treeStyle;
-	BITMAP bm;
+//	BITMAP bm;
 	CDC dcMem;
-	CBitmap *button;
+//	CBitmap *button;
 	CRect rect;
 	int count = 0;
 	int state;

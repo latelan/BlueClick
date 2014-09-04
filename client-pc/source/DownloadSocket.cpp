@@ -12,12 +12,32 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
+typedef struct {
+	CDownloadSocket *m_socket;
+	char m_resName[MAX_PATH];
+	char m_resMD5[33];
+	UINT m_pieceID;
+	UINT m_listItem;
+	UINT m_socketIndex;
+}DownloadThreadParam;
+
+typedef struct {
+	CDownloadSocket *m_socket;
+	char m_buf[BLUECLICK_MSG_BUF_SIZE];
+	char m_fileName[BLUECLICK_MAX_FILENAME_LENGTH];
+}ReceiveThreadParam;
+
 /////////////////////////////////////////////////////////////////////////////
 // CDownloadSocket
 
-CDownloadSocket::CDownloadSocket(CWnd *pParent)
+CDownloadSocket::CDownloadSocket(CWnd *pParentWnd, UINT nSocketIndex, CString csResName, CString csResMD5, UINT nResPieceCount, UINT nListItem)//CWnd *pParent)
 {
-	m_pParentWnd = pParent;
+	m_pParentWnd = pParentWnd;
+	m_nSocketIndex = nSocketIndex;
+	m_csResName = csResName;
+	m_csResMD5 = csResMD5;
+	m_nResPieceCount = nResPieceCount;
+	m_nListItem = nListItem;
 }
 
 CDownloadSocket::~CDownloadSocket()
@@ -35,11 +55,19 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CDownloadSocket member functions
 
-void CDownloadSocket::OnReceive(int nErrorCode) 
-{
-	// TODO: Add your specialized code here and/or call the base class
-	
-	((CBlueClickDlg*)m_pParentWnd)->ReceiveDownloadRequest(this);	
-	
-	//CSocket::OnReceive(nErrorCode);
+void CDownloadSocket::OnClose(int nErrorCode) {
+
 }
+
+void CDownloadSocket::DownloadRes(UINT nResPieceId)
+{
+	DownloadThreadParam *param = new DownloadThreadParam;
+	strcpy(param->m_resMD5, m_csResMD5);
+	strcpy(param->m_resName, m_csResName);
+	param->m_pieceID = nResPieceId;
+	param->m_socket = this;
+	param->m_listItem = m_nListItem;
+	param->m_socketIndex = m_nSocketIndex;
+	CreateThread(NULL, 0, DownloadThreadProc, param, 0, NULL);
+}
+

@@ -3,45 +3,47 @@
 [General Info]
 Version=1
 LastClass=CBlueClickDlg
-LastTemplate=CEdit
+LastTemplate=CSocket
 NewFileInclude1=#include "stdafx.h"
 NewFileInclude2=#include "BlueClick.h"
 
-ClassCount=15
+ClassCount=17
 Class1=CBlueClickApp
 Class2=CBlueClickDlg
 Class3=CAboutDlg
 
 ResourceCount=18
-Resource1=IDD_DLGSPLASH_DIALOG
+Resource1=IDD_BLUECLICK_DIALOG
 Resource2=IDR_MAINFRAME
-Resource3=IDD_BUFFREEMESSAGEBOX_DIALOG
+Resource3=IDD_DLGRESOURCELIST_DIALOG
 Class4=CDlgResourceList
-Resource4=IDR_MENU_SYSTEM
+Resource4=IDD_DLGTHEMESELECTER_DIALOG
 Class5=CDlgDownloadList
-Resource5=IDD_DLGSERVERSETTING_DIALOG
+Resource5=IDD_DLGUPLOADLIST_DIALOG
 Class6=CDlgUploadList
-Resource6=IDD_DLGDOWNLOADLIST_DIALOG
+Resource6=IDR_MENU_SYSTEM
 Class7=CDlgSplash
-Resource7=IDR_MENU_DOWNLOAD
-Resource8=IDD_DLGUPLOADLIST_DIALOG
-Resource9=IDD_ABOUTBOX
-Resource10=IDD_DLGNEWSHARE_DIALOG
-Resource11=IDD_DLGTHEMESELECTER_DIALOG
+Resource7=IDD_DLGSERVERSETTING_DIALOG
+Resource8=IDD_ABOUTBOX
+Resource9=IDR_MENU_DOWNLOAD
+Resource10=IDD_BUFFREEMESSAGEBOX_DIALOG
+Resource11=IDD_DLGSYSTEMSETTING_DIALOG
 Class8=CBuffreeMessageBox
 Class9=CUdpSocket
-Resource12=IDD_BLUECLICK_DIALOG
+Resource12=IDR_MENU_RESOURCE
 Class10=CDlgSystemSetting
-Resource13=IDR_MENU_RESOURCE
+Resource13=IDD_DLGSUSPENSION_DIALOG
 Class11=CDlgServerSetting
-Resource14=IDR_MENU_UPLOAD
+Resource14=IDD_DLGNEWSHARE_DIALOG
 Class12=CDlgSuspension
-Resource15=IDD_DLGSYSTEMSETTING_DIALOG
-Resource16=IDD_DLGSUSPENSION_DIALOG
+Resource15=IDD_DLGDOWNLOADLIST_DIALOG
+Resource16=IDD_DLGSPLASH_DIALOG
 Class13=CDlgNewShare
-Resource17=IDD_DLGRESOURCELIST_DIALOG
+Resource17=IDR_MENU_UPLOAD
 Class14=CDlgThemeSelecter
 Class15=CBuffreeEdit
+Class16=CServiceSocket
+Class17=CQuerySocket
 Resource18=IDR_MENU_SUSPENSION
 
 [CLS:CBlueClickApp]
@@ -58,7 +60,7 @@ ImplementationFile=BlueClickDlg.cpp
 Filter=D
 BaseClass=CDialog
 VirtualFilter=dWC
-LastObject=IDC_STATIC_PEER_NUM_ONLINE
+LastObject=CBlueClickDlg
 
 [CLS:CAboutDlg]
 Type=0
@@ -296,7 +298,7 @@ ImplementationFile=DlgNewShare.cpp
 BaseClass=CDialog
 Filter=W
 VirtualFilter=dWC
-LastObject=IDC_EDIT_FILENAME
+LastObject=CDlgNewShare
 
 [DLG:IDD_DLGTHEMESELECTER_DIALOG]
 Type=1
@@ -322,4 +324,22 @@ HeaderFile=BuffreeEdit.h
 ImplementationFile=BuffreeEdit.cpp
 BaseClass=CEdit
 Filter=W
+LastObject=CBuffreeEdit
+
+[CLS:CServiceSocket]
+Type=0
+HeaderFile=ServiceSocket.h
+ImplementationFile=ServiceSocket.cpp
+BaseClass=CSocket
+Filter=N
+VirtualFilter=uq
+
+[CLS:CQuerySocket]
+Type=0
+HeaderFile=QuerySocket.h
+ImplementationFile=QuerySocket.cpp
+BaseClass=CSocket
+Filter=N
+VirtualFilter=uq
+LastObject=CQuerySocket
 

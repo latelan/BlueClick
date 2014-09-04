@@ -7,8 +7,6 @@
 // DownloadSocket.h : header file
 //
 
-
-
 /////////////////////////////////////////////////////////////////////////////
 // CDownloadSocket command target
 
@@ -17,17 +15,24 @@ class CDownloadSocket : public CSocket
 // Attributes
 public:
 	CWnd *m_pParentWnd;
+	UINT m_nSocketIndex;
+	CString m_csResName;
+	CString m_csResMD5;
+	UINT	m_nResPieceCount;
+	UINT	m_nListItem;
 // Operations
 public:
-	CDownloadSocket(CWnd *pParent);
+	CDownloadSocket(CWnd *pParentWnd, UINT nSocketIndex, CString csResName, CString csResMD5, UINT nResPieceCount, UINT nListItem);//CWnd *pParent);
 	virtual ~CDownloadSocket();
+
 
 // Overrides
 public:
+	void DownloadRes(UINT nResPieceId);
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CDownloadSocket)
 	public:
-	virtual void OnReceive(int nErrorCode);
+	virtual void OnClose(int nErrorCode);
 	//}}AFX_VIRTUAL
 
 	// Generated message map functions
