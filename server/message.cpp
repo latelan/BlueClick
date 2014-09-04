@@ -47,6 +47,11 @@ void json_to_msg_downloadres(char *text, struct downloadres * dres)
 	
 }
 
+void json_to_resource_share(cJSON *msg, struct resource_share *res)
+{
+	char *msgtype = cJSON_GetObjectItem(msg,"MsgType")->valuestring;
+}
+
 void server_info_to_json(char *text, struct server_info *server)
 {
 	cJSON *root,*fmt;

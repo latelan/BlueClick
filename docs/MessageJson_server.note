@@ -1,0 +1,35 @@
+1.服务端响应客户端上线消息json
+{
+	"MsgType": "MsgOnlineResponse"
+	"ServerIP": "192.168.1.1",
+	"Reserved":"null"
+}
+
+2.服务端返回资源列表消息Json
+{
+	"MsgType": "ResList",
+	"ResCount": 4,
+	"Resource":
+	[
+	{
+		"ResName": "后会无期.rmvb",
+		"ResSize": "956MB",
+		"ResMD5": "1C7D74B459AB47C0403BD27A2DEC77E2",
+		"ResPieceCount": 3456
+	},
+	...
+	]
+}
+3.服务端返回可用节点列表信息json
+{
+	"MsgType": "MsgClientList",
+	"ClientCount": 3,
+	"Client":
+	[
+	{
+		"ClientIP": "192.168.0.34",
+		"ClientPort": 3443
+	},
+	...
+	]
+}
