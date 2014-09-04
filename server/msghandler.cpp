@@ -136,7 +136,6 @@ int msg_tcp_handler(int sockfd,struct online_list *clientlist)
 			return 0;
 		}
 		
-		int l = strlen(cJSON_GetObjectItem(msg,"QueryKey")->valuestring);
 		if(strlen(cJSON_GetObjectItem(msg,"QueryKey")->valuestring) <= 1) { /* key is shorter */
 			cJSON_Delete(msg);
 			return 0;
@@ -170,7 +169,6 @@ int msg_tcp_handler(int sockfd,struct online_list *clientlist)
 		int numwanted = cJSON_GetObjectItem(msg,"NumWanted")->valueint;
 
 		/* default push method */
-		struct queryres query = {"she"};
 		struct resource_type share_res[10];
 		int len = numwanted;
 		
@@ -226,6 +224,8 @@ int msg_tcp_handler(int sockfd,struct online_list *clientlist)
 	}
 
 	free(msg);
+
+	return 0;
 }
 
 /* alarm signal handler */

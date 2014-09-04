@@ -12,7 +12,6 @@
 
 void json_to_msg_client_info(char *text, struct client_info *client) 
 {
-	char *out;
 	cJSON *json;
 	
 	json = cJSON_Parse(text);
@@ -28,7 +27,6 @@ void json_to_msg_client_info(char *text, struct client_info *client)
 
 void json_to_msg_queryres(char *text, struct queryres *qres) 
 {
-	char *out;
 	cJSON *json;
 
 	json = cJSON_Parse(text);
@@ -38,11 +36,6 @@ void json_to_msg_queryres(char *text, struct queryres *qres)
 	else {
 		strcpy(qres->key,cJSON_GetObjectItem(json, "ClientIP")->valuestring);
 	}
-}
-
-void json_to_msg_downloadres(char *text, struct downloadres * dres)
-{
-	
 }
 
 void json_to_resource_share(char *text, struct resource_share *res)
@@ -82,7 +75,7 @@ void json_to_download_req(char *text, struct download_req *req)
 
 void server_info_to_json(char *text, struct server_info *server)
 {
-	cJSON *root,*fmt;
+	cJSON *root;
 	root = cJSON_CreateObject();
 	cJSON_AddStringToObject(root, "MsgType", "MsgOnlineResponse");
 	cJSON_AddStringToObject(root, "ServerIP", server->ip);

@@ -210,7 +210,6 @@ int get_total_num(struct online_list *clientlist)
 }
 
 /* online client checkout handler */
-/*void online_checkout_handler(struct online_list *clientlist)*/
 void online_checkout_handler()
 {
 	if(!clist) {

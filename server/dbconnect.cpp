@@ -60,7 +60,6 @@ int add_share_resource(const struct resource_share *res)
 	MYSQL *mysql = NULL;
 	char query_str[512];
 	int affect_rows;
-	int has;
 	if(mysql == NULL) {
 		mysql = open();
 	}

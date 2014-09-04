@@ -17,7 +17,7 @@ extern int len_dqueue;
 void init_download_queue()
 {
 	for(int i=0;i<MAX_DOWNLOAD_QUEUE;i++) {
-		dqueue.dlist = NULL;
+		dqueue[i].dlist = NULL;
 	}
 
 	len_dqueue = 0;
@@ -26,13 +26,11 @@ void init_download_queue()
 /* add a download node into dqueue */
 int add_download_node(struct peer_download_info *newdown)
 {
-	
+	return 0;	
 }
 
 /* delete a download node from dqueue */
 int delete_download_node(char *md5)
 {
-
+	return 0;
 }
-
-int 
