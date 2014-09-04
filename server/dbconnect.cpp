@@ -151,7 +151,7 @@ int query_res_md5(const char *key, char (*res_md5)[33], int *len)
 		cnt = *len;
 	}
 
-	sprintf(query_str,"SELECT f_res_md5 FROM tbl_resource_tags WHERE f_res_tags = '%s' limit %d",key,cnt);
+	sprintf(query_str,"SELECT f_res_md5 FROM tbl_resource_tags WHERE f_res_tags like '%s%%' limit %d",key,cnt);
 	if(mysql_query(mysql,query_str)) {
 		fprintf(stderr,"Error: %s\n",mysql_error(mysql));
 		return -1;
@@ -164,30 +164,29 @@ int query_res_md5(const char *key, char (*res_md5)[33], int *len)
 		strcpy(res_md5[cnt++],query_rows[0]);
 	}
 	*len = cnt;
+	mysql_close(mysql);
 
 	return 0;
-	mysql_close(mysql);
 }
 
 /**
  * 功能：根据MD5检索资源名称，资源大小，资源分片数
  * 参数：res_md5 - 资源MD5
  *		 resinfo 返回值，资源info
- * 返回值：成功查询返回0，查询结果放在res_name和res_piececount，失败返回-1
+ * 返回值：成功查询返回0，查询结果放在resinfo，失败返回-1
  */
 int query_res_info(const char *res_md5,
 	struct resource_type *resinfo)
 {
 	MYSQL *mysql = NULL;
-	char query_str[512];
 	MYSQL_RES *result;
 	MYSQL_ROW query_rows;
+	char query_str[512];
 
 	if(mysql == NULL) {
 		mysql = open();
 	}
 
-//	sprintf(query_str,"SELECT tbl_resource.f_res_name,tbl_resource.f_res_size, tbl_resource.f_res_piececount,tbl_resource_owner.f_res_sharetime FROM tbl_resource,tbl_resource_owner WHERE tbl_resource.f_res_md5 = '%s' and tbl_resource.f_res_md5 = tbl_resource_owner.f_res_md5)",res_md5);
 	sprintf(query_str,"SELECT f_res_name,f_res_size, f_res_piececount FROM tbl_resource WHERE f_res_md5 = '%s'",res_md5);
 	if(mysql_query(mysql,query_str)) {
 		fprintf(stderr,"Error: %s\n",mysql_error(mysql));
@@ -259,13 +258,85 @@ int get_res_list(struct queryres key, struct resource_type *res, int *len)
 /**
  * 功能：根据资源MD5检索资源提供方
  * 参数：res_md5 - 资源md5
- *		 res_owner - 返回值，资源提供方
- *		 res_sharetime 返回值，共享时间
+ *		 mac - 返回值，资源提供方
  * 返回值：成功查询返回0，
  */
-int query_res_owner_sharetime(const char *res_md5,
-		char *res_owner,
-		char *res_sharetime)
+int query_macs_by_md5(const char *res_md5, char mac[][32], int *len)
 {
+	MYSQL *mysql = NULL;
+	MYSQL_RES *result;
+	MYSQL_ROW query_rows;
+	char query_str[256];
 
+	if(mysql == NULL) {
+		mysql = open();
+	}
+
+	sprintf(query_str,"SELECT f_res_owner FROM tbl_resource_owner WHERE f_res_md5 = '%s' limit 10",res_md5);
+	if(mysql_query(mysql,query_str)) {
+		fprintf(stderr,"Error: %s\n",mysql_error(mysql));
+		return -1;
+	}
+
+	result = mysql_use_result(mysql);
+
+	int cnt = 0;
+	while((query_rows = mysql_fetch_row(result))) {
+		strcpy(mac[cnt++],query_rows[0]);
+	}
+	*len = cnt;
+	mysql_close(mysql);
+
+	return 0;
+}
+
+/* get last share resource,at most 10 */
+int query_last_share_res(char md5[][33], int *len)
+{
+	MYSQL *mysql = NULL;
+	MYSQL_RES *result;
+	MYSQL_ROW query_rows;
+	char query_str[256];
+	int cnt;
+
+	cnt = 10;
+	if(*len > 0 && *len <= 10) {
+		cnt = *len;
+	}
+
+	if(mysql == NULL) {
+		mysql = open();
+	}
+
+	sprintf(query_str,"SELECT distinct f_res_md5 FROM tbl_resource_owner ORDER BY f_res_sharetime desc limit %d",cnt);
+	if(mysql_query(mysql,query_str)) {
+		fprintf(stderr,"Error: %s\n",mysql_error(mysql));
+		return -1;
+	}
+	result = mysql_use_result(mysql);
+
+	cnt = 0;
+	while((query_rows = mysql_fetch_row(result))) {
+		strcpy(md5[cnt++],query_rows[0]);
+	}
+	*len = cnt;
+	mysql_close(mysql);
+
+	return 0;
+}
+
+/* get push list */
+int get_push_list(struct resource_type *res, int *len)
+{
+	char md5[20][33];
+	int len_md5 = *len;
+
+	query_last_share_res(md5,&len_md5);
+	for(int i=0;i<len_md5;i++) {
+		query_res_info(md5[i],&res[i]);
+	}
+	
+	*len = len_md5;
+	
+	return 0;
 }

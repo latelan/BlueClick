@@ -10,7 +10,6 @@
 #include "common.h"
 #include "cJSON.h"
 
-// 
 void json_to_msg_client_info(char *text, struct client_info *client) 
 {
 	char *out;
@@ -25,7 +24,6 @@ void json_to_msg_client_info(char *text, struct client_info *client)
 		strcpy(client->mac,cJSON_GetObjectItem(json, "ClientMAC")->valuestring);
 		client->listenport = cJSON_GetObjectItem(json, "ClientListenPort")->valueint;
 	}
-
 }
 
 void json_to_msg_queryres(char *text, struct queryres *qres) 
@@ -47,9 +45,39 @@ void json_to_msg_downloadres(char *text, struct downloadres * dres)
 	
 }
 
-void json_to_resource_share(cJSON *msg, struct resource_share *res)
+void json_to_resource_share(char *text, struct resource_share *res)
 {
-	char *msgtype = cJSON_GetObjectItem(msg,"MsgType")->valuestring;
+	cJSON *json;
+
+	json = cJSON_Parse(text);
+	if(!json) {
+		printf("Error before: [%s]\n",cJSON_GetErrorPtr());
+	}
+	else {
+		cJSON *child = cJSON_GetObjectItem(json,"Resource");
+		strcpy(res->name,cJSON_GetObjectItem(child,"ResName")->valuestring);
+		strcpy(res->tag,cJSON_GetObjectItem(child,"ResTag")->valuestring);
+		strcpy(res->size,cJSON_GetObjectItem(child,"ResSize")->valuestring);
+		strcpy(res->md5,cJSON_GetObjectItem(child,"ResMD5")->valuestring);
+		strcpy(res->mac,cJSON_GetObjectItem(child,"ResOwner")->valuestring);
+		res->piececount = cJSON_GetObjectItem(child,"ResPieceCount")->valueint;
+	}
+}
+
+void json_to_download_req(char *text, struct download_req *req)
+{
+	cJSON *json;
+
+	json = cJSON_Parse(text);
+	if(!json) {
+		printf("Error before: [%s]\n",cJSON_GetErrorPtr());
+	}
+	else {
+		strcpy(req->clientip,cJSON_GetObjectItem(json, "ClientIP")->valuestring);
+		strcpy(req->md5,cJSON_GetObjectItem(json,"ResMD5")->valuestring);
+		req->numwant = cJSON_GetObjectItem(json,"NumWant")->valueint;
+		strcpy(req->event,cJSON_GetObjectItem(json,"Event")->valuestring);
+	}
 }
 
 void server_info_to_json(char *text, struct server_info *server)
@@ -67,7 +95,7 @@ void server_info_to_json(char *text, struct server_info *server)
 	free(out);
 }
 
-char* res_list_to_json(char *text, struct resource_type *res, int len)
+char* res_list_to_json(struct resource_type *res, int len)
 {
 	cJSON *root,*fmt, *sub;
 	root = cJSON_CreateObject();
@@ -96,7 +124,8 @@ char *peer_info_to_json(struct peer_info *peers, int len)
 		cJSON_AddItemToArray(sub,fmt=cJSON_CreateObject());
 		cJSON_AddStringToObject(fmt,"ClientIP",peers[i].ip);
 		cJSON_AddNumberToObject(fmt,"ClientPort",peers[i].port);
-		cJSON_AddNumberToObject(fmt,"Downloaded",peers[i].downloaded);
+		cJSON_AddNumberToObject(fmt,"AvailablePieces",peers[i].availablepieces);
+		cJSON_AddNumberToObject(fmt,"AvailableConnections",peers[i].availableconnections);
 	}
 	
 	return cJSON_PrintUnformatted(root);

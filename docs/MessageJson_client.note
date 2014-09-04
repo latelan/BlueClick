@@ -70,5 +70,34 @@
 	"MsgType": "MsgResConfirm",
 	"ResMD5": "1C7D74B459AB47C0403BD27A2DEC77E2",
 	"PieceWant": [1,2,4,5,6],
-	""
+	"AvailablePiece": [2,4,5],
+	"ConfirmType": ["request","response"]
+}
+
+注：PieceWant - 请求方请求的片段列表
+	AvailablePiece - 被请求方实际可提供的片段列表
+	ComfirmType - request为请求方携带
+				  response为被请求方携带
+
+9.客户端片段下载请求消息json
+{
+	"MsgType":"MsgPieceRequest",
+	"ResMD5": "1C7D74B459AB47C0403BD27A2DEC77E2",
+	"PieceNum": 1
+}
+
+10.客户端文件片段传送消息json
+{
+	"MsgType": "MsgResPiece",
+	"ResMD5": "1C7D74B459AB47C0403BD27A2DEC77E2",
+	"PieceMD5": "2C7D64B459AB37C0403BD27A2DEC77E2",
+	"PieceNum": 1,
+	"SlieceNum": 1,
+	"Sliece":"File Content"
+}
+
+11.客户端下线消息json
+{
+	"MsgType": "MsgTypeQuit",
+	"ClientIP":"192.168.0.34"
 }

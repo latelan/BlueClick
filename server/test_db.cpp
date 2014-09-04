@@ -37,15 +37,34 @@ int main()
 	struct resource_type res[10];
 	int len;
 
-	get_res_list(key,res,&len);
+//	get_res_list(key,res,&len);
 //	text = res_list_to_json(text,res,len);
 
 //	printf("%s\n",text);
-	for(int i=0;i<len;i++) {
+/*	for(int i=0;i<len;i++) {
 		printf("NO%d.name: %s size: %s md5: %s piececount: %d\n",i,res[i].name,res[i].size,res[i].md5,res[i].piececount);
 	}
-	
+*/	
 //	add_share_resource(&res);
+/*
+	char mac[5][32];
+	char res_md5[] = "707C32C00B0BD7C60D0FB128D009E644";
+	int cnt = 0;
+	query_macs_by_md5(res_md5,mac,&cnt);
+
+	for(int i=0;i<cnt;i++) {
+		printf("%s\n",mac[i]);
+	}
+*/
+	int len_md5 = 5;
+	struct resource_type share_res[10];
+	query_last_share_res(md5,&len_md5);
+	for(int i=0;i<len_md5;i++){
+		query_res_info(md5[i],&share_res[i]);
+		printf("%s\n",md5[i]);
+
+		printf("Share res: name:%s, size:%s, md5:%s, piececount:%d\n",share_res[i].name,share_res[i].size,share_res[i].md5,share_res[i].piececount);
+	}
 
 	return 0;
 }
