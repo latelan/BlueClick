@@ -1,0 +1,453 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Chinese (P.R.C.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
+#ifdef _WIN32
+LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
+#pragma code_page(936)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 4, 2\r\n"
+    "#pragma code_page(936)\r\n"
+    "#endif //_WIN32\r\n"
+    "#include ""res\\BlueClick.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""l.chs\\afxres.rc""          // Standard components\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON    DISCARDABLE     "res\\logo.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOG DISCARDABLE  0, 0, 235, 110
+STYLE WS_POPUP
+FONT 9, "宋体"
+BEGIN
+    ICON            IDR_MAINFRAME,IDC_STATIC,69,16,21,21
+    LTEXT           "BlueClick 1.0 版",IDC_STATIC,95,24,102,8,SS_NOPREFIX
+    LTEXT           "版权所有2014 Buffree Inc.保留所有权利",IDC_STATIC,47,45,
+                    165,9
+    DEFPUSHBUTTON   "确定",IDOK,89,83,50,14,WS_GROUP
+    LTEXT           "Buffree 为梦想而生 永不止步",IDC_STATIC,48,61,165,9
+END
+
+IDD_BLUECLICK_DIALOG DIALOGEX 0, 0, 320, 190
+STYLE WS_POPUP | WS_VISIBLE
+EXSTYLE WS_EX_APPWINDOW
+FONT 9, "微软雅黑", 0, 0, 0x1
+BEGIN
+    PUSHBUTTON      "theme",IDC_BUTTON_THEME,243,0,12,12
+    PUSHBUTTON      "menu",IDC_BUTTON_MENU,257,0,12,12
+    PUSHBUTTON      "min",IDC_BUTTON_MIN,272,0,12,12
+    PUSHBUTTON      "cancel",IDC_BUTTON_CANCEL,288,0,12,12
+    PUSHBUTTON      "resource",IDC_BUTTON_RESOURCE_LIST_TAB,42,10,14,14
+    PUSHBUTTON      "download",IDC_BUTTON_DOWNLOAD_LIST_TAB,62,10,14,14
+    PUSHBUTTON      "upload",IDC_BUTTON_UPLOAD_LIST_TAB,83,10,14,14
+    CONTROL         "Tree1",IDC_TREE_IDC_TREE_DOWNLOAD,"SysTreeView32",
+                    TVS_NOTOOLTIPS | TVS_NOSCROLL | WS_TABSTOP,7,41,52,131
+    LTEXT           "StaticTAB",IDC_STATIC_TAB,72,37,241,129
+    EDITTEXT        IDC_EDIT_SEARCH,201,23,82,12,NOT WS_BORDER
+    DEFPUSHBUTTON   "search",IDC_BUTTON_SEARCH,293,24,14,10
+    LTEXT           "蓝点文件共享系统",IDC_STATIC_CAPTION,7,1,100,8
+    CONTROL         137,IDC_STATIC_LOGO,"Static",SS_BITMAP,7,9,23,19
+    LTEXT           "",IDC_STATIC_STATUS,7,173,71,10
+    LTEXT           "",IDC_STATIC_PEER_NUM_ONLINE,242,173,71,10
+END
+
+IDD_DLGRESOURCELIST_DIALOG DIALOG DISCARDABLE  0, 0, 320, 201
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "List1",IDC_LIST_RESOURCE,"SysListView32",LVS_REPORT | 
+                    LVS_OWNERDRAWFIXED | WS_TABSTOP,27,20,264,156
+END
+
+IDD_DLGDOWNLOADLIST_DIALOG DIALOG DISCARDABLE  0, 0, 320, 201
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "List1",IDC_LIST_UPLOAD,"SysListView32",LVS_REPORT | 
+                    LVS_OWNERDRAWFIXED | WS_TABSTOP,13,18,291,155
+END
+
+IDD_DLGUPLOADLIST_DIALOG DIALOG DISCARDABLE  0, 0, 320, 201
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "List1",IDC_LIST_UPLOAD,"SysListView32",LVS_REPORT | 
+                    LVS_OWNERDRAWFIXED | WS_TABSTOP,13,27,284,145
+END
+
+IDD_DLGSPLASH_DIALOG DIALOG DISCARDABLE  0, 0, 320, 201
+STYLE WS_POPUP
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "",IDC_STATIC_SPLASH_MSG,18,163,225,16
+END
+
+IDD_BUFFREEMESSAGEBOX_DIALOG DIALOG DISCARDABLE  0, 0, 188, 89
+STYLE WS_POPUP
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,69,58,50,14
+    CTEXT           "",IDC_STATIC_MSG,7,36,174,16
+END
+
+IDD_DLGSYSTEMSETTING_DIALOG DIALOG DISCARDABLE  0, 0, 234, 107
+STYLE WS_POPUP
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "确定",IDOK,46,78,50,14
+    PUSHBUTTON      "退出",IDCANCEL,136,78,50,14
+    LTEXT           "服务器地址",IDC_STATIC,40,28,43,15
+    LTEXT           "服务器端口",IDC_STATIC,40,53,43,15
+    CONTROL         "IPAddress1",IDC_SERVER_IPADDRESS,"SysIPAddress32",
+                    WS_TABSTOP,90,26,105,14
+    EDITTEXT        IDC_EDIT_SERVER_PORT,90,49,105,15,ES_AUTOHSCROLL
+END
+
+IDD_DLGSERVERSETTING_DIALOG DIALOG DISCARDABLE  0, 0, 247, 105
+STYLE WS_POPUP
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "确定",IDOK,54,84,50,14
+    PUSHBUTTON      "退出",IDCANCEL,142,84,50,14
+    LTEXT           "服务器地址",IDC_STATIC,33,25,41,13
+    LTEXT           "服务器端口",IDC_STATIC,33,46,39,12
+    EDITTEXT        IDC_EDIT_SERVER_PORT,91,42,120,15,ES_AUTOHSCROLL
+    CONTROL         "IPAddress1",IDC_SERVER_IPADDRESS,"SysIPAddress32",
+                    WS_TABSTOP,91,22,120,14
+END
+
+IDD_DLGSUSPENSION_DIALOG DIALOG DISCARDABLE  0, 0, 90, 93
+STYLE WS_POPUP
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         137,IDC_LOGO,"Static",SS_BITMAP,27,30,70,61
+END
+
+IDD_DLGNEWSHARE_DIALOG DIALOG DISCARDABLE  0, 0, 257, 130
+STYLE WS_POPUP
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "确定",IDOK,194,51,50,14
+    PUSHBUTTON      "取消",IDCANCEL,194,78,50,14
+    LTEXT           "资源名称",IDC_STATIC,20,57,33,10
+    LTEXT           "资源路径",IDC_STATIC,20,29,33,12
+    PUSHBUTTON      "浏览",IDC_BUTTON_SCAN,194,24,48,14
+    EDITTEXT        IDC_EDIT_FILE_PATH,55,24,124,18,ES_AUTOHSCROLL | NOT 
+                    WS_BORDER
+    EDITTEXT        IDC_EDIT_FILENAME,55,51,124,18,ES_AUTOHSCROLL | NOT 
+                    WS_BORDER
+    EDITTEXT        IDC_EDIT_FILE_TAGS,55,78,124,18,ES_AUTOHSCROLL | NOT 
+                    WS_BORDER
+    LTEXT           "资源标签",IDC_STATIC,19,83,33,11
+    LTEXT           "多个关键字以逗号隔开",IDC_STATIC,55,100,155,11
+    LTEXT           "",IDC_STATIC,3,2,100,13
+END
+
+IDD_DLGTHEMESELECTER_DIALOG DIALOG DISCARDABLE  0, 0, 199, 114
+STYLE WS_POPUP
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,33,82,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,109,84,50,14
+    CONTROL         137,IDC_STATIC_THEME1,"Static",SS_BITMAP,29,19,60,45
+    CONTROL         "",IDC_STATIC_THEME2,"Static",SS_BLACKFRAME,111,19,60,45
+END
+
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "080404B0"
+        BEGIN
+            VALUE "CompanyName", "\0"
+            VALUE "FileDescription", "BlueClick Microsoft 基础类应用程序\0"
+            VALUE "FileVersion", "1, 0, 0, 1\0"
+            VALUE "InternalName", "BlueClick\0"
+            VALUE "LegalCopyright", "版权所有 (C) 2014\0"
+            VALUE "LegalTrademarks", "\0"
+            VALUE "OriginalFilename", "BlueClick.EXE\0"
+            VALUE "ProductName", "BlueClick 应用程序\0"
+            VALUE "ProductVersion", "1, 0, 0, 1\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x804, 1200
+    END
+END
+
+#endif    // !_MAC
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 228
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 103
+    END
+
+    IDD_BLUECLICK_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 313
+        BOTTOMMARGIN, 183
+    END
+
+    IDD_DLGRESOURCELIST_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 313
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 194
+    END
+
+    IDD_DLGDOWNLOADLIST_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 313
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 194
+    END
+
+    IDD_DLGUPLOADLIST_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 313
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 194
+    END
+
+    IDD_DLGSPLASH_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 313
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 194
+    END
+
+    IDD_BUFFREEMESSAGEBOX_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 181
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 82
+    END
+
+    IDD_DLGSYSTEMSETTING_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 227
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 100
+    END
+
+    IDD_DLGSERVERSETTING_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 240
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 98
+    END
+
+    IDD_DLGSUSPENSION_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 83
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 86
+    END
+
+    IDD_DLGNEWSHARE_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 3
+        RIGHTMARGIN, 250
+        TOPMARGIN, 2
+        BOTTOMMARGIN, 123
+    END
+
+    IDD_DLGTHEMESELECTER_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 192
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 107
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MENU_DOWNLOAD MENU DISCARDABLE 
+BEGIN
+    POPUP "下载列表"
+    BEGIN
+        MENUITEM "继续下载",                    ID_MENUITEM_CONTINUE_DOWNLOAD
+
+        MENUITEM "暂停下载",                    ID_MENUITEM_PAUSE_DOWNLOAD
+        MENUITEM "删除任务",                    ID_MENUITEM_DELETE_DOWNLOAD
+    END
+END
+
+IDR_MENU_RESOURCE MENU DISCARDABLE 
+BEGIN
+    POPUP "资源列表"
+    BEGIN
+        MENUITEM "开始下载",                    ID_MENUITEM_START_DOWNLOAD
+    END
+END
+
+IDR_MENU_UPLOAD MENU DISCARDABLE 
+BEGIN
+    POPUP "上传列表"
+    BEGIN
+        MENUITEM "新建分享",                    ID_MENUITEM_NEW_SHARE
+        MENUITEM "取消分享",                    ID_MENUITEM_DELETE_SHARE
+    END
+END
+
+IDR_MENU_SYSTEM MENU DISCARDABLE 
+BEGIN
+    POPUP "系统菜单"
+    BEGIN
+        MENUITEM "系统设置",                    ID_MENUITEM_SYSTEM_SETTING
+        MENUITEM "关于我们",                    ID_MENUITEM_ABOUT_US
+        MENUITEM "退出程序",                    ID_MENUITEM_QUIT_PROG
+    END
+END
+
+IDR_MENU_SUSPENSION MENU DISCARDABLE 
+BEGIN
+    POPUP "右键菜单"
+    BEGIN
+        MENUITEM "显示主窗口",                  ID_SHOW
+        MENUITEM "退出",                        ID_EXIT
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_ABOUTBOX            "关于 BlueClick(&A)..."
+    IDP_SOCKETS_INIT_FAILED "Windows 通信端口初始化失败。"
+END
+
+#endif    // Chinese (P.R.C.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
+#ifdef _WIN32
+LANGUAGE 4, 2
+#pragma code_page(936)
+#endif //_WIN32
+#include "res\BlueClick.rc2"  // non-Microsoft Visual C++ edited resources
+#include "l.chs\afxres.rc"          // Standard components
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
