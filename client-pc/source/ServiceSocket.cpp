@@ -11,86 +11,43 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-typedef struct {
-	CServiceSocket *m_socket;
-	UINT m_socketIndex;
-	char m_buf[BLUECLICK_MSG_BUF_SIZE];
-}ServiceThreadParam;
-
 /////////////////////////////////////////////////////////////////////////////
 // CServiceSocket
 
-CServiceSocket::CServiceSocket(CWnd *pParentWnd, UINT nSocketIndex)
+CServiceSocket::CServiceSocket()
 {
-	m_pParentWnd = pParentWnd;
-	m_nSocketIndex = nSocketIndex;
 }
 
 CServiceSocket::~CServiceSocket()
 {
+
 }
 
-
-// Do not edit the following lines, which are needed by ClassWizard.
-#if 0
-BEGIN_MESSAGE_MAP(CServiceSocket, CSocket)
-	//{{AFX_MSG_MAP(CServiceSocket)
-	//}}AFX_MSG_MAP
-END_MESSAGE_MAP()
-#endif	// 0
-
-/////////////////////////////////////////////////////////////////////////////
-// CServiceSocket member functions
-#if 0
 void CServiceSocket::OnReceive(int nErrorCode) 
 {
-	// TODO: Add your specialized code here and/or call the base class
-	char buf[BLUECLICK_MSG_BUF_SIZE];
-	
-	memset(buf, 0, BLUECLICK_MSG_BUF_SIZE);
-	UINT nRet = Receive(buf, BLUECLICK_MSG_BUF_SIZE);
-	if (nRet <= 0) {
-		return;
-	}
+	CServiceThread *pThread = (CServiceThread*)AfxGetThread();
+	CBlueClickDlg* pMainWnd = (CBlueClickDlg*)pThread->m_pWnd;
+	CBuffreeListCtrl *listUpload = &pMainWnd->m_dlgUploadList.m_listUpload;
 
-	ServiceThreadParam *param = new ServiceThreadParam;
-	param->m_socket = this; 
-	param->m_socketIndex = m_nSocketIndex;
-	strcpy(param->m_buf, buf);
-
-	m_hThreadService = CreateThread(NULL, 0, ServiceThreadProc, param, 0, NULL);
-}
-
-/*********************************************************
-函数名称：ServiceThreadProc
-功能描述：资源服务线程，负责向资源请求方发送数据
-作者：	  张永军
-创建时间：2014-09-02
-参数说明：lpParameter：数据指针
-返 回 值：无
-*********************************************************/
-DWORD _stdcall ServiceThreadProc(LPVOID lpParameter)
-{
-	ServiceThreadParam *param = (ServiceThreadParam*)lpParameter;
-	CServiceSocket *serviceSocket = (CServiceSocket*)param->m_socket;
-	UINT nSocketIndex = param->m_socketIndex;
-	char msgBuf[BLUECLICK_MSG_BUF_SIZE];
-	strncpy(msgBuf, param->m_buf, BLUECLICK_MSG_BUF_SIZE);
-	delete param;
+	char msgBuf[BLUECLICK_MSG_BUF_SIZE];	
+	UINT nRet = Receive(msgBuf, BLUECLICK_MSG_BUF_SIZE);
 
 	cJSON *pQueryMsgJson=cJSON_Parse(msgBuf);
+
 	if (!pQueryMsgJson) {
-		return 0;
+		return;
 	}
 
 	CString csMsgType = cJSON_GetObjectItem(pQueryMsgJson, "MsgType")->valuestring;
 	if (csMsgType != "MsgResPieceQuery") {
-		return 0;
+		return;
 	}
 
 	CString csQueryResMD5 = cJSON_GetObjectItem(pQueryMsgJson, "QueryResMD5")->valuestring;	
 	UINT nQueryPieceId = cJSON_GetObjectItem(pQueryMsgJson, "QueryPieceId")->valueint;
 	cJSON_Delete(pQueryMsgJson);
+
+//	AfxMessageBox(csQueryResMD5);
 
 	// 读取分享列表项，获取请求文件信息
 	// 0：弃用，这里用来存储资源路径；
@@ -100,9 +57,6 @@ DWORD _stdcall ServiceThreadProc(LPVOID lpParameter)
 	// 4：进度条，字串无效，这里用来存储资源标签；
 	// 5：文件MD5
 	// data：进度条进度
-	CBlueClickDlg*	  mainWnd = (CBlueClickDlg*)AfxGetMainWnd();
-	CBuffreeListCtrl* listUpload = &mainWnd->m_dlgUploadList.m_listUpload;
-
 	CString csQueryResPath;
 	CString csQueryResName;
 	UINT nShareResCount = listUpload->GetItemCount();
@@ -116,88 +70,68 @@ DWORD _stdcall ServiceThreadProc(LPVOID lpParameter)
 	}
 
 	if (i >= nShareResCount) {
-		mainWnd->m_staticStatus.SetWindowText("请求的文件没有找到");
-		return 0;
+		pMainWnd->m_staticStatus.SetWindowText("请求的文件没有找到");
+		return;
 	}
 
-	// 打开请求文件，读取文件信息，以及发送的片段数据
-	CFile queryFile(csQueryResPath, CFile::modeRead);
-	UINT nQueryResSize = queryFile.GetLength();
-	UINT nQueryPieceSize = BLUECLICK_RES_PIECE_SIZE;
-	UINT nResPieceCount = (nQueryResSize % nQueryPieceSize == 0) ? (nQueryResSize/nQueryPieceSize) : (nQueryResSize/nQueryPieceSize) + 1;
+	DWORD ReadOnce, LeftToRead, nReadSize;
+	CFile fileRes;
+	//以共享和读方式打开文件
+	if(!fileRes.Open(csQueryResPath, CFile::shareDenyWrite) | CFile::modeRead)
+	{
+		return;
+	}
+	pThread->m_nResSize = fileRes.GetLength();
 	
-	//如果请求的片段不存在， 则返回
-	if (nQueryPieceId >= nResPieceCount || nQueryPieceId < 0) {
-		mainWnd->m_staticStatus.SetWindowText("请求的文件片段不存在");
-		queryFile.Close();
-		return 0;
-	}
+	//获得文件起始位和文件块大小
+	pThread->GetPieceOffset(BLUECLICK_MAX_SYN_COUNT, pThread->m_nThreadIndex, pThread->m_nResSize, pThread->m_nPieceOffset, pThread->m_nPieceSize);
+	
+	//还剩下的文件大小
+	LeftToRead = pThread->m_nPieceSize;
+	fileRes.Seek(pThread->m_nPieceOffset, CFile::begin);
 
-	//如果请求的是最后一个片段
-	if (nQueryPieceId == nResPieceCount - 1) {
-		nQueryPieceSize = nQueryResSize % nQueryPieceSize;
-	}
+	RES_HEADER cResHeader;
+	memset(cResHeader.m_csResName, 0, MAX_PATH);
+	strcpy(cResHeader.m_csResName, csQueryResName.GetBuffer(0));
+	cResHeader.m_nResOffset = pThread->m_nPieceOffset;
+	cResHeader.m_nResSize = pThread->m_nResSize;
+	cResHeader.m_nPieceSize = pThread->m_nPieceSize;
+	cResHeader.m_nThreadIndex = pThread->m_nThreadIndex;
 
-	//读取请求片段数据
-	char queryPieceBuf[BLUECLICK_RES_PIECE_SIZE];
-	memset(queryPieceBuf, 0, BLUECLICK_RES_PIECE_SIZE);
-	UINT nFileOffset = nQueryPieceId*BLUECLICK_RES_PIECE_SIZE;
-	queryFile.Seek(nFileOffset, CFile::SeekPosition::begin);
-	queryFile.Read(queryPieceBuf, nQueryPieceSize);	
-	queryFile.Close();
-/*
-	//发送片段信息
-	cJSON *pResPiece = cJSON_CreateObject();
-	cJSON_AddStringToObject(pResPiece, "MsgType", "MsgPieceQueryResponse");
-	cJSON_AddNumberToObject(pResPiece, "QueryPieceId", nQueryPieceId);
-	cJSON_AddNumberToObject(pResPiece, "QueryPieceSize", nQueryPieceSize);
+	Send(&cResHeader, sizeof(RES_HEADER));
 
-	char *cpJson = cJSON_PrintUnformatted(pResPiece);
-	char buf[BLUECLICK_MSG_BUF_SIZE];
-	strcpy(buf, cpJson);
-	free(cpJson);
-	cJSON_Delete(pResPiece);
-
-	serviceSocket->Send(buf, BLUECLICK_MSG_BUF_SIZE);
-	mainWnd->m_staticStatus.SetWindowText("请求的片段信息已发送");
-*/
-	//发送请求片段数据
-	UINT nQueryPackCount = ((nQueryPieceSize%1024) == 0) ? (nQueryPieceSize/1024) : (nQueryPieceSize/1024)+1;
-	UINT nQueryPackSize = 1024;
-	for (UINT nQueryPackId = 0; nQueryPackId < nQueryPackCount; nQueryPackId++) {
-		//最后一个包需要单独计算大小
-		if (nQueryPackId == nQueryPackCount-1) {
-			nQueryPackSize = ((nQueryPieceSize%1024) == 0) ? 1024 : (nQueryPieceSize % 1024);
+	PIECE_DATA cPieceData;
+	//读取文件并发送文件块
+	while(LeftToRead > 0) {	
+		if (LeftToRead > BLUECLICK_RES_PIECE_SIZE) {
+			ReadOnce = BLUECLICK_RES_PIECE_SIZE;
 		}
-		serviceSocket->Send(queryPieceBuf+nQueryPackId*1024, nQueryPackSize);
-		
-		//显示发送状态信息
-		CString csMsg;
-		csMsg.Format("第%u个包已发送", nQueryPackId+1);
-		mainWnd->m_staticStatus.SetWindowText(csMsg);
+		else
+		{
+			ReadOnce=LeftToRead;
+		}
+		//读出一块文件
+		nReadSize = fileRes.Read(cPieceData.m_csData, BLUECLICK_RES_PIECE_SIZE);
+		//发送文件块
+		nRet = Send(cPieceData.m_csData, nReadSize);
+		LeftToRead = LeftToRead - nReadSize;
 	}
+	
+	//关闭文件
+	fileRes.Close();
+	pMainWnd->m_staticStatus.SetWindowText("文件已发送完毕");
 
-	PostMessage(mainWnd->m_hWnd, MSG_CLOSE_SERVICE_SOCKET, nSocketIndex, NULL);
-
-	return 0;
+	//通知此线程停止
+	//SetThreadPriority(THREAD_PRIORITY_HIGHEST);
+	//PostThreadMessage(pThread, WM_QUIT,0,0);	
 }
+// Do not edit the following lines, which are needed by ClassWizard.
+#if 0
+BEGIN_MESSAGE_MAP(CServiceSocket, CAsyncSocket)
+	//{{AFX_MSG_MAP(CServiceSocket)
+	//}}AFX_MSG_MAP
+END_MESSAGE_MAP()
+#endif	// 0
 
-/*********************************************************
-函数名称：OnClose
-功能描述：调用主线程的CloseServiceSocket函数，关闭套接字并释放空间
-作者：	  张永军
-创建时间：2014-09-02
-参数说明：lpParameter：数据指针
-返 回 值：无
-*********************************************************/
-void CServiceSocket::OnClose(int nErrorCode) 
-{
-	// TODO: Add your specialized code here and/or call the base class
-	CBlueClickDlg *mainWnd = (CBlueClickDlg*)AfxGetMainWnd();
-
-	PostMessage(mainWnd->m_hWnd, MSG_CLOSE_SERVICE_SOCKET, m_nSocketIndex, NULL);
-
-	CSocket::OnClose(nErrorCode);
-}
-
-#endif
+/////////////////////////////////////////////////////////////////////////////
+// CServiceSocket member functions

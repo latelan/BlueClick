@@ -16,11 +16,12 @@ class CListenSocket : public CSocket
 {
 // Attributes
 public:
-
+	CWnd *m_pWnd;
 // Operations
 public:
 	CListenSocket(CWnd *pParentWnd);
 	virtual ~CListenSocket();
+	void SetMainWnd(CWnd *pWnd);
 
 // Overrides
 public:

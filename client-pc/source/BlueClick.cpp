@@ -218,3 +218,14 @@ CString CBlueClickApp::GetFileSizeStr(UINT fileLength)
 
 	return csFileSize;
 }
+
+BOOL CBlueClickApp::MakeDiectory(CString csPath)
+{
+	if (!PathIsDirectory(csPath)) {
+		if (!CreateDirectory(csPath, NULL)) {
+			return FALSE;
+		}
+	}
+	
+	return TRUE;
+}

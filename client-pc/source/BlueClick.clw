@@ -7,43 +7,46 @@ LastTemplate=CSocket
 NewFileInclude1=#include "stdafx.h"
 NewFileInclude2=#include "BlueClick.h"
 
-ClassCount=17
+ClassCount=20
 Class1=CBlueClickApp
 Class2=CBlueClickDlg
 Class3=CAboutDlg
 
 ResourceCount=18
-Resource1=IDD_BLUECLICK_DIALOG
+Resource1=IDD_BUFFREEMESSAGEBOX_DIALOG
 Resource2=IDR_MAINFRAME
-Resource3=IDD_DLGRESOURCELIST_DIALOG
+Resource3=IDD_DLGSERVERSETTING_DIALOG
 Class4=CDlgResourceList
-Resource4=IDD_DLGTHEMESELECTER_DIALOG
+Resource4=IDD_ABOUTBOX
 Class5=CDlgDownloadList
-Resource5=IDD_DLGUPLOADLIST_DIALOG
+Resource5=IDD_DLGSUSPENSION_DIALOG
 Class6=CDlgUploadList
-Resource6=IDR_MENU_SYSTEM
+Resource6=IDD_DLGUPLOADLIST_DIALOG
 Class7=CDlgSplash
-Resource7=IDD_DLGSERVERSETTING_DIALOG
-Resource8=IDD_ABOUTBOX
-Resource9=IDR_MENU_DOWNLOAD
-Resource10=IDD_BUFFREEMESSAGEBOX_DIALOG
-Resource11=IDD_DLGSYSTEMSETTING_DIALOG
+Resource7=IDR_MENU_RESOURCE
+Resource8=IDD_DLGSPLASH_DIALOG
+Resource9=IDD_BLUECLICK_DIALOG
+Resource10=IDD_DLGNEWSHARE_DIALOG
+Resource11=IDR_MENU_DOWNLOAD
 Class8=CBuffreeMessageBox
 Class9=CUdpSocket
-Resource12=IDR_MENU_RESOURCE
+Resource12=IDD_DLGRESOURCELIST_DIALOG
 Class10=CDlgSystemSetting
-Resource13=IDD_DLGSUSPENSION_DIALOG
+Resource13=IDR_MENU_UPLOAD
 Class11=CDlgServerSetting
-Resource14=IDD_DLGNEWSHARE_DIALOG
+Resource14=IDR_MENU_SYSTEM
 Class12=CDlgSuspension
-Resource15=IDD_DLGDOWNLOADLIST_DIALOG
-Resource16=IDD_DLGSPLASH_DIALOG
+Resource15=IDD_DLGSYSTEMSETTING_DIALOG
+Resource16=IDD_DLGTHEMESELECTER_DIALOG
 Class13=CDlgNewShare
-Resource17=IDR_MENU_UPLOAD
+Resource17=IDD_DLGDOWNLOADLIST_DIALOG
 Class14=CDlgThemeSelecter
 Class15=CBuffreeEdit
 Class16=CServiceSocket
 Class17=CQuerySocket
+Class18=CServiceThread
+Class19=CDownloadThread
+Class20=CDownloadSocket
 Resource18=IDR_MENU_SUSPENSION
 
 [CLS:CBlueClickApp]
@@ -60,7 +63,7 @@ ImplementationFile=BlueClickDlg.cpp
 Filter=D
 BaseClass=CDialog
 VirtualFilter=dWC
-LastObject=CBlueClickDlg
+LastObject=IDC_STATIC_PEER_NUM_ONLINE
 
 [CLS:CAboutDlg]
 Type=0
@@ -326,14 +329,6 @@ BaseClass=CEdit
 Filter=W
 LastObject=CBuffreeEdit
 
-[CLS:CServiceSocket]
-Type=0
-HeaderFile=ServiceSocket.h
-ImplementationFile=ServiceSocket.cpp
-BaseClass=CSocket
-Filter=N
-VirtualFilter=uq
-
 [CLS:CQuerySocket]
 Type=0
 HeaderFile=QuerySocket.h
@@ -342,4 +337,34 @@ BaseClass=CSocket
 Filter=N
 VirtualFilter=uq
 LastObject=CQuerySocket
+
+[CLS:CServiceThread]
+Type=0
+HeaderFile=ServiceThread.h
+ImplementationFile=ServiceThread.cpp
+BaseClass=CWinThread
+Filter=N
+
+[CLS:CDownloadThread]
+Type=0
+HeaderFile=DownloadThread.h
+ImplementationFile=DownloadThread.cpp
+BaseClass=CWinThread
+Filter=N
+
+[CLS:CDownloadSocket]
+Type=0
+HeaderFile=DownloadSocket1.h
+ImplementationFile=DownloadSocket1.cpp
+BaseClass=CSocket
+Filter=N
+VirtualFilter=uq
+
+[CLS:CServiceSocket]
+Type=0
+HeaderFile=ServiceSocket.h
+ImplementationFile=ServiceSocket.cpp
+BaseClass=CSocket
+Filter=N
+VirtualFilter=uq
 
