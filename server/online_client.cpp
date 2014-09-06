@@ -210,7 +210,6 @@ int get_total_num(struct online_list *clientlist)
 }
 
 /* online client checkout handler */
-/*void online_checkout_handler(struct online_list *clientlist)*/
 void online_checkout_handler()
 {
 	if(!clist) {
@@ -264,10 +263,10 @@ void print_clist(struct online_list *clist)
 	struct client *p = clist->onlist;
 	get_online_num(clist);
 	get_total_num(clist);
-	printf("\nclientnum: %d totalclient: %d\n",clist->clientnum,clist->totalclient);
+	printf("\nclientnum:%d, totalclient:%d\n",clist->clientnum,clist->totalclient);
 	while(p->next) {
 		p = p->next;
-		printf("Online: %d,MAC: %s,IP: %s,ListenPort: %d,Heartbeats: %d\n",
+		printf("Online:%d, MAC:%s, IP:%s, ListenPort:%d, Heartbeats:%d\n",
 				p->online,p->mac,p->ip,p->listenport,p->heartbeats);
 	}
 	printf("\n");

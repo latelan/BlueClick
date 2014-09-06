@@ -80,4 +80,38 @@ struct online_list {
 	struct client *onlist;
 };
 
+/* download request msg */
+struct download_req {
+	char clientip[32];
+	char md5[33];
+	int numwant;
+	char event[32];
+};
+
+/* peer info */
+struct peer_info {
+	char ip[32];
+	int port;
+	int availablepieces;
+	int availableconnections;
+};
+
+/* res download list node */
+struct res_download_node {
+	char md5[33];
+	int requestnum;
+	int completednum;
+	struct download_info *dlist;
+};
+
+/* download client info */
+struct peer_download_info {
+	char clientip[32];
+	int uploaded;
+	int downloaded;
+	int left;
+	int availableconnections;
+	char event[32];
+};
+
 #endif

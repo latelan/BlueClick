@@ -16,8 +16,8 @@
 #include "message.h"
 
 #define MAX_EVENT_NUMBER 1024
-#define TCP_BUFFER_SIZE 512
-#define UDP_BUFFER_SIZE 1024
+#define TCP_BUFFER_SIZE 1500
+#define UDP_BUFFER_SIZE 1500
 #define MAX_CLIENT_NUMBER 200
 
 

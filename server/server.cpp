@@ -6,12 +6,11 @@
 #include <assert.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <fcntl.h>
+#include <sys/epoll.h>
 #include <errno.h>
 #include <string.h>
-#include <fcntl.h>
 #include <stdlib.h>
-#include <sys/epoll.h>
-#include <pthread.h>
 #include "common.h"
 #include "online_client.h"
 #include "msghandler.h"
@@ -106,7 +105,6 @@ int main( int argc, char* argv[] )
 	while( !stop) 	{
 		int number = epoll_wait( epollfd, events, MAX_EVENT_NUMBER, -1 );
 		if ( number < 0 ) {
-			printf( "epoll failure\n" );
 			perror("epoll_wait");
 			break;
 		}
@@ -127,13 +125,6 @@ int main( int argc, char* argv[] )
 			else if ( events[i].events & EPOLLIN ) {/* tcp */
 				msg_tcp_handler(sockfd,clist);
 			} 
-			else if (events[i].data.fd == 0) {
-				char buf[32];
-				scanf("%s",buf);
-				if(strcmp(buf,"q") == 0) {
-					break;
-				}
-			}
 			else {
 				printf( "something else happened \n" );
 			}

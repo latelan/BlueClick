@@ -28,7 +28,9 @@
 	[
 	{
 		"ClientIP": "192.168.0.34",
-		"ClientPort": 3443
+		"ClientPort": 3443,
+		"AvailabelPieces": 23345,
+		"AvailabelConnections": 3
 	},
 	...
 	]
