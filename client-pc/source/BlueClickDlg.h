@@ -22,11 +22,8 @@
 #include "DlgSuspension.h"
 #include "BuffreeEdit.h"
 #include "BlueClick.h"	// Added by ClassView
-
-#define WM_SHOWTASK (WM_USER +1)
-
-#define BLUECLICK_MAX_SYN_COUNT 10
-#define BLUECLICK_MAX_SERVICE_COUNT 5
+#include "DownloadThread.h"
+#include "ServiceThread.h"
 
 typedef struct {
 	CWnd *m_mainWnd;
@@ -47,9 +44,6 @@ typedef struct {
 
 DWORD _stdcall InitThreadProc(LPVOID lpParameter);
 DWORD _stdcall SearchThreadProc(LPVOID lpParameter);
-DWORD _stdcall DownloadCtrlProc(LPVOID lpParameter);
-DWORD _stdcall DownloadThreadProc(LPVOID lpParameter);
-DWORD _stdcall ServiceThreadProc(LPVOID lpParameter);
 DWORD _stdcall UploadThreadProc(LPVOID lpParameter);
 /////////////////////////////////////////////////////////////////////////////
 // CBlueClickDlg dialog
@@ -59,7 +53,6 @@ class CBlueClickDlg : public CDialog
 // Construction
 public:
 	HBITMAP m_hBmpLogo;
-	void DeleteShare(UINT nItem);
 	UINT	m_screenHeight;
 	UINT	m_screenWidth;
 	int		m_width;
@@ -78,8 +71,16 @@ public:
 	CString m_csResListFilename;
 	CBrush	m_brushBg;
 
-	CDlgSuspension * m_dlgSuspension;	
+	DWORD m_nRecvSize;
+	DWORD m_nResSize;
+	DWORD m_nSpeedDownload;
+	UINT  m_nEllipseTime;
+	UINT  m_nServiceThrdIndex;
+	CCriticalSection m_criticalSection;
+	CTypedPtrList<CObList, CDownloadThread*> m_downloadThrdList;
+	CTypedPtrList<CObList, CServiceThread*> m_serviceThrdList;
 
+	CDlgSuspension * m_dlgSuspension;	
 	CSearchSocket	*m_searchSocket;
 	CListenSocket	*m_listenSocket;
 	CSocket		*m_Socket[BLUECLICK_MAX_SYN_COUNT];
@@ -91,7 +92,6 @@ public:
 	HANDLE m_hThreadSearch;
 	HANDLE m_hThread[BLUECLICK_MAX_SYN_COUNT];
 	STRUCT_THREAD_PARAMETER m_uploadInfo[BLUECLICK_MAX_SYN_COUNT];
-	STRUCT_THREAD_PARAMETER m_downloadInfo[BLUECLICK_MAX_SYN_COUNT];
 
 	CBlueClickDlg(CWnd* pParent = NULL);	// standard constructor
 	void AnimateWindow(UINT flag);
@@ -102,12 +102,14 @@ public:
 	void AddNewShare();
 	void ToTray();
 	void DeleteTray();
+	void DeleteShare(UINT nItem);
+	void SelectPath(CString &csPath);
 
 // Dialog Data
 	//{{AFX_DATA(CBlueClickDlg)
 	enum { IDD = IDD_BLUECLICK_DIALOG };
+	CStatic	m_staticSpeed;
 	CStatic		m_staticStatus;
-	CStatic		m_staticPeerNumOnline;
 	CStatic		m_staticLogo;
 	CStatic		m_staticCaption;
 	CString		m_csKeyword;
@@ -162,6 +164,8 @@ protected:
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 	afx_msg void OnCloseSocket(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnCloseThread(WPARAM wParam, LPARAM lParam);
+	afx_msg void OnTimer(UINT nIDEvent);
+	afx_msg LRESULT OnFileComplete(WPARAM wParam, LPARAM lParam);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

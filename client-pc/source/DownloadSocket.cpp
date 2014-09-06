@@ -1,9 +1,8 @@
-// DownloadSocket.cpp : implementation file
+// DownloadSocket1.cpp : implementation file
 //
 
 #include "stdafx.h"
 #include "BlueClick.h"
-#include "BlueClickDlg.h"
 #include "DownloadSocket.h"
 
 #ifdef _DEBUG
@@ -12,41 +11,23 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-typedef struct {
-	CDownloadSocket *m_socket;
-	char m_resName[MAX_PATH];
-	char m_resMD5[33];
-	UINT m_pieceID;
-	UINT m_listItem;
-	UINT m_socketIndex;
-}DownloadThreadParam;
-
-typedef struct {
-	CDownloadSocket *m_socket;
-	char m_buf[BLUECLICK_MSG_BUF_SIZE];
-	char m_fileName[BLUECLICK_MAX_FILENAME_LENGTH];
-}ReceiveThreadParam;
-
 /////////////////////////////////////////////////////////////////////////////
 // CDownloadSocket
 
-CDownloadSocket::CDownloadSocket(CWnd *pParentWnd, UINT nSocketIndex, CString csResName, CString csResMD5, UINT nResPieceCount, UINT nListItem)//CWnd *pParent)
+CDownloadSocket::CDownloadSocket()
 {
-	m_pParentWnd = pParentWnd;
-	m_nSocketIndex = nSocketIndex;
-	m_csResName = csResName;
-	m_csResMD5 = csResMD5;
-	m_nResPieceCount = nResPieceCount;
-	m_nListItem = nListItem;
+	m_nPieceSize = 0;
+	m_nRecvSize = 0;
 }
 
 CDownloadSocket::~CDownloadSocket()
 {
 }
 
+
 // Do not edit the following lines, which are needed by ClassWizard.
 #if 0
-BEGIN_MESSAGE_MAP(CDownloadSocket, CSocket)
+BEGIN_MESSAGE_MAP(CDownloadSocket, CAsyncSocket)
 	//{{AFX_MSG_MAP(CDownloadSocket)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
@@ -55,19 +36,165 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CDownloadSocket member functions
 
-void CDownloadSocket::OnClose(int nErrorCode) {
-
-}
-
-void CDownloadSocket::DownloadRes(UINT nResPieceId)
+void CDownloadSocket::SetMainWnd(CWnd *pWnd)
 {
-	DownloadThreadParam *param = new DownloadThreadParam;
-	strcpy(param->m_resMD5, m_csResMD5);
-	strcpy(param->m_resName, m_csResName);
-	param->m_pieceID = nResPieceId;
-	param->m_socket = this;
-	param->m_listItem = m_nListItem;
-	param->m_socketIndex = m_nSocketIndex;
-	CreateThread(NULL, 0, DownloadThreadProc, param, 0, NULL);
+	m_pWnd = pWnd;
 }
 
+void CDownloadSocket::OnConnect(int nErrorCode) 
+{
+	// TODO: Add your specialized code here and/or call the base class
+
+	CSocket::OnConnect(nErrorCode);
+}
+
+void CDownloadSocket::OnReceive(int nErrorCode) 
+{
+	CDownloadThread *pThread=(CDownloadThread*)AfxGetThread();
+	CBlueClickDlg *pMainWnd=(CBlueClickDlg*)m_pWnd;
+	PIECE_DATA cPieceData;
+	RES_HEADER cResHeader;
+	UINT nRet = 0;
+	memset(&cPieceData, 0, sizeof(PIECE_DATA));
+
+	CFile fileTmp;
+	CFile fileRes;
+	CFileFind fileFinder;
+	CFileException e;
+
+	CString csTmpFilePath;
+	CBlueClickApp::GetWorkSpacePath(csTmpFilePath);
+	csTmpFilePath += "/temp/";
+	
+	if (!CBlueClickApp::MakeDiectory(csTmpFilePath)) {
+		return;
+	}
+
+	CString csDownloadPath = pThread->m_csSavePath + "\\";
+
+	//接收包头
+	if (!fileFinder.FindFile(m_csTmpResName)) {
+		memset(cResHeader.m_csResName, 0, sizeof(RES_HEADER));
+		nRet = Receive(&cResHeader, sizeof(RES_HEADER));
+		if (nRet == sizeof(RES_HEADER)) {
+			m_csTmpResName.Format("%s%d.tmp", csTmpFilePath, cResHeader.m_nThreadIndex);
+			//创建临时标志文件
+			if(!fileTmp.Open(m_csTmpResName, CFile::modeCreate | CFile::modeReadWrite)) {
+				pMainWnd->m_staticStatus.SetWindowText("临时文件创建失败");
+				return;
+			}
+			fileTmp.Close();
+
+			////////////////////////////////////////////////
+			m_csResName = cResHeader.m_csResName;
+			m_csResName = csDownloadPath+m_csResName;
+
+			//保存信息
+			pThread->m_nPieceOffset = cResHeader.m_nResOffset;
+			pThread->m_nThreadIndex = cResHeader.m_nThreadIndex;
+			pThread->m_nPieceSize = cResHeader.m_nPieceSize;
+			m_nPieceSize = cResHeader.m_nPieceSize;
+			if (pThread->m_nThreadIndex==1) {
+				//创建保存文件
+				if (!fileRes.Open(m_csResName, CFile::modeCreate | CFile::modeReadWrite)) {
+					pMainWnd->m_staticStatus.SetWindowText("文件创建失败");
+					return;
+				}
+				
+				//保存文件总长度
+				pMainWnd->m_nResSize = cResHeader.m_nResSize;
+				fileRes.Close();
+			}	
+		}
+		
+	} else { // 接收片段数据
+		//接收数据	
+		nRet = Receive(cPieceData.m_csData, BLUECLICK_RES_PIECE_SIZE * sizeof(char));
+		//保存收到的单个包数据量
+		cPieceData.m_nSize = nRet;
+		//保存接收总的数目
+		pMainWnd->m_nRecvSize += nRet;
+		//单个线程接收的数目
+		m_nRecvSize += nRet;
+		//速度保存变量
+		pMainWnd->m_nSpeedDownload += nRet;	
+		//如果数据包小于10（5M）
+		if (m_pieceDataList.GetCount() < 20)
+		{
+			m_pieceDataList.AddTail(cPieceData);	
+		}
+		//大于5M时，写入文件
+		else {	
+			m_pieceDataList.AddTail(cPieceData);	
+			//打开保存文件
+			if(!fileRes.Open(m_csResName, CFile::modeReadWrite | CFile::shareDenyNone, &e)) {
+				if (e.m_cause==CFileException::sharingViolation) {
+					pMainWnd->m_staticStatus.SetWindowText("文件打开失败");	
+				}
+				return;
+			}	
+			//将链表内容写入到文件中
+			//走到合适的位置
+			//file.Seek(pThread->m_threadBgPos+pThread->m_saveNum,CFile::begin);
+			//自己写的支持64位的Seek函数
+			CustomFileSeek((HWND)fileRes.m_hFile, pThread->m_nPieceOffset+pThread->m_nSaveSize, FILE_BEGIN);
+			POSITION pos= m_pieceDataList.GetHeadPosition();
+			while(pos != NULL) {	
+				PIECE_DATA cData= m_pieceDataList.GetHead();
+				//写入文件
+				fileRes.Write(cData.m_csData, cData.m_nSize);
+				//存入文件计数
+				pThread->m_nSaveSize += cData.m_nSize;
+				
+				m_pieceDataList.RemoveHead();
+				pos=m_pieceDataList.GetHeadPosition();
+			}			
+
+			fileRes.Close();
+			/////////////////////////
+		}	
+		
+	}
+	
+	//2010.3.29修改
+	//*这里很关键，对方（发送端）关闭Socket的时候，
+	//*这边还不一定接收完成
+	//*所以不能马上关闭
+	if (m_nRecvSize == m_nPieceSize) {				
+		if (m_pieceDataList.GetCount()!=0) {
+			if (!fileRes.Open(m_csResName, CFile::modeReadWrite | CFile::shareDenyNone,&e)) {
+				if (e.m_cause==CFileException::sharingViolation) {
+					pMainWnd->m_staticStatus.SetWindowText("文件打开失败");	
+				}
+				return;
+			}
+			
+			//将链表内容写入到文件中
+			//走到合适的位置
+			//file.Seek(pThread->m_threadBgPos+pThread->m_saveNum,CFile::begin);
+			//自己写的支持64位的Seek函数
+			CustomFileSeek((HWND)fileRes.m_hFile, pThread->m_nPieceOffset+pThread->m_nSaveSize, FILE_BEGIN);
+	
+			//将链表内容写入到文件中
+			POSITION pos= m_pieceDataList.GetHeadPosition();
+			while (pos != NULL) {	
+				PIECE_DATA cData= m_pieceDataList.GetHead();
+				//写入文件
+				fileRes.Write(cData.m_csData, cData.m_nSize);
+				//存入文件计数
+				pThread->m_nSaveSize += cData.m_nSize;
+				
+				m_pieceDataList.RemoveHead();
+				pos=m_pieceDataList.GetHeadPosition();
+			}
+			
+			fileRes.Close();
+			
+		}
+
+		//通知此线程停止
+		AfxGetThread()->PostThreadMessage(WM_QUIT,0,0);		
+	}
+
+	CAsyncSocket::OnReceive(nErrorCode);
+}

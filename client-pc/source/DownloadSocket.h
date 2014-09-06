@@ -1,11 +1,13 @@
-#if !defined(AFX_DOWNLOADSOCKET_H__80042E91_2A1A_4596_BED9_275FB93A1CBB__INCLUDED_)
-#define AFX_DOWNLOADSOCKET_H__80042E91_2A1A_4596_BED9_275FB93A1CBB__INCLUDED_
+#if !defined(AFX_DOWNLOADSOCKET1_H__C64C170A_E4C3_4A2F_AA32_19AD634BB7EE__INCLUDED_)
+#define AFX_DOWNLOADSOCKET1_H__C64C170A_E4C3_4A2F_AA32_19AD634BB7EE__INCLUDED_
 
 #if _MSC_VER > 1000
 #pragma once
 #endif // _MSC_VER > 1000
-// DownloadSocket.h : header file
+// DownloadSocket1.h : header file
 //
+
+
 
 /////////////////////////////////////////////////////////////////////////////
 // CDownloadSocket command target
@@ -14,25 +16,26 @@ class CDownloadSocket : public CSocket
 {
 // Attributes
 public:
-	CWnd *m_pParentWnd;
-	UINT m_nSocketIndex;
+	CWnd *m_pWnd;
+	CList<PIECE_DATA, PIECE_DATA>m_pieceDataList;
 	CString m_csResName;
-	CString m_csResMD5;
-	UINT	m_nResPieceCount;
-	UINT	m_nListItem;
+	CString m_csTmpResName;
+	DWORD   m_nPieceSize;
+	DWORD   m_nRecvSize;
+
+	void SetMainWnd(CWnd *pWnd);
 // Operations
 public:
-	CDownloadSocket(CWnd *pParentWnd, UINT nSocketIndex, CString csResName, CString csResMD5, UINT nResPieceCount, UINT nListItem);//CWnd *pParent);
+	CDownloadSocket();
 	virtual ~CDownloadSocket();
-
 
 // Overrides
 public:
-	void DownloadRes(UINT nResPieceId);
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CDownloadSocket)
 	public:
-	virtual void OnClose(int nErrorCode);
+	virtual void OnConnect(int nErrorCode);
+	virtual void OnReceive(int nErrorCode);
 	//}}AFX_VIRTUAL
 
 	// Generated message map functions
@@ -49,4 +52,4 @@ protected:
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.
 
-#endif // !defined(AFX_DOWNLOADSOCKET_H__80042E91_2A1A_4596_BED9_275FB93A1CBB__INCLUDED_)
+#endif // !defined(AFX_DOWNLOADSOCKET1_H__C64C170A_E4C3_4A2F_AA32_19AD634BB7EE__INCLUDED_)

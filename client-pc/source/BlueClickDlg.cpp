@@ -187,6 +187,10 @@ CBlueClickDlg::CBlueClickDlg(CWnd* pParent /*=NULL*/)
 	m_queryNum = 0;
 	m_downloadNum = 0;
 	m_serviceNum = 0;
+	m_nServiceThrdIndex = 1;
+	m_nRecvSize = 0;
+	m_nResSize = 0;
+	m_nSpeedDownload = 0;
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 }
@@ -196,14 +200,14 @@ void CBlueClickDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CBlueClickDlg)
+	DDX_Control(pDX, IDC_STATIC_PEER_NUM_ONLINE, m_staticSpeed);
 	DDX_Control(pDX, IDC_STATIC_STATUS, m_staticStatus);
-	DDX_Control(pDX, IDC_STATIC_PEER_NUM_ONLINE, m_staticPeerNumOnline);
 	DDX_Control(pDX, IDC_STATIC_LOGO, m_staticLogo);
 	DDX_Control(pDX, IDC_STATIC_CAPTION, m_staticCaption);
-	DDX_Control(pDX, IDC_EDIT_SEARCH, m_editSearch);
 	DDX_Text(pDX, IDC_EDIT_SEARCH, m_csKeyword);
 	DDX_Control(pDX, IDC_STATIC_TAB, m_staticListTab);
 	DDX_Control(pDX, IDC_TREE_IDC_TREE_DOWNLOAD, m_treeDownload);
+	DDX_Control(pDX, IDC_EDIT_SEARCH, m_editSearch);
 	DDX_Control(pDX, IDC_BUTTON_SEARCH, m_btnSearch);
 	DDX_Control(pDX, IDC_BUTTON_UPLOAD_LIST_TAB, m_btnUploadListTab);
 	DDX_Control(pDX, IDC_BUTTON_THEME, m_btnTheme);
@@ -237,6 +241,8 @@ BEGIN_MESSAGE_MAP(CBlueClickDlg, CDialog)
 	ON_WM_CTLCOLOR()
 	ON_MESSAGE(MSG_CLOSE_SOCKET, OnCloseSocket)
 	ON_MESSAGE(MSG_CLOSE_THREAD, OnCloseThread)
+	ON_MESSAGE(WM_DOWNLOAD_COMPLETE,OnFileComplete)
+	ON_WM_TIMER()
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -309,8 +315,8 @@ BOOL CBlueClickDlg::OnInitDialog()
 	
 	m_staticCaption.SetWindowPos(NULL, 10, 5, 200, 20, SWP_SHOWWINDOW);
 	m_staticLogo.SetWindowPos(NULL, 20, 25, 50, 50, SWP_SHOWWINDOW);
-	m_staticStatus.SetWindowPos(NULL, 10, m_height-25, 200, 20, SWP_SHOWWINDOW);
-	m_staticPeerNumOnline.SetWindowPos(NULL, m_width-210, m_height-25, 200, 20, SWP_SHOWWINDOW);
+	m_staticStatus.SetWindowPos(NULL, 10, m_height-25, 400, 20, SWP_SHOWWINDOW);
+	m_staticSpeed.SetWindowPos(NULL, m_width-150, m_height-25, 140, 20, SWP_SHOWWINDOW);
 	m_btnCancel.SetWindowPos(NULL, CBlueClickDlg::m_width-45, 0, 45, 20, SWP_SHOWWINDOW);
 	m_btnMin.SetWindowPos(NULL, CBlueClickDlg::m_width-80, 0, 35, 29, SWP_SHOWWINDOW);
 	m_btnSysMenu.SetWindowPos(NULL, CBlueClickDlg::m_width-115, 0, 35, 29, SWP_SHOWWINDOW);
@@ -767,7 +773,9 @@ void CBlueClickDlg::OnButtonSearch()
 返 回 值：无
 *********************************************************/
 void CBlueClickDlg::StartDownload(UINT nItem) 
-{
+{	
+	CString csDownloadPath;
+	SelectPath(csDownloadPath);
 	// TODO: Add your command handler code here
 	//资源列表：
 	// 0：不显示
@@ -796,21 +804,27 @@ void CBlueClickDlg::StartDownload(UINT nItem)
 	m_dlgDownloadList.m_listDownload.SetItemText(nDownloadItem, 3, csResSize);
 	m_dlgDownloadList.m_listDownload.SetItemData(nDownloadItem, 0);
 
-	for (UINT i = 0; i < BLUECLICK_MAX_SERVICE_COUNT; i++) {
-		if (m_hThread[i] == NULL) {
-			STRUCT_THREAD_PARAMETER *param = new STRUCT_THREAD_PARAMETER;
-			memset(param, 0, sizeof(STRUCT_THREAD_PARAMETER));
-			param->m_mainWnd = this;
-			strcpy(param->m_csResMD5, csResMD5);
-			strcpy(param->m_csResName, csResName);
-			param->m_nPieceCount = nResPieceCount;
-			param->m_nDownloadItem = nDownloadItem;
-			param->m_nThreadIndex = i;
-			
-			m_hThread[i] = CreateThread(NULL, 0, DownloadCtrlProc, param, 0, NULL);
-			break;
-		}
+	for (UINT i = 0; i < BLUECLICK_MAX_SYN_COUNT; i++) {
+		CDownloadThread *pThread = (CDownloadThread*)AfxBeginThread(RUNTIME_CLASS(CDownloadThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED);
+		m_criticalSection.Lock();
+		m_downloadThrdList.AddTail(pThread);
+		m_criticalSection.Unlock();
+		pThread->m_nThreadIndex = i;
+		pThread->m_nListItem = nDownloadItem;
+		pThread->m_csResMD5 = csResMD5;
+		pThread->m_csSavePath = csDownloadPath;
+		pThread->m_csServerAddr = m_csServerAddr;
+		pThread->m_nServerPort = m_nServerPort;
+		pThread->m_csHostAddr = m_csHostAddr;
+		pThread->SetMainWnd(this);
+		pThread->ResumeThread();
+		Sleep(30);
 	}
+
+	//界面刷新定时器
+	SetTimer(1,100,NULL);
+	//速度刷新定时器
+	SetTimer(2,1000,NULL);
 
 	//切换到下载列表视图
 	OnButtonDownloadListTab();
@@ -871,30 +885,7 @@ void CBlueClickDlg::ReceiveResourceList()
 *********************************************************/
 void CBlueClickDlg::AcceptClient()
 {
-	for (UINT i = 0; i < BLUECLICK_MAX_SYN_COUNT; i++) {
-		if (m_Socket[i] == NULL) {
-			m_Socket[i] = new CSocket();
-			m_listenSocket->Accept(*m_Socket[i]);
-			for (UINT j = 0; j < BLUECLICK_MAX_SYN_COUNT; j++) {
-				if (m_hThread[j] == NULL) {
-					STRUCT_THREAD_PARAMETER *param = new STRUCT_THREAD_PARAMETER;
-					memset(param, 0, sizeof(STRUCT_THREAD_PARAMETER));
-					param->m_socket = m_Socket[i];
-					param->m_nSocketId = i;
-					param->m_nThreadIndex = j;
 
-					m_hThread[j] = CreateThread(NULL, 0, ServiceThreadProc, param, 0, NULL);
-					break;
-				}
-			}
-			if (j >= BLUECLICK_MAX_SYN_COUNT) {
-				m_Socket[i]->Close();
-				delete m_Socket[i];
-				m_Socket[i] = NULL;
-			}
-			break;
-		}
-	}
 }
 
 
@@ -1324,413 +1315,6 @@ DWORD _stdcall SearchThreadProc(LPVOID lpParameter) {
 	return 0;
 }
 
-DWORD _stdcall DownloadCtrlProc(LPVOID lpParameter)
-{
-	STRUCT_THREAD_PARAMETER *param = (STRUCT_THREAD_PARAMETER*)lpParameter;
-	CBlueClickDlg *pDlg = (CBlueClickDlg*)AfxGetMainWnd();
-	char csResMD5[33];
-	char csResName[MAX_PATH];
-	strcpy(csResName, param->m_csResName);
-	strcpy(csResMD5, param->m_csResMD5);
-	UINT nDownloadItem = param->m_nDownloadItem;
-	UINT nThreadIndex = param->m_nThreadIndex;
-	UINT nResPieceCount = param->m_nPieceCount;
-	UINT nQueryPieceId = param->m_nQueryPieceId;
-
-	param->m_cpPieceStatus = new char[param->m_nPieceCount];
-	memset(param->m_cpPieceStatus, 0, param->m_nPieceCount);
-
-	BOOL bDownload = FALSE;
-	UINT flag = 0;
-	while (bDownload == FALSE) {
-		bDownload = TRUE;
-		for (UINT statusIndex = 0; statusIndex < param->m_nPieceCount; statusIndex++) {
-			if (param->m_cpPieceStatus[statusIndex] == 0 && flag == 0) {
-				//CString csMsg; 
-				//csMsg.Format("请求第%u段", statusIndex);
-				//AfxMessageBox(csMsg);
-				bDownload = FALSE;
-				for (UINT i = 0; i < BLUECLICK_MAX_SERVICE_COUNT; i++) {
-					if (pDlg->m_hThread[i] == NULL) {
-						param->m_nQueryPieceId = statusIndex;
-						param->m_cpPieceStatus[statusIndex] = 1;
-						flag = 1;
-						pDlg->m_hThread[i] = CreateThread(NULL, 0, DownloadThreadProc, param, 0, NULL);
-						break;
-					}
-					
-				}
-			}
-
-			if (param->m_cpPieceStatus[statusIndex] == 1) {
-				bDownload = FALSE;
-				continue;
-			}
-
-			if (param->m_cpPieceStatus[statusIndex] == 2) {
-				bDownload = FALSE;
-				flag = 0;
-				//CString csMsg; 
-				//csMsg.Format("共%u段，已获得第%u段", param->m_nPieceCount, statusIndex);
-				//AfxMessageBox(csMsg);
-				param->m_cpPieceStatus[statusIndex] = 3;
-			}
-		}
-	}
-
-//	AfxMessageBox("下载完成");
-
-	delete param->m_cpPieceStatus;
-	delete param;
-	return 0;
-}
-
-/*********************************************************
-函数名称：DownloadThreadProc
-功能描述：资源下载线程，负责向资源提供方发出请求，并处理返回数据
-作者：	  张永军
-创建时间：2014-08-29
-参数说明：lpParameter：主窗口指针
-返 回 值：无
-*********************************************************/
-DWORD _stdcall DownloadThreadProc(LPVOID lpParameter) {
-	STRUCT_THREAD_PARAMETER *param = (STRUCT_THREAD_PARAMETER*)lpParameter;
-	CBlueClickDlg *pDlg = (CBlueClickDlg*)AfxGetMainWnd();
-	char csResMD5[33];
-	char csResName[MAX_PATH];
-	strcpy(csResName, param->m_csResName);
-	strcpy(csResMD5, param->m_csResMD5);
-	UINT	nDownloadItem = param->m_nDownloadItem;
-	UINT	nThreadIndex = param->m_nThreadIndex;
-	UINT	nResPieceCount = param->m_nPieceCount;
-	UINT	nQueryPieceId = param->m_nQueryPieceId;
-
-	// 初始化网络
-	if (!AfxSocketInit()) {
-		PostMessage(pDlg->m_hWnd, MSG_CLOSE_THREAD, nThreadIndex, NULL);
-		return 0;
-	}
-
-	// 创建套接字，查询服务器数据
-	UINT nSocketIndex = 0;
-	for (nSocketIndex = 0; nSocketIndex < BLUECLICK_MAX_SYN_COUNT; nSocketIndex++) {
-		if (pDlg->m_Socket[nSocketIndex] == NULL) {
-			break;
-		}
-	}
-
-	if (nSocketIndex >= BLUECLICK_MAX_SYN_COUNT) {
-		param->m_cpPieceStatus[nQueryPieceId] = 0;
-		PostMessage(pDlg->m_hWnd, MSG_CLOSE_THREAD, nThreadIndex, NULL);
-		return 0;
-	}
-
-	pDlg->m_Socket[nSocketIndex] = new CSocket();
-	if (pDlg->m_Socket[nSocketIndex]->Create() == FALSE) {
-		pDlg->m_staticStatus.SetWindowText("网络连接失败");
-		param->m_cpPieceStatus[nQueryPieceId] = 0;
-		PostMessage(pDlg->m_hWnd, MSG_CLOSE_SOCKET, nSocketIndex, NULL);
-		PostMessage(pDlg->m_hWnd, MSG_CLOSE_THREAD, nThreadIndex, NULL);
-		return 0;
-	}
-
-	if (pDlg->m_Socket[nSocketIndex]->Connect(pDlg->m_csServerAddr, pDlg->m_nServerPort) == FALSE) {
-		pDlg->m_staticStatus.SetWindowText("服务器连接失败");
-		param->m_cpPieceStatus[nQueryPieceId] = 0;
-		PostMessage(pDlg->m_hWnd, MSG_CLOSE_SOCKET, nSocketIndex, NULL);
-		PostMessage(pDlg->m_hWnd, MSG_CLOSE_THREAD, nThreadIndex, NULL);
-		return 0;
-	}
-
-	cJSON *pRoot;
-	pRoot=cJSON_CreateObject();
-	cJSON_AddStringToObject(pRoot, "MsgType", "MsgDownloadRes");
-	cJSON_AddStringToObject(pRoot, "ClientIP", pDlg->m_csHostAddr);
-	cJSON_AddStringToObject(pRoot,"ResMD5", csResMD5);
-	cJSON_AddStringToObject(pRoot, "Event", "start");
-	cJSON_AddNumberToObject(pRoot, "NumWant", 1);
-	
-	char buf[BLUECLICK_MSG_BUF_SIZE];
-	memset(buf, 0, BLUECLICK_MSG_BUF_SIZE);
-	char *strJson = cJSON_Print(pRoot);
-	strcpy(buf, strJson);		
-	cJSON_Delete(pRoot);
-	delete strJson;
-	
-	// 向服务器发送请求数据，请求资源客户端列表
-	pDlg->m_Socket[nSocketIndex]->Send(buf, BLUECLICK_MSG_BUF_SIZE);
-
-	// 接收服务器返回的资源客户端列表
-	memset(buf, 0, BLUECLICK_MSG_BUF_SIZE);
-	pDlg->m_Socket[nSocketIndex]->Receive(buf, BLUECLICK_MSG_BUF_SIZE);
-	PostMessage(pDlg->m_hWnd, MSG_CLOSE_SOCKET, nSocketIndex, NULL);
-
-	pRoot=cJSON_Parse(buf);
-	if (!pRoot) {
-		param->m_cpPieceStatus[nQueryPieceId] = 0;
-		PostMessage(pDlg->m_hWnd, MSG_CLOSE_THREAD, nThreadIndex, NULL);
-		return 0;
-	}
-	
-	CString csMsgType = cJSON_GetObjectItem(pRoot, "MsgType")->valuestring;
-	if (csMsgType != "MsgClientList") {
-		param->m_cpPieceStatus[nQueryPieceId] = 0;
-		PostMessage(pDlg->m_hWnd, MSG_CLOSE_THREAD, nThreadIndex, NULL);
-		return -1;
-	}
-	
-	// 创建套接字，准备向资源客户端请求数据
-	for (nSocketIndex = 0; nSocketIndex < BLUECLICK_MAX_SYN_COUNT; nSocketIndex++) {
-		if (pDlg->m_Socket[nSocketIndex] == NULL) {
-			break;
-		}
-	}
-
-	if (nSocketIndex >= BLUECLICK_MAX_SYN_COUNT) {
-		param->m_cpPieceStatus[nQueryPieceId] = 0;
-		PostMessage(pDlg->m_hWnd, MSG_CLOSE_THREAD, nThreadIndex, NULL);
-		return 0;
-	}
-
-	pDlg->m_Socket[nSocketIndex] = new CSocket();
-
-	if (pDlg->m_Socket[nSocketIndex]->Create() == FALSE) {
-		param->m_cpPieceStatus[nQueryPieceId] = 0;
-		PostMessage(pDlg->m_hWnd, MSG_CLOSE_SOCKET, nSocketIndex, NULL);
-		PostMessage(pDlg->m_hWnd, MSG_CLOSE_THREAD, nThreadIndex, NULL);
-		return 0;
-	}
-
-	cJSON *pClientList = cJSON_GetObjectItem(pRoot, "Client");
-	UINT nClientCount = cJSON_GetObjectItem(pRoot, "ClientCount")->valueint;
-	for (UINT i = 0; i < nClientCount; i++) {
-		cJSON *pClient = cJSON_GetArrayItem(pClientList, i);
-		CString csPeerAddr = cJSON_GetObjectItem(pClient, "ClientIP")->valuestring;
-		UINT	nPeerPort = cJSON_GetObjectItem(pClient, "ClientPort")->valueint;
-		if (pDlg->m_Socket[nSocketIndex]->Connect(csPeerAddr, nPeerPort) == TRUE) {
-			break;
-		}
-	}
-
-	if (i >= nClientCount) {
-		param->m_cpPieceStatus[nQueryPieceId] = 0;
-		PostMessage(pDlg->m_hWnd, MSG_CLOSE_SOCKET, nSocketIndex, NULL);
-		PostMessage(pDlg->m_hWnd, MSG_CLOSE_THREAD, nThreadIndex, NULL);
-		return 0;
-	}
-	pRoot=cJSON_CreateObject();
-	cJSON_AddStringToObject(pRoot,"MsgType", "MsgResPieceQuery");   
-	cJSON_AddStringToObject(pRoot,"QueryResMD5", csResMD5);
-	cJSON_AddNumberToObject(pRoot, "QueryPieceId", nQueryPieceId);
-
-	strJson = cJSON_Print(pRoot);
-	memset(buf, 0, BLUECLICK_MSG_BUF_SIZE);
-	strcpy(buf, strJson);
-	cJSON_Delete(pRoot);
-	delete strJson;
-
-	// 发送资源片段请求
-	pDlg->m_Socket[nSocketIndex]->Send(buf, BLUECLICK_MSG_BUF_SIZE);
-
-	//发送片段信息
-	memset(buf, 0, BLUECLICK_MSG_BUF_SIZE);
-	pDlg->m_Socket[nSocketIndex]->Receive(buf, BLUECLICK_MSG_BUF_SIZE);
-
-	cJSON *pResPiece = cJSON_Parse(buf);
-	csMsgType = cJSON_GetObjectItem(pResPiece, "MsgType")->valuestring;
-	if (csMsgType != "MsgPieceQueryResponse") {
-		PostMessage(pDlg->m_hWnd, MSG_CLOSE_SOCKET, nSocketIndex, NULL);
-		PostMessage(pDlg->m_hWnd, MSG_CLOSE_THREAD, nThreadIndex, NULL);
-		return 0;
-	}
-
-//	UINT nQueryPieceId = cJSON_GetObjectItem(pResPiece, "QueryPieceId")->valueint;
-	UINT nQueryPieceSize = cJSON_GetObjectItem(pResPiece, "QueryPieceSize")->valueint;
-	cJSON_Delete(pResPiece);
-	
-	pDlg->m_staticStatus.SetWindowText("请求的片段信息已接收");
-
-	char *cpPieceBuf = new char[BLUECLICK_RES_PIECE_SIZE];
-	memset(cpPieceBuf, 0, BLUECLICK_RES_PIECE_SIZE);
-	char *cpPackBuf = new char[1024];
-	UINT nRecvSize = 0;
-	UINT nPackCount = (nQueryPieceSize%1024 == 0) ? (nQueryPieceSize/1024) : (nQueryPieceSize/1024)+1;
-	// 同步接收片段信息
-	for (UINT nPackId = 0; nPackId < nPackCount-1; nPackId++) {
-		memset(cpPackBuf, 0, 1024);
-		UINT nRet = pDlg->m_Socket[nSocketIndex]->Receive(cpPackBuf, 1024);
-		strncpy(cpPieceBuf+nRecvSize, cpPackBuf, nRet);
-		nRecvSize += nRet;
-		CString csMsg;
-		csMsg.Format("第%u个包已接收", nPackId+1);
-		pDlg->m_staticStatus.SetWindowText(csMsg);
-		//UINT nProgress = ((nQueryPieceId*BLUECLICK_RES_PIECE_SIZE)+(nPackId+1)*1024)*100 / (nResPieceCount*BLUECLICK_RES_PIECE_SIZE);
-		//pDlg->m_dlgDownloadList.m_listDownload.SetItemData(nDownloadItem, nProgress);
-	}
-	UINT nPackSize = (nQueryPieceSize%1024 == 0) ? 1024 : (nQueryPieceSize%1024);
-	memset(cpPackBuf, 0, 1024);
-	UINT nRet = pDlg->m_Socket[nSocketIndex]->Receive(cpPackBuf, nPackSize);
-	strncpy(cpPieceBuf+nRecvSize, cpPackBuf, nRet);
-	nRecvSize += nRet;
-
-	CString csMsg;
-	csMsg.Format("片段已请求到,共%u个包",nPackCount);
-	pDlg->m_staticStatus.SetWindowText(csMsg);
-	pDlg->m_dlgDownloadList.m_listDownload.SetItemData(nDownloadItem, 100);
-//	UINT pos = (nResponsePieceId+1) * 100 / nResponsePieceSize 
-	
-	CString csFilePath;
-	CBlueClickApp::GetWorkSpacePath(csFilePath);
-	csFilePath += "/Download/";
-	csFilePath += csResName;
-//	csFilePath.Format("%s00%u", csFilePath, nQueryPieceId);
-
-//	AfxMessageBox(csFilePath);
-
-	CFile file;
-	if (file.Open(csFilePath, CFile::typeBinary | CFile::modeCreate| CFile::modeNoTruncate |CFile::modeWrite) == FALSE) {
-		AfxMessageBox(csFilePath+"创建失败");
-		return 0;
-	}
-	LONG nOffset = nQueryPieceId * BLUECLICK_RES_PIECE_SIZE;
-	file.Seek(nOffset, CFile::SeekPosition::begin);
-	file.Write(cpPieceBuf, nQueryPieceSize);
-	file.Close();
-	delete cpPieceBuf;
-
-	param->m_cpPieceStatus[nQueryPieceId] = 2;
-	PostMessage(pDlg->m_hWnd, MSG_CLOSE_SOCKET, nSocketIndex, NULL);
-	PostMessage(pDlg->m_hWnd, MSG_CLOSE_THREAD, nThreadIndex, NULL);
-	return 0;
-}
-
-DWORD _stdcall ServiceThreadProc(LPVOID lpParameter)
-{
-	STRUCT_THREAD_PARAMETER *param = (STRUCT_THREAD_PARAMETER*)lpParameter;
-	CBlueClickDlg *mainWnd = (CBlueClickDlg*)AfxGetMainWnd();
-	CBuffreeListCtrl* listUpload = &mainWnd->m_dlgUploadList.m_listUpload;
-	CServiceSocket *serviceSocket = (CServiceSocket*)param->m_socket;
-	UINT nSocketIndex = param->m_nSocketId;
-	UINT nThreadIndex = param->m_nThreadIndex;
-	delete param;
-
-	char *cpMsgBuf = new char[BLUECLICK_MSG_BUF_SIZE];	
-	UINT nRet = serviceSocket->Receive(cpMsgBuf, BLUECLICK_MSG_BUF_SIZE);
-
-0	cJSON *pQueryMsgJson=cJSON_Parse(cpMsgBuf);
-	delete cpMsgBuf;
-	cpMsgBuf = NULL;
-
-	if (!pQueryMsgJson) {
-		PostMessage(mainWnd->m_hWnd, MSG_CLOSE_SOCKET, nSocketIndex, NULL);
-		PostMessage(mainWnd->m_hWnd, MSG_CLOSE_THREAD, nThreadIndex, NULL);
-		return 0;
-	}
-
-	CString csMsgType = cJSON_GetObjectItem(pQueryMsgJson, "MsgType")->valuestring;
-	if (csMsgType != "MsgResPieceQuery") {
-		PostMessage(mainWnd->m_hWnd, MSG_CLOSE_SOCKET, nSocketIndex, NULL);
-		PostMessage(mainWnd->m_hWnd, MSG_CLOSE_THREAD, nThreadIndex, NULL);
-		return 0;
-	}
-
-	CString csQueryResMD5 = cJSON_GetObjectItem(pQueryMsgJson, "QueryResMD5")->valuestring;	
-	UINT nQueryPieceId = cJSON_GetObjectItem(pQueryMsgJson, "QueryPieceId")->valueint;
-	cJSON_Delete(pQueryMsgJson);
-
-	// 读取分享列表项，获取请求文件信息
-	// 0：弃用，这里用来存储资源路径；
-	// 1：文件后缀；
-	// 2：文件名；
-	// 3：文件大小
-	// 4：进度条，字串无效，这里用来存储资源标签；
-	// 5：文件MD5
-	// data：进度条进度
-	CString csQueryResPath;
-	CString csQueryResName;
-	UINT nShareResCount = listUpload->GetItemCount();
-	for (UINT i = 0; i < nShareResCount; i++) {
-		CString csResMD5 = listUpload->GetItemText(i, 5);
-		if (csResMD5 == csQueryResMD5) {
-			csQueryResPath = listUpload->GetItemText(i, 0);
-			csQueryResName = listUpload->GetItemText(i, 2);
-			break;
-		}
-	}
-
-	if (i >= nShareResCount) {
-		mainWnd->m_staticStatus.SetWindowText("请求的文件没有找到");
-		PostMessage(mainWnd->m_hWnd, MSG_CLOSE_SOCKET, nSocketIndex, NULL);
-		PostMessage(mainWnd->m_hWnd, MSG_CLOSE_THREAD, nThreadIndex, NULL);
-		return 0;
-	}
-
-	// 打开请求文件，读取文件信息，以及发送的片段数据
-	CFile queryFile(csQueryResPath, CFile::typeBinary | CFile::modeRead | CFile::shareDenyNone);
-	ULONG nQueryResSize = queryFile.GetLength();
-	UINT  nQueryPieceSize = BLUECLICK_RES_PIECE_SIZE;
-	ULONG nResPieceCount = (nQueryResSize % nQueryPieceSize == 0) ? (nQueryResSize/nQueryPieceSize) : (nQueryResSize/nQueryPieceSize) + 1;
-	
-	//如果请求的片段不存在， 则返回
-	if (nQueryPieceId >= nResPieceCount || nQueryPieceId < 0) {
-		mainWnd->m_staticStatus.SetWindowText("请求的文件片段不存在");
-		queryFile.Close();
-		PostMessage(mainWnd->m_hWnd, MSG_CLOSE_SOCKET, nSocketIndex, NULL);
-		PostMessage(mainWnd->m_hWnd, MSG_CLOSE_THREAD, nThreadIndex, NULL);
-		return 0;
-	}
-
-	//如果请求的是最后一个片段
-	if (nQueryPieceId == nResPieceCount - 1) {
-		nQueryPieceSize = nQueryResSize % nQueryPieceSize;
-	}
-
-	//读取请求片段数据
-	char *queryPieceBuf = new  CHAR[BLUECLICK_RES_PIECE_SIZE];
-	memset(queryPieceBuf, 0, BLUECLICK_RES_PIECE_SIZE);
-	UINT nFileOffset = nQueryPieceId*BLUECLICK_RES_PIECE_SIZE;
-	queryFile.Seek(nFileOffset, CFile::SeekPosition::begin);
-	queryFile.Read(queryPieceBuf, nQueryPieceSize);	
-	queryFile.Close();
-
-	//发送片段信息
-	cJSON *pResPiece = cJSON_CreateObject();
-	cJSON_AddStringToObject(pResPiece, "MsgType", "MsgPieceQueryResponse");
-	cJSON_AddNumberToObject(pResPiece, "QueryPieceId", nQueryPieceId);
-	cJSON_AddNumberToObject(pResPiece, "QueryPieceSize", nQueryPieceSize);
-
-	char *cpMsgJson = cJSON_PrintUnformatted(pResPiece);
-	cpMsgBuf = new char[BLUECLICK_MSG_BUF_SIZE];
-	memset(cpMsgBuf, 0, BLUECLICK_MSG_BUF_SIZE);
-	strcpy(cpMsgBuf, cpMsgJson);
-	serviceSocket->Send(cpMsgBuf, BLUECLICK_MSG_BUF_SIZE);
-	free(cpMsgJson);
-	cJSON_Delete(pResPiece);
-	delete cpMsgBuf;
-
-	mainWnd->m_staticStatus.SetWindowText("请求的片段信息已发送");
-
-	//发送请求片段数据
-	UINT nQueryPackCount = ((nQueryPieceSize%1024) == 0) ? (nQueryPieceSize/1024) : (nQueryPieceSize/1024)+1;
-	for (UINT nQueryPackId = 0; nQueryPackId < nQueryPackCount-1; nQueryPackId++) {
-		serviceSocket->Send(queryPieceBuf+nQueryPackId*1024, 1024);
-		
-		//显示发送状态信息
-		//CString csMsg;
-		//csMsg.Format("第%u个包已发送", nQueryPackId+1);
-		//mainWnd->m_staticStatus.SetWindowText(csMsg);
-	}
-	//最后一个包单独发送
-	UINT nQueryPackSize = 1024;
-	nQueryPackSize = ((nQueryPieceSize%1024) == 0) ? 1024 : (nQueryPieceSize % 1024);
-	serviceSocket->Send(queryPieceBuf+nQueryPackId*1024, nQueryPackSize);
-	delete queryPieceBuf;
-
-	PostMessage(mainWnd->m_hWnd, MSG_CLOSE_SOCKET, nSocketIndex, NULL);
-	PostMessage(mainWnd->m_hWnd, MSG_CLOSE_THREAD, nThreadIndex, NULL);
-	return 0;
-}
-
 /*********************************************************
 函数名称：UploadThreadProc
 功能描述：资源上传线程，负责向服务端发送资源分享数据
@@ -1745,7 +1329,7 @@ DWORD _stdcall UploadThreadProc(LPVOID lpParameter) {
 	CBuffreeListCtrl *listUpload = &pDlg->m_dlgUploadList.m_listUpload;
 	UINT nItem = param->m_nUploadItem;
 	UINT nThreadIndex = param->m_nThreadIndex;
-	CDownloadSocket uploadSocket(NULL, 0, "", "", 0, 0);
+	CDownloadSocket uploadSocket;
 	char buf[BLUECLICK_MSG_BUF_SIZE];
 	delete param;
 
@@ -1991,4 +1575,113 @@ void CBlueClickDlg::AnimateWindow(UINT flag)
 	}
 
 	//OnCancel();	
+}
+
+LRESULT CBlueClickDlg::OnFileComplete(WPARAM wParam, LPARAM lParam)
+{
+	CString csTmpFilePath;
+	CBlueClickApp::GetWorkSpacePath(csTmpFilePath);
+	csTmpFilePath += "/temp/";
+
+	//删除临时文件
+	for (int i = 1; i < BLUECLICK_MAX_SYN_COUNT+1; i++) {
+		CString filename;
+		CFileFind filefind;
+		filename.Format("%s%d.tmp",csTmpFilePath, i);
+		
+		if (filefind.FindFile(filename))
+		{
+			TRY
+			{
+				CFile::Remove(filename);
+			}
+			CATCH( CFileException, e )
+			{
+			}
+			END_CATCH
+		}
+	}
+	
+	m_nRecvSize = 0;
+	m_nEllipseTime = 0;
+
+	KillTimer(1);
+	KillTimer(2);
+	m_staticStatus.SetWindowText("下载完成");
+	m_staticSpeed.SetWindowText("");
+	return 0;
+	
+}
+
+void CBlueClickDlg::OnTimer(UINT nIDEvent) 
+{
+	// TODO: Add your message handler code here and/or call default
+	CString strSpeed;
+	CString strTime;
+	CString strRatio;
+	UINT progress;
+	
+	double r=0;
+	switch (nIDEvent)
+	{
+		
+	case 1:
+		progress = m_nRecvSize / (m_nResSize / 100);
+		m_dlgDownloadList.m_listDownload.SetItemData(0, progress);
+		break;
+		
+	case 2:
+		//发送信息（速度、剩余时间）
+		if (m_nSpeedDownload / 1024 < 1024) {
+			strSpeed.Format("下载速度 %d Kb/s",m_nSpeedDownload / 1024);
+		} else {
+			strSpeed.Format("下载速度 %.2f Mb/s",m_nSpeedDownload/(float)(1024*1024));
+		}
+		
+		m_staticSpeed.SetWindowText(strSpeed);
+		
+		//消耗时间自加
+		m_nEllipseTime++;
+		if (m_nEllipseTime < 60) {
+			strTime.Format("费时：%d秒",m_nEllipseTime);	
+		} else {
+			int m = m_nEllipseTime/60;
+			int s = m_nEllipseTime%60;
+			
+			strTime.Format("费时：%d分%d秒", m, s);
+		}
+
+		m_nSpeedDownload = 0;
+		
+		break;
+	}
+	
+	CDialog::OnTimer(nIDEvent);
+}
+
+void CBlueClickDlg::SelectPath(CString &csPath)
+{
+	TCHAR	szFolderPath[MAX_PATH] = {0};  
+	CString strFolderPath = TEXT("");  
+	
+	BROWSEINFO      sInfo;  
+	::ZeroMemory(&sInfo, sizeof(BROWSEINFO));  
+	sInfo.pidlRoot = 0;  
+	sInfo.lpszTitle = _T("请选择一个文件夹：");  
+	sInfo.ulFlags = BIF_DONTGOBELOWDOMAIN | BIF_RETURNONLYFSDIRS  | BIF_EDITBOX;  
+	sInfo.lpfn = NULL;  
+	
+	// 显示文件夹选择对话框  
+	LPITEMIDLIST lpidlBrowse = ::SHBrowseForFolder(&sInfo);   
+	if (lpidlBrowse != NULL) {  
+		// 取得文件夹名  
+		if (::SHGetPathFromIDList(lpidlBrowse,szFolderPath)) {  
+			strFolderPath = szFolderPath;  
+		}  
+	} 
+	if(lpidlBrowse != NULL) {  
+		::CoTaskMemFree(lpidlBrowse);  
+	}  
+	
+	csPath =  strFolderPath;
 }

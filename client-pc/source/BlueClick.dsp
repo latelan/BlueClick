@@ -173,6 +173,10 @@ SOURCE=.\DownloadSocket.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\DownloadThread.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\FileMD5.cpp
 # End Source File
 # Begin Source File
@@ -198,6 +202,10 @@ SOURCE=.\SearchSocket.cpp
 # Begin Source File
 
 SOURCE=.\ServiceSocket.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ServiceThread.cpp
 # End Source File
 # Begin Source File
 
@@ -290,6 +298,10 @@ SOURCE=.\DownloadSocket.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\DownloadThread.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\FileMD5.h
 # End Source File
 # Begin Source File
@@ -319,6 +331,10 @@ SOURCE=.\SearchSocket.h
 # Begin Source File
 
 SOURCE=.\ServiceSocket.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ServiceThread.h
 # End Source File
 # Begin Source File
 

@@ -6,42 +6,6 @@
 --------------------Configuration: BlueClick - Win32 Release--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP1F9.tmp" with contents
-[
-netapi32.lib /nologo /subsystem:windows /incremental:no /pdb:"Release/BlueClick.pdb" /machine:I386 /out:"Release/BlueClick.exe" 
-.\Release\AnimateButton.obj
-.\Release\BlueClick.obj
-.\Release\BlueClickDlg.obj
-.\Release\BuffreeEdit.obj
-.\Release\BuffreeHeaderCtrl.obj
-.\Release\BuffreeListCtrl.obj
-.\Release\BuffreeMessageBox.obj
-.\Release\BuffreeTreeCtrl.obj
-.\Release\Converter.obj
-.\Release\DlgDownloadList.obj
-.\Release\DlgNewShare.obj
-.\Release\DlgResourceList.obj
-.\Release\DlgServerSetting.obj
-.\Release\DlgSplash.obj
-.\Release\DlgSuspension.obj
-.\Release\DlgSystemSetting.obj
-.\Release\DlgThemeSelecter.obj
-.\Release\DlgUploadList.obj
-.\Release\DownloadSocket.obj
-.\Release\FileMD5.obj
-.\Release\Json.obj
-.\Release\ListenSocket.obj
-.\Release\OnlineSocket.obj
-.\Release\QuerySocket.obj
-.\Release\SearchSocket.obj
-.\Release\ServiceSocket.obj
-.\Release\StdAfx.obj
-.\Release\TransStatic.obj
-.\Release\BlueClick.res
-]
-Creating command line "link.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP1F9.tmp"
-<h3>Output Window</h3>
-Linking...
 
 
 

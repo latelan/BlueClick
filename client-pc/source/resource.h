@@ -21,6 +21,7 @@
 #define MSG_CLOSE_DOWNLOAD_SOCKET       115
 #define MSG_CLOSE_THREAD                116
 #define MSG_CLOSE_SOCKET                117
+#define WM_FILECOMPLETE                 118
 #define IDR_MAINFRAME                   128
 #define IDR_MENU_DOWNLOAD               129
 #define IDR_MENU_RESOURCE               130
@@ -77,6 +78,6 @@
 #define _APS_NEXT_RESOURCE_VALUE        139
 #define _APS_NEXT_COMMAND_VALUE         32782
 #define _APS_NEXT_CONTROL_VALUE         1033
-#define _APS_NEXT_SYMED_VALUE           118
+#define _APS_NEXT_SYMED_VALUE           119
 #endif
 #endif
