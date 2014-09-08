@@ -3,7 +3,7 @@ Server
 在开发过程中，此处放Server端代码。
 
 目录结构  
-> include/ - 存放头文件  
+ include/ - 存放头文件  
 >   cJSON.h  
 >   client_info.h  
 >   common.h  常用数据结构  
@@ -14,7 +14,7 @@ Server
 >   online_client.h  
 >   tools.h  
 
->src/ - 源文件  
+src/ - 源文件  
 >   cJSON.cpp  json数据解析  
 >   client_info.cpp  客户端信息管理   
 >   dbconnect.cpp  数据库相关操作  
