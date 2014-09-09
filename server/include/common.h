@@ -13,6 +13,7 @@
 #define MSG_HEARTBEAT		"MsgHeartbeat"
 #define MSG_ONLINE			"MsgOnline"
 #define MSG_SHARE_RES		"MsgShareRes"
+#define MSG_QUIT			"MsgQuit"
 
 #define TAG_SEPERATOR		"#"
 

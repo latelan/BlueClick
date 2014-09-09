@@ -114,9 +114,9 @@ int msg_tcp_handler(int sockfd,struct online_list *clientlist)
 	cJSON *msg = cJSON_Parse(buf);
 	
 	/* debug */
-	//char *out = cJSON_Print(msg);
-	//printf("recv buf: %s\n",out);
-	//free(out);
+	char *out = cJSON_Print(msg);
+	printf("recv buf: %s\n",out);
+	free(out);
 
 	if(!msg) {
 		return -1;
@@ -222,7 +222,15 @@ int msg_tcp_handler(int sockfd,struct online_list *clientlist)
 
 		send(sockfd,text,strlen(text)+1, 0);
 	}
+	else if(strcmp(MSG_QUIT,msgtype) == 0) { /* quit */
+		printf("MsgType: MSG_QUIT\n");
+		char *clientip;
+		clientip = cJSON_GetObjectItem(msg,"ClientIP")->valuestring;
+		printf("quit ip: %s\n",clientip);
+		del_from_online_list(clist,clientip);
 
+		print_clist(clist);		
+	}
 	free(msg);
 
 	return 0;

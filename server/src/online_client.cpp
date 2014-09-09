@@ -20,6 +20,8 @@ struct online_list *create_online_list()
 	headnode->next = NULL;
 
 	onlinelist = new struct online_list;
+	memset(headnode->mac,'\0',32);
+	memset(headnode->ip,'\0',32);
 	onlinelist->clientnum = 0;
 	onlinelist->totalclient = 0;
 	onlinelist->onlist = headnode;
@@ -68,7 +70,7 @@ int add_to_online_list(struct online_list *clientlist, struct client_info *newcl
 }
 
 /* delete a client from online_list */
-int del_from_online_list(struct online_list *clientlist, char *mac)
+int del_from_online_list(struct online_list *clientlist, char *ip)
 {
 	if(!clientlist) {
 		return -1;
@@ -79,7 +81,7 @@ int del_from_online_list(struct online_list *clientlist, char *mac)
 
 	while(p->next) {
 		p = p->next;
-		if(strcmp(mac,p->mac) == 0) {
+		if(strcmp(ip,p->ip) == 0) {
 			p->online = FLAG_OFFLINE;
 
 			break;

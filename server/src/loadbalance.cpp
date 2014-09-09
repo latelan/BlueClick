@@ -42,6 +42,8 @@ void loadbalance_on_server(struct online_list *clist,
 			get_client_by_mac(clist,mac_list[i],&client);
 			strcpy(peers[*len].ip,client.ip);
 			peers[*len].port = client.listenport;
+			peers[*len].availablepieces = 0;
+			peers[*len].availableconnections = 0;
 			*len += 1;
 		}
 	}

@@ -16,7 +16,7 @@ struct online_list *create_online_list();
 int add_to_online_list(struct online_list *clientlist, struct client_info *newclient);
 
 /* delete a client from online list */
-int del_from_online_list(struct online_list *clientlist, char *mac);
+int del_from_online_list(struct online_list *clientlist, char *ip);
 
 /* test mac of client whether online */
 int is_in_online_list(struct online_list *clientlist, char *mac);
