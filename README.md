@@ -42,7 +42,7 @@ BlueClick
 
   3.编译及安装
   
-  ####Linux服务端：
+  Linux服务端：
   
   > 编译：登录linux服务器，进入服务端源码所在路径（如'/home/xxx/BlueClick/server/'），使用make命令进行编译。相关命令如下：
   >> cd /home/xxx/BlueClick/server/ && make
