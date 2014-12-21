@@ -65,7 +65,7 @@ BlueClick
   
   Linux服务端：
       
-  > 使用项目附带的sql脚本（server/docs/data.sql），导入项目Mysql数据库。
+  > 使用项目附带的sql脚本（server/db_blueclick.sql），导入项目Mysql数据库。
     
   Windows客户端：
     
