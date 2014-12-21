@@ -1,0 +1,5 @@
+1.编译服务端程序遇到 mysql.h 找不到
+
+-------
+
+sudo apt-get install libmysql++-dev 即可

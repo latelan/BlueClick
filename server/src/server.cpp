@@ -14,6 +14,7 @@
 #include "common.h"
 #include "online_client.h"
 #include "msghandler.h"
+#include "datetime.h"
 
 #define MAX_EVENT_NUMBER 1024
 #define MAX_CLIENT_NUMBER 200
@@ -48,6 +49,35 @@ void addfd( int epollfd, int fd )
 	setnonblocking( fd );
 }
 
+void logmaker(const char *string)
+{
+	FILE *fp;
+	time_t now;
+	struct tm *nowtime;
+	char strtime[20];
+	char *path = NULL;
+	char log[1024];
+
+	now = time(NULL);
+	nowtime = localtime(&now);
+	sprintf(strtime,"%04d-%02d-%02d.log",nowtime->tm_year+1900,nowtime->tm_mon+1,nowtime->tm_mday);
+	path = (char *)malloc(sizeof(char)*(strlen(LOG_PATH)+strlen(strtime)+1));
+	sprintf(path,"%s%s",LOG_PATH,strtime);
+
+	fp = fopen(path,"a+");
+	if(!fp)
+	{
+		printf("Error: cannot open the log file.\n");
+		return;
+	}
+
+	fprintf(fp,"%s %s\n",get_curr_time(),string);
+
+	fclose(fp);
+
+	return;
+}
+
 int main( int argc, char* argv[] )
 {
 	if( argc <= 2 )
@@ -55,6 +85,9 @@ int main( int argc, char* argv[] )
 		printf( "usage: %s ip_address port_number\n", basename( argv[0] ) );
 		return 1;
 	}
+
+	printf("Server is starting...\n");
+
 	const char* ip = argv[1];
 	int port = atoi( argv[2] );
 
@@ -101,7 +134,8 @@ int main( int argc, char* argv[] )
 	/* set signal alarm */
 	signal(SIGINT,handler_sigint);
 //	raise(SIGALRM);
-
+	
+	logmaker("Server is running...");
 	while( !stop) 	{
 		int number = epoll_wait( epollfd, events, MAX_EVENT_NUMBER, -1 );
 		if ( number < 0 ) {

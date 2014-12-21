@@ -9,13 +9,13 @@
 #include "common.h"
 #include "/usr/include/mysql/mysql.h"
 
-#define HOST "localhost"
-#define USER "blueclick"
-#define PASSWORD "blueclick.com"
-#define DATABASE "db_blueclick"
-#define TBL_RESOURCE "tbl_resource"
-#define TBL_RESOURCE_OWNER "tbl_resource_owner"
-#define TBL_RESOURCE_TAGS "tbl_resource_tags"
+#define HOST				"localhost"
+#define USER				"blueclick"
+#define PASSWORD			"blueclick.com"
+#define DATABASE			"db_blueclick"
+#define TBL_RESOURCE		"tbl_resource"
+#define TBL_RESOURCE_OWNER	"tbl_resource_owner"
+#define TBL_RESOURCE_TAGS	"tbl_resource_tags"
 
 MYSQL *open();
 int add_share_resource(const struct resource_share *res);

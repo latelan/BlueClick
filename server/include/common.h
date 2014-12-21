@@ -22,6 +22,8 @@
 #define FLAG_ONLINE 1
 #define FLAG_OFFLINE 0
 
+#define LOG_PATH "./log/"
+
 /* online clients info */
 struct client_info {
 	char mac[32];

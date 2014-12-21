@@ -144,7 +144,7 @@ int msg_tcp_handler(int sockfd,struct online_list *clientlist)
 		strcpy(query.key, cJSON_GetObjectItem(msg,"QueryKey")->valuestring);
 		
 		/* debug */
-		//printf("QueryKey: %s\n",query.key);
+		printf("QueryKey: %s\n",query.key);
 
 		/* query database */
 		struct resource_type res[10];
@@ -163,7 +163,7 @@ int msg_tcp_handler(int sockfd,struct online_list *clientlist)
 	}
 	else if (strcmp(MSG_GET_PUSH,msgtype) == 0) { /* get push */
 		/* debug */
-		//printf("MsgType: MSG_GET_PUSH\n");
+		printf("MsgType: MSG_GET_PUSH\n");
 		
 		/* get want number */
 		int numwanted = cJSON_GetObjectItem(msg,"NumWanted")->valueint;
@@ -178,7 +178,7 @@ int msg_tcp_handler(int sockfd,struct online_list *clientlist)
 		text = res_list_to_json(share_res,len); /* convert res list to json */
 
 		/* debug */
-		//printf("send: %s\n",text);
+		printf("send: %s\n",text);
 
 		/* response query msg */
 		send(sockfd,text,strlen(text)+1, 0);
@@ -195,13 +195,13 @@ int msg_tcp_handler(int sockfd,struct online_list *clientlist)
 		add_share_resource(&share_res); /* add share resource into db */  
 		
 		/* debug */
-		//printf("Resource: Name:%s, Tag:%s, Size:%s, MD5:%s, Owner:%s, PieceCount:%d\n",
-		//		share_res.name,share_res.tag,share_res.size,share_res.md5,
-		//		share_res.mac,share_res.piececount);
+		printf("Resource: Name:%s, Tag:%s, Size:%s, MD5:%s, Owner:%s, PieceCount:%d\n",
+				share_res.name,share_res.tag,share_res.size,share_res.md5,
+				share_res.mac,share_res.piececount);
 	}
 	else if (strcmp(MSG_DOWNLOAD_RES,msgtype) == 0) { /* download resource */
 		/* debug */
-		//printf("MsgType: MSG_DOWNLOAD_RES\n");
+		printf("MsgType: MSG_DOWNLOAD_RES\n");
 
 		struct download_req msgreq;
 		struct peer_info peers[20];
@@ -210,7 +210,7 @@ int msg_tcp_handler(int sockfd,struct online_list *clientlist)
 		json_to_download_req(buf,&msgreq); /*convert json to download_req */
 	
 		/* debug */
-		//printf("download_req: ip:%s, md5:%s, numwant:%d, event:%s\n",msgreq.clientip,msgreq.md5,msgreq.numwant,msgreq.event);
+		printf("download_req: ip:%s, md5:%s, numwant:%d, event:%s\n",msgreq.clientip,msgreq.md5,msgreq.numwant,msgreq.event);
 
 	
 		loadbalance_on_server(clist,&msgreq,peers,&len); /* algorithm loadbalance on server */		
