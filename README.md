@@ -3,6 +3,10 @@ BlueClick
 
 蓝点局域网文件共享平台。
 
+![客户端截图](http://www.404befound.com/upload/image/8deb15c4c31d8376ad366acf3fa275f2.png)
+
+#####windows客户端截
+
 ==========================
 ### 项目简介
 
@@ -168,7 +172,3 @@ BlueClick
       "Path" : "资源所在路径"
   
     };
-
-  
-
-
